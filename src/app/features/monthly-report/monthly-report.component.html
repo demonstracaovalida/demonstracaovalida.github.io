@@ -1,0 +1,111 @@
+<main class="monthly-report" aria-label="Resultado Mensal">
+  <header class="monthly-header">
+    <h1>
+      Resultado Mensal - entre
+      {{ formatDate(filters.startDate ?? '2026-08-01') }} e
+      {{ formatDate(filters.endDate ?? '2026-08-31') }}
+    </h1>
+    <div class="monthly-company">
+      {{ currentCompany()?.cnpj }} - {{ currentCompany()?.legalName }}
+    </div>
+  </header>
+
+  <div class="monthly-toolbar" aria-label="Ações do resultado mensal">
+    <div class="export-actions">
+      <button type="button" class="toolbar-button">PDF</button>
+      <button type="button" class="toolbar-button">Excel</button>
+    </div>
+    <button type="button" class="toolbar-button exit-button" (click)="exitReport()">Sair</button>
+  </div>
+
+  <div class="monthly-table-scroll">
+    <table class="monthly-table" aria-label="Resultado mensal por produto e serviço">
+      <colgroup>
+        <col class="product-column" />
+        <col class="service-column" />
+        <col class="gross-column" />
+        <col class="fee-column" />
+        <col class="adjustment-column" />
+        <col class="action-column" />
+        <col class="cancellation-column" />
+        <col class="action-column" />
+        <col class="received-column" />
+        <col class="rates-column" />
+        <col class="downloaded-column" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Produto</th>
+          <th>Serviço</th>
+          <th>Total Vendido</th>
+          <th>Valor Taxa</th>
+          <th>Ajustes/Tarifas</th>
+          <th aria-label="Detalhes de ajustes"></th>
+          <th>Cancelamentos</th>
+          <th aria-label="Detalhes de cancelamentos"></th>
+          <th>Total Recebido</th>
+          <th>Taxas</th>
+          <th>Baixado</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (rows().length === 0) {
+          <tr>
+            <td colspan="11" class="empty-monthly">Nenhum resultado para os filtros informados.</td>
+          </tr>
+        }
+
+        @for (row of rows(); track row.key) {
+          <tr class="monthly-row" [attr.data-row-key]="row.key">
+            <td class="product-cell">
+              <span>{{ row.productCode }} - {{ row.brand }}</span>
+              <strong>{{ row.acquirer }}</strong>
+            </td>
+            <td class="service-cell">
+              <span>{{ row.service }}</span>
+              <span>{{ row.financing }}</span>
+            </td>
+            <td class="money-cell">{{ formatCurrency(row.grossAmountCents) }}</td>
+            <td class="money-cell">{{ formatDiscount(row.feeAmountCents) }}</td>
+            <td class="money-cell">{{ formatCurrency(row.adjustmentsAndFeesCents) }}</td>
+            <td class="action-cell"><span class="detail-plus" aria-hidden="true">+</span></td>
+            <td class="money-cell">{{ formatCurrency(row.cancellationAmountCents) }}</td>
+            <td class="action-cell"><span class="detail-plus" aria-hidden="true">+</span></td>
+            <td class="money-cell">{{ formatCurrency(row.receivedAmountCents) }}</td>
+            <td class="rates-cell">
+              <div><strong>Configurada:</strong> {{ formatRateBasisPoints(row.configuredRateBasisPoints) }}</div>
+              <div><strong>Adquirente:</strong> {{ formatRateBasisPoints(row.acquirerRateBasisPoints) }}</div>
+              <div>
+                <strong>Final (Inclui Ajustes):</strong>
+                {{ formatRatePercent(row.finalRatePercent) }}
+              </div>
+            </td>
+            <td class="downloaded-cell" [class.downloaded-complete]="row.downloadedPercent === 100">
+              {{ row.downloadedPercent }},00 %
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <section class="monthly-totals" aria-label="Total Geral">
+    <h2>Total Geral</h2>
+    <dl>
+      <div><dt>Total de Parcelas Recebidas no Período</dt><dd>{{ formatCurrency(reportTotals().grossAmountCents) }}</dd></div>
+      <div><dt>Total Líquido Recebido no Período</dt><dd>{{ formatCurrency(reportTotals().netAmountCents) }}</dd></div>
+      <div><dt>Total Taxas Descontadas no Período</dt><dd>{{ formatDiscount(reportTotals().feeAmountCents) }}</dd></div>
+      <div><dt>Total Cancelamentos Descontados no Período</dt><dd>{{ formatCurrency(0) }}</dd></div>
+      <div><dt>Total Ajustes/Tarifas do Período</dt><dd>{{ formatCurrency(0) }}</dd></div>
+      <div><dt>Taxa Média do Período</dt><dd>{{ formatRatePercent(totalAverageRatePercent()) }}</dd></div>
+    </dl>
+  </section>
+
+  <div class="monthly-pagination" aria-label="Paginação">
+    @if (rows().length > 0) {
+      [1 a {{ rows().length }} de {{ rows().length }}]
+    } @else {
+      [0 a 0 de 0]
+    }
+  </div>
+</main>

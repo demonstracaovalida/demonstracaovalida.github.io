@@ -158,4 +158,40 @@ describe('HomeComponent', () => {
     expect(parsedUrl.searchParams.get('brand')).toBe('Ticket');
     expect(target).toBe('_blank');
   });
+
+  it('opens the monthly report with the selected filters in a new tab', () => {
+    const fixture = TestBed.createComponent(HomeComponent);
+    fixture.detectChanges();
+    const openSpy = vi.spyOn(window, 'open').mockReturnValue(null);
+    const component = fixture.componentInstance as unknown as {
+      acquirer: string;
+      brand: string;
+      detailLevel: string;
+      endDate: string;
+      generate: () => void;
+      reportType: string;
+      startDate: string;
+    };
+    component.reportType = 'monthly';
+    component.detailLevel = 'summary';
+    component.startDate = '2026-08-05';
+    component.endDate = '2026-08-27';
+    component.acquirer = 'Cielo';
+    component.brand = 'Elo';
+
+    component.generate();
+
+    expect(openSpy).toHaveBeenCalledTimes(1);
+    const [reportUrl, target] = openSpy.mock.calls[0];
+    const parsedUrl = new URL(String(reportUrl), 'http://localhost');
+    expect(parsedUrl.pathname).toBe('/resultado-mensal');
+    expect(parsedUrl.searchParams.get('reportType')).toBe('monthly');
+    expect(parsedUrl.searchParams.get('detailLevel')).toBe('summary');
+    expect(parsedUrl.searchParams.get('startDate')).toBe('2026-08-05');
+    expect(parsedUrl.searchParams.get('endDate')).toBe('2026-08-27');
+    expect(parsedUrl.searchParams.get('dateBasis')).toBe('sale');
+    expect(parsedUrl.searchParams.get('acquirer')).toBe('Cielo');
+    expect(parsedUrl.searchParams.get('brand')).toBe('Elo');
+    expect(target).toBe('_blank');
+  });
 });

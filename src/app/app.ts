@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FeesReportComponent } from './features/fees-report/fees-report.component';
+import { MonthlyReportComponent } from './features/monthly-report/monthly-report.component';
 import { SalesReportComponent } from './features/sales-report/sales-report.component';
 import { TopNavbarComponent } from './layout/top-navbar/top-navbar.component';
 
@@ -15,7 +16,9 @@ export class App {
 
   protected routeActivated(component: unknown): void {
     this.navbarVisible = !(
-      component instanceof SalesReportComponent || component instanceof FeesReportComponent
+      component instanceof SalesReportComponent ||
+      component instanceof FeesReportComponent ||
+      component instanceof MonthlyReportComponent
     );
   }
 }
