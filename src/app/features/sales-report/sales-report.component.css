@@ -1,0 +1,245 @@
+:host {
+  display: block;
+}
+
+.sales-report {
+  width: 100%;
+  min-width: 0;
+  color: #363636;
+  background: #fff;
+  font: 11px Arial, Helvetica, sans-serif;
+}
+
+.report-header {
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 8px 5px;
+  border-bottom: 1px solid #c9c9c9;
+}
+
+.report-header h1 {
+  margin: 0;
+  color: #287ba4;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.report-company {
+  margin-left: auto;
+  color: #307aa1;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.report-toolbar {
+  min-height: 38px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 3px 8px;
+  border-bottom: 1px solid #c9c9c9;
+  background: #f8f8f8;
+}
+
+.export-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.toolbar-button {
+  min-height: 27px;
+  padding: 3px 10px;
+  border: 1px solid #1a6f9d;
+  border-radius: 2px;
+  color: #fff;
+  background: #287da8;
+  font: 11px Arial, Helvetica, sans-serif;
+  cursor: pointer;
+}
+
+.toolbar-button:hover,
+.toolbar-button.pending-active {
+  background: #176a95;
+}
+
+.report-table-scroll,
+.detail-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.group-table,
+.detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.group-table {
+  min-width: 1060px;
+}
+
+.group-table th,
+.group-table td,
+.detail-table th,
+.detail-table td {
+  height: 29px;
+  padding: 4px 7px;
+  border-right: 1px solid #d1d1d1;
+  border-bottom: 1px solid #d1d1d1;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.group-table th,
+.detail-table th {
+  height: 31px;
+  color: #fff;
+  background: #287aa4;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.group-table tbody .group-row {
+  background: #fff;
+}
+
+.group-table tbody .group-row:nth-of-type(even) {
+  background: #f6f6f6;
+}
+
+.expand-column { width: 2%; }
+.network-column { width: 8%; }
+.brand-column { width: 15%; }
+.service-column { width: 9%; }
+.financing-column { width: 14%; }
+.rate-column { width: 7%; }
+.rate-applied-column { width: 12%; }
+.gross-column { width: 15%; }
+.pending-column,
+.validated-column { width: 9%; }
+
+.expand-cell {
+  padding: 2px !important;
+  text-align: center !important;
+}
+
+.expand-button {
+  width: 15px;
+  height: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid #777;
+  border-radius: 50%;
+  color: #343434;
+  background: #fff;
+  font: 12px/12px Arial, Helvetica, sans-serif;
+  cursor: pointer;
+}
+
+.rate-cell,
+.percent-cell,
+.center-cell {
+  text-align: center !important;
+}
+
+.amount-cell {
+  text-align: right !important;
+}
+
+.pending-text {
+  color: #e12c2c;
+}
+
+.validated-text {
+  color: #268b42;
+}
+
+.sale-status {
+  color: #0000c8;
+}
+
+.date-band td {
+  height: 35px;
+  padding-left: 18px;
+  background: #e6e6e6;
+  font-weight: 700;
+}
+
+.detail-row > td {
+  height: auto;
+  padding: 0 3px 3px;
+  background: #dce8f9;
+}
+
+.detail-table {
+  min-width: 1320px;
+  background: #fff;
+}
+
+.detail-table th {
+  height: 29px;
+  padding-inline: 6px;
+}
+
+.detail-table td {
+  height: 27px;
+  padding-inline: 6px;
+}
+
+.detail-date-column { width: 8%; }
+.detail-service-column { width: 6%; }
+.detail-financing-column { width: 8%; }
+.detail-nsu-column { width: 5%; }
+.detail-auth-column { width: 7%; }
+.detail-installment-column { width: 4%; }
+.detail-number-column { width: 6%; }
+.detail-value-column { width: 8%; }
+.detail-fee-column { width: 9%; }
+.detail-rate-column { width: 5%; }
+.detail-status-column { width: 9%; }
+
+.day-total td,
+.general-total td {
+  height: 28px;
+  background: #f4f0d4;
+  font-weight: 700;
+}
+
+.general-total td {
+  height: 29px;
+  border-top: 1px solid #d1d1d1;
+}
+
+.empty-report {
+  height: 54px !important;
+  text-align: center !important;
+}
+
+.report-pagination {
+  min-height: 24px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 2px 9px;
+  color: #666;
+  font-size: 10px;
+}
+
+@media (max-width: 700px) {
+  .report-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .report-company {
+    margin-left: 0;
+  }
+}

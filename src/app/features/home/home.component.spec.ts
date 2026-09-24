@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { afterEach, vi } from 'vitest';
 import { calculateTotals, filterSales } from '../../core/demo-data/demo-calculations';
 import { DemoStateService } from '../../core/demo-data/demo-state.service';
 import { HomeComponent } from './home.component';
@@ -11,6 +12,8 @@ function formatCurrency(amountCents: number): string {
 }
 
 describe('HomeComponent', () => {
+  afterEach(() => vi.restoreAllMocks());
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({ imports: [HomeComponent] }).compileComponents();
   });
@@ -53,12 +56,13 @@ describe('HomeComponent', () => {
     expect(chart?.hasAttribute('width')).toBe(false);
   });
 
-  it('keeps the monthly dashboard totals unchanged while saving filters for the report flow', () => {
+  it('opens a sales report in a new tab with its filters and keeps dashboard totals unchanged', () => {
     const fixture = TestBed.createComponent(HomeComponent);
     fixture.detectChanges();
 
     const state = TestBed.inject(DemoStateService).state();
     const expected = calculateTotals(state.data);
+    const openSpy = vi.spyOn(window, 'open').mockReturnValue(null);
     const brand = 'Visa Electron';
     const component = fixture.componentInstance as unknown as {
       acquirer: string;
@@ -88,6 +92,18 @@ describe('HomeComponent', () => {
       acquirer: undefined,
       brand,
     });
+    expect(openSpy).toHaveBeenCalledTimes(1);
+    const [reportUrl, target] = openSpy.mock.calls[0];
+    const parsedUrl = new URL(String(reportUrl), 'http://localhost');
+    expect(parsedUrl.pathname).toBe('/relatorio-vendas');
+    expect(parsedUrl.searchParams.get('reportType')).toBe('sales');
+    expect(parsedUrl.searchParams.get('detailLevel')).toBe('detail');
+    expect(parsedUrl.searchParams.get('startDate')).toBe('2026-08-01');
+    expect(parsedUrl.searchParams.get('endDate')).toBe('2026-08-31');
+    expect(parsedUrl.searchParams.get('dateBasis')).toBe('sale');
+    expect(parsedUrl.searchParams.get('acquirer')).toBe('all');
+    expect(parsedUrl.searchParams.get('brand')).toBe(brand);
+    expect(target).toBe('_blank');
 
     const rendered = fixture.nativeElement as HTMLElement;
     const dailyGross = new Map<string, number>();

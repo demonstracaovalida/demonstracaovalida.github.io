@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { App } from './app';
 import { routes } from './app.routes';
 
@@ -30,5 +30,21 @@ describe('App', () => {
     expect(compiled.textContent).not.toContain('Cadastros');
     expect(compiled.textContent).not.toContain('Manutenção');
     expect(compiled.textContent).not.toContain('Sair');
+  });
+
+  it('hides the shared navbar while the sales report is active', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    await TestBed.inject(Router).navigateByUrl(
+      '/relatorio-vendas?startDate=2026-08-01&endDate=2026-08-01',
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-sales-report')).toBeTruthy();
+    expect((compiled.querySelector('app-top-navbar') as HTMLElement).hidden).toBe(true);
   });
 });

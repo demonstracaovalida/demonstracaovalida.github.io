@@ -1,4 +1,7 @@
-<app-top-navbar></app-top-navbar>
+<app-top-navbar
+  [hidden]="!navbarVisible"
+  [class.navbar-hidden]="!navbarVisible"
+></app-top-navbar>
 <main class="application-main">
-  <router-outlet></router-outlet>
+  <router-outlet (activate)="routeActivated($event)"></router-outlet>
 </main>

@@ -163,7 +163,7 @@ export class HomeComponent {
   }
 
   protected generate(): void {
-    this.submittedFilters.set({
+    const filters: DemoFilters = {
       reportType: this.reportType || undefined,
       detailLevel: this.detailLevel,
       startDate: this.startDate as IsoDate,
@@ -171,7 +171,21 @@ export class HomeComponent {
       dateBasis: 'sale',
       acquirer: this.acquirer === 'all' ? undefined : this.acquirer,
       brand: this.brand === 'all' ? undefined : (this.brand as PaymentBrand),
-    });
+    };
+    this.submittedFilters.set(filters);
+
+    if (filters.reportType === 'sales') {
+      const query = new URLSearchParams({
+        reportType: 'sales',
+        detailLevel: filters.detailLevel ?? 'summary',
+        startDate: filters.startDate ?? '2026-08-01',
+        endDate: filters.endDate ?? '2026-08-31',
+        dateBasis: filters.dateBasis ?? 'sale',
+        acquirer: this.acquirer,
+        brand: this.brand,
+      });
+      window.open(`/relatorio-vendas?${query.toString()}`, '_blank');
+    }
   }
 
   private niceAxisStep(peakCents: number): number {

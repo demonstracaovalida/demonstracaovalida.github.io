@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { SalesReportComponent } from './features/sales-report/sales-report.component';
 import { TopNavbarComponent } from './layout/top-navbar/top-navbar.component';
 
 @Component({
@@ -9,4 +10,9 @@ import { TopNavbarComponent } from './layout/top-navbar/top-navbar.component';
   templateUrl: './app.html',
 })
 export class App {
+  protected navbarVisible = true;
+
+  protected routeActivated(component: unknown): void {
+    this.navbarVisible = !(component instanceof SalesReportComponent);
+  }
 }

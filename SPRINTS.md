@@ -88,21 +88,37 @@ Tela Inicial fiel, dados reais da massa, filtros funcionais, testes e build pass
 - `img/relatorioVendas/intrucao.md`
 
 ## Fazer
+- Implementar o Relatório de Vendas usando a massa e cálculos centrais.
+- Na Tela Inicial, ao selecionar `Relatório de Vendas` e clicar `Gerar`, abrir o relatório em uma **nova aba/janela**. A Tela Inicial deve permanecer aberta.
+- Transportar os filtros pela URL/query params, sem `localStorage`, `sessionStorage` ou backend. F5 na aba do relatório deve reconstruir os mesmos dados/filtros.
 - Reproduzir `statusconciliacaodevendas.png`.
-- Usar massa e filtros da Tela Inicial.
-- Remover coluna `Não Lançado`.
-- Total Vendido calculado.
-- Fazer `+` expandir/recolher o grupo.
-- Estado expandido deve reproduzir `detalhamentoVendas.png`.
-- Detalhamento deve usar as vendas reais daquele grupo, não mocks independentes.
-- Status Venda Confirmado; Recebimento Pendente quando aplicável; depósito D+1; A Vista.
-- Filtros devem recalcular linhas, grupos, total e detalhamento.
+- Remover a coluna `Não Lançado`.
+- Calcular agrupamentos e `Total Vendido` a partir dos dados filtrados.
+- O botão `+` deve expandir/recolher o grupo na própria página do relatório.
+- O estado expandido deve reproduzir `detalhamentoVendas.png`.
+- O detalhamento deve usar exatamente as vendas que compõem aquele agrupamento; sua soma deve bater com o total do grupo.
+- Respeitar Status Venda `Confirmado`, Status Recebimento `Pendente` quando aplicável, D+1, `A Vista` e demais regras do `AGENTS.md`.
+- Filtros devem recalcular linhas, agrupamentos, totais e detalhamento.
 
-## Revisão visual obrigatória
-Comparar estado fechado e expandido com os dois PNGs.
+## Visual
+Os PNGs definem estrutura, proporções, cores, tipografia e espaçamentos, **não a resolução da aplicação**. Não usar as dimensões do PNG como tamanho fixo e não aplicar `width: 100%` indiscriminadamente. Manter o layout proporcional em diferentes resoluções desktop.
+
+Comparar visualmente:
+- relatório fechado → `statusconciliacaodevendas.png`;
+- relatório expandido → `detalhamentoVendas.png`.
+
+## Não fazer
+Não implementar Taxas, Resultado Mensal, Filiais ou Nova Conciliação. Não alterar desnecessariamente a Tela Inicial/navbar aprovadas.
 
 ## Aceite
-Fluxo pela Tela Inicial, dados coerentes, expansão funcional, visual fiel, filtros, testes e build passando.
+- `Gerar` abre nova aba e mantém a Tela Inicial aberta;
+- filtros chegam corretamente e sobrevivem ao F5;
+- dados/totais vêm da massa central;
+- expansão `+` funciona e soma corretamente;
+- estados fechado e expandido fiéis aos PNGs;
+- testes, `npm run build` e `git diff --check` passam.
+
+Parar após concluir. NÃO avançar para a Sprint 4.
 
 ---
 
@@ -309,7 +325,6 @@ Fidelidade visual alta + comportamento do `AGENTS.md` + massa coerente + cálcul
 
 Use este formato:
 
-> Leia integralmente `AGENTS.md` e `SPRINTS.md`. Execute SOMENTE a Sprint X do `SPRINTS.md`. Inspecione os PNGs e `instrucao.md` relacionados antes de alterar o código. Não antecipe outras sprints. Ao terminar, execute os testes relevantes e `npm run build`, corrija erros e pare para minha validação.
 
 # Prompt para pedir correção sem avançar
 
