@@ -1,0 +1,98 @@
+<section class="home-screen" aria-label="Tela inicial">
+  <div class="tabs-zone">
+    <div class="tabs-track">
+      <div class="screen-tab active" aria-current="page">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 1h12v14H2zM4 4h2v2H4zm4 0h4M4 8h2v2H4zm4 0h4m-8 3h2v2H4zm4 0h4" /></svg>
+        <span>Relatórios</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="summary-strip" aria-label="Resumo de agosto de 2026">
+    <article class="summary-panel">
+      <h1>O Que Eu Vendi</h1>
+      <p><strong>08/2026:</strong> {{ formatCurrency(totals().grossAmountCents) }}</p>
+      <div class="summary-value sold-value">{{ formatCurrency(totals().grossAmountCents) }}</div>
+    </article>
+    <article class="summary-panel">
+      <h1>O Que Eu Recebi</h1>
+      <p><strong>08/2026:</strong> {{ formatCurrency(totals().receivedAmountCents) }}</p>
+      <div class="summary-value received-value">{{ formatCurrency(totals().receivedAmountCents) }}</div>
+    </article>
+    <article class="summary-panel">
+      <h1>O Que Eu Paguei</h1>
+      <p><strong>08/2026:</strong> {{ formatCurrency(totals().feeAmountCents) }}</p>
+      <div class="summary-value paid-value">{{ formatCurrency(totals().feeAmountCents) }}</div>
+    </article>
+  </section>
+
+  <section class="chart-frame" aria-label="Vendas por data">
+    <svg #salesChart class="sales-chart" role="img" aria-label="Gráfico de vendas diárias em agosto de 2026">
+      <rect x="0" y="0" width="100%" height="100%" fill="#fff" />
+      @for (tick of chart().ticks; track tick.y) {
+        <line x1="115" [attr.y1]="tick.y" [attr.x2]="chart().plotRight" [attr.y2]="tick.y" stroke="#d9d9d9" stroke-width="1" />
+        <text x="105" [attr.y]="tick.y + 4" text-anchor="end" class="axis-label">{{ tick.label }}</text>
+      }
+      <text x="32" y="93" transform="rotate(-90 32 93)" text-anchor="middle" class="axis-title">Valor Venda (Soma)</text>
+      @for (bar of chart().bars; track bar.date) {
+        <rect [attr.x]="bar.x" [attr.y]="bar.y" [attr.width]="bar.width" [attr.height]="bar.height" [attr.fill]="bar.color">
+          <title>{{ bar.dayLabel }}/2026 — {{ formatCurrency(bar.amountCents) }}</title>
+        </rect>
+        <text [attr.x]="bar.centerX" y="196" text-anchor="middle" class="date-label">{{ bar.dayLabel }}</text>
+      }
+      <text x="52%" y="238" text-anchor="middle" class="axis-title">Data Venda</text>
+    </svg>
+  </section>
+
+  <form class="report-filters" (ngSubmit)="generate()">
+    <div class="filter-fields">
+      <div class="report-type-field">
+        <label for="report-type">Tipo de Relatório:</label>
+        <select id="report-type" name="reportType" [(ngModel)]="reportType">
+          <option value="">Selecione o Relatório</option>
+          <option value="sales">Relatório de Vendas</option>
+          <option value="fees">Ajustes e Taxas</option>
+          <option value="monthly">Resultado Mensal</option>
+        </select>
+      </div>
+
+      <fieldset class="detail-field">
+        <legend>Detalhamento</legend>
+        <label><input type="radio" name="detailLevel" value="summary" [(ngModel)]="detailLevel" /> Sintético</label>
+        <label><input type="radio" name="detailLevel" value="detail" [(ngModel)]="detailLevel" /> Analítico</label>
+      </fieldset>
+
+      <div class="criteria-field">
+        <div class="date-field">
+          <label for="start-date">Data Inicial:</label>
+          <input id="start-date" name="startDate" type="date" min="2026-08-01" max="2026-08-31" [(ngModel)]="startDate" />
+        </div>
+        <div class="acquirer-field">
+          <label for="acquirer">Adquirente:</label>
+          <select id="acquirer" name="acquirer" [(ngModel)]="acquirer">
+            <option value="all">Todas</option>
+            @for (option of acquirers(); track option) {
+              <option [value]="option">{{ option }}</option>
+            }
+          </select>
+        </div>
+        <div class="date-field">
+          <label for="end-date">Data Final:</label>
+          <input id="end-date" name="endDate" type="date" min="2026-08-01" max="2026-08-31" [(ngModel)]="endDate" />
+        </div>
+        <div class="brand-field">
+          <label for="brand">Bandeira:</label>
+          <select id="brand" name="brand" [(ngModel)]="brand">
+            <option value="all">Todas</option>
+            @for (option of brands(); track option) {
+              <option [value]="option">{{ option }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="filter-actions">
+      <button type="submit">Gerar</button>
+    </div>
+  </form>
+</section>

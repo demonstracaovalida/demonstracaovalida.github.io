@@ -337,3 +337,4 @@ Use este formato:
 O `AGENTS.md` define como o projeto deve funcionar. O `SPRINTS.md` define em que ordem construí-lo.
 
 **OS PNGs SÃO A ESPECIFICAÇÃO VISUAL.**
+**A resolução do PNG nunca deve ser tratada como resolução obrigatória da aplicação..**
