@@ -47,4 +47,20 @@ describe('App', () => {
     expect(compiled.querySelector('app-sales-report')).toBeTruthy();
     expect((compiled.querySelector('app-top-navbar') as HTMLElement).hidden).toBe(true);
   });
+
+  it('hides the shared navbar while the fees report is active', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    await TestBed.inject(Router).navigateByUrl(
+      '/relatorio-taxas?startDate=2026-08-01&endDate=2026-08-31',
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-fees-report')).toBeTruthy();
+    expect((compiled.querySelector('app-top-navbar') as HTMLElement).hidden).toBe(true);
+  });
 });

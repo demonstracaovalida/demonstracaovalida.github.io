@@ -174,9 +174,9 @@ export class HomeComponent {
     };
     this.submittedFilters.set(filters);
 
-    if (filters.reportType === 'sales') {
+    if (filters.reportType === 'sales' || filters.reportType === 'fees') {
       const query = new URLSearchParams({
-        reportType: 'sales',
+        reportType: filters.reportType,
         detailLevel: filters.detailLevel ?? 'summary',
         startDate: filters.startDate ?? '2026-08-01',
         endDate: filters.endDate ?? '2026-08-31',
@@ -184,7 +184,8 @@ export class HomeComponent {
         acquirer: this.acquirer,
         brand: this.brand,
       });
-      window.open(`/relatorio-vendas?${query.toString()}`, '_blank');
+      const route = filters.reportType === 'sales' ? 'relatorio-vendas' : 'relatorio-taxas';
+      window.open(`/${route}?${query.toString()}`, '_blank');
     }
   }
 

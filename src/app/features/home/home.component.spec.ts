@@ -126,4 +126,36 @@ describe('HomeComponent', () => {
       );
     }
   });
+
+  it('opens the fees report with the selected period, acquirer, and brand', () => {
+    const fixture = TestBed.createComponent(HomeComponent);
+    fixture.detectChanges();
+    const openSpy = vi.spyOn(window, 'open').mockReturnValue(null);
+    const component = fixture.componentInstance as unknown as {
+      acquirer: string;
+      brand: string;
+      endDate: string;
+      generate: () => void;
+      reportType: string;
+      startDate: string;
+    };
+    component.reportType = 'fees';
+    component.startDate = '2026-08-08';
+    component.endDate = '2026-08-22';
+    component.acquirer = 'Cielo';
+    component.brand = 'Ticket';
+
+    component.generate();
+
+    expect(openSpy).toHaveBeenCalledTimes(1);
+    const [reportUrl, target] = openSpy.mock.calls[0];
+    const parsedUrl = new URL(String(reportUrl), 'http://localhost');
+    expect(parsedUrl.pathname).toBe('/relatorio-taxas');
+    expect(parsedUrl.searchParams.get('reportType')).toBe('fees');
+    expect(parsedUrl.searchParams.get('startDate')).toBe('2026-08-08');
+    expect(parsedUrl.searchParams.get('endDate')).toBe('2026-08-22');
+    expect(parsedUrl.searchParams.get('acquirer')).toBe('Cielo');
+    expect(parsedUrl.searchParams.get('brand')).toBe('Ticket');
+    expect(target).toBe('_blank');
+  });
 });
