@@ -96,6 +96,7 @@ describe('DemoStateService', () => {
     sourceTab.selectBankAccount(accountId);
     sourceTab.selectStatementDate(date);
     sourceTab.toggleReceiptGroupSelection(payment.receiptIds);
+    for (const adjustmentId of payment.adjustmentIds) sourceTab.toggleAdjustmentSelection(adjustmentId);
     sourceTab.toggleStatementGroupSelection(payment.statementLineIds);
     sourceTab.reconcileSelected();
 
@@ -126,5 +127,35 @@ describe('DemoStateService', () => {
     reportTab.reset();
     expect(reportTab.state().data.conciliations).toHaveLength(0);
     expect(reportTab.state().data.receipts.every((receipt) => receipt.status === 'Pendente')).toBe(true);
+  });
+
+  it('reconciles and restores the linked negative adjustment with its bank payment', () => {
+    const store = new DemoStateService();
+    const accountId = store.state().data.bankAccounts[0].id;
+    const group = groupReconciliationEntries(store.state().data, accountId, '2026-08-02')
+      .find((item) => item.brand === 'Visa Electron')!;
+    const adjustmentId = group.adjustmentIds[0];
+
+    store.selectBankAccount(accountId);
+    store.selectStatementDate('2026-08-02');
+    store.toggleReceiptGroupSelection(group.receiptIds);
+    store.toggleStatementGroupSelection(group.statementLineIds);
+    expect(() => store.reconcileSelected()).toThrow('Seleção de conciliação inválida');
+    store.toggleAdjustmentSelection(adjustmentId);
+    store.reconcileSelected();
+
+    expect(store.state().data.conciliations[0]).toMatchObject({
+      adjustmentIds: [adjustmentId],
+      amountCents: group.statementAmountCents,
+    });
+    expect(store.state().data.adjustments[0].status).toBe('Conciliado');
+    expect(store.state().selectedAdjustmentIds).toEqual([]);
+    const otherTab = new DemoStateService();
+    otherTab.applyConciliationSnapshot(store.state().data.conciliations);
+    expect(otherTab.state().data.adjustments[0].status).toBe('Conciliado');
+
+    store.reset();
+    expect(store.state().data.adjustments[0].status).toBe('Pendente');
+    expect(store.state().data.statementLines.find((line) => line.adjustmentId === adjustmentId)?.status).toBe('Pendente');
   });
 });

@@ -1,5 +1,7 @@
 export type TutorialStepKind = 'informativa' | 'interativa' | 'navegacao';
 
+export const TUTORIAL_MANUAL_DATE = '2026-08-02' as const;
+
 export interface TutorialStep {
   readonly kind: TutorialStepKind;
   readonly route: string;
@@ -148,7 +150,7 @@ export const TUTORIAL_STEPS: Readonly<Record<string, TutorialStep>> = {
     text: 'As contas disponíveis estão nesta lista.', next: 'manual-select-bank',
   },
   'manual-select-bank': {
-    kind: 'interativa', route: '/nova-conciliacao', targets: ['manual-bank-list'], action: 'manual-bank',
+    kind: 'interativa', route: '/nova-conciliacao', targets: ['manual-bank-card'], action: 'manual-bank',
     text: 'Escolha uma conta real da lista para continuar.', next: 'manual-days',
   },
   'manual-days': {
@@ -156,8 +158,8 @@ export const TUTORIAL_STEPS: Readonly<Record<string, TutorialStep>> = {
     text: 'Os extratos disponíveis aparecem por data e situação.', next: 'manual-select-day',
   },
   'manual-select-day': {
-    kind: 'interativa', route: '/nova-conciliacao', targets: ['manual-day-list'], action: 'manual-day',
-    text: 'Clique em uma data para abrir a grade de conciliação.', next: 'manual-statement',
+    kind: 'interativa', route: '/nova-conciliacao', targets: ['manual-day-0208'], action: 'manual-day',
+    text: 'Clique na data 02/08 para abrir a grade de conciliação.', next: 'manual-statement',
   },
   'manual-statement': {
     kind: 'informativa', route: '/nova-conciliacao', targets: ['manual-statement'],
@@ -165,7 +167,12 @@ export const TUTORIAL_STEPS: Readonly<Record<string, TutorialStep>> = {
   },
   'manual-receipts': {
     kind: 'informativa', route: '/nova-conciliacao', targets: ['manual-receipts'],
-    text: 'À direita ficam os recebimentos derivados das vendas, com depósito em D+1.', next: 'manual-statement-total',
+    text: 'À direita ficam os recebimentos derivados das vendas, com depósito em D+1.', next: 'manual-adjustments',
+  },
+  'manual-adjustments': {
+    kind: 'informativa', route: '/nova-conciliacao', targets: ['manual-adjustment-row'],
+    optionalWhenMissing: true,
+    text: 'Em 02/08, o aluguel da maquininha aparece como ajuste negativo de R$ 50,00 para Visa Electron.', next: 'manual-statement-total',
   },
   'manual-statement-total': {
     kind: 'informativa', route: '/nova-conciliacao', targets: ['manual-statement-total'],
@@ -173,7 +180,7 @@ export const TUTORIAL_STEPS: Readonly<Record<string, TutorialStep>> = {
   },
   'manual-counterpart-total': {
     kind: 'informativa', route: '/nova-conciliacao', targets: ['manual-counterpart-total'],
-    text: 'Total Contrapartidas considera os recebimentos selecionados menos os cancelamentos, somando os ajustes com seu sinal (positivo ou negativo). Nesta prévia, cancelamentos e ajustes estão zerados.', next: 'manual-difference',
+    text: 'Total Contrapartidas considera os recebimentos selecionados menos os cancelamentos, somando os ajustes com seu sinal. O aluguel da maquininha reduz esse total em R$ 50,00 quando selecionado.', next: 'manual-difference',
   },
   'manual-difference': {
     kind: 'informativa', route: '/nova-conciliacao', targets: ['manual-difference'],
@@ -188,6 +195,11 @@ export const TUTORIAL_STEPS: Readonly<Record<string, TutorialStep>> = {
     kind: 'interativa', route: '/nova-conciliacao', targets: ['manual-receipts'],
     action: 'manual-receipt-selection',
     text: 'Marque o recebimento correspondente. A seleção atualiza o Total Contrapartidas.', next: 'manual-reconcile',
+  },
+  'manual-select-adjustment': {
+    kind: 'interativa', route: '/nova-conciliacao', targets: ['manual-adjustment-row'],
+    action: 'manual-adjustment-selection',
+    text: 'Marque também o ajuste de aluguel da maquininha para descontar R$ 50,00 das contrapartidas.', next: 'manual-reconcile',
   },
   'manual-reconcile': {
     kind: 'interativa', route: '/nova-conciliacao',

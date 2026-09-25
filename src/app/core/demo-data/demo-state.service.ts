@@ -1,5 +1,5 @@
 import { Injectable, signal, type Signal, type WritableSignal } from '@angular/core';
-import { canReconcileSelection } from './demo-calculations';
+import { calculateConciliationSelectionTotals, canReconcileSelection } from './demo-calculations';
 import { DEMO_INITIAL_DATA } from './demo-data';
 import type { ConciliationRecord, DemoSessionState, IsoDate } from './demo-data.models';
 
@@ -9,6 +9,7 @@ function createInitialSessionState(): DemoSessionState {
     selectedBankAccountId: null,
     selectedStatementDate: null,
     selectedReceiptIds: [],
+    selectedAdjustmentIds: [],
     selectedStatementLineIds: [],
   };
 }
@@ -33,6 +34,7 @@ export class DemoStateService {
         selectedBankAccountId: accountId,
         selectedStatementDate: null,
         selectedReceiptIds: [],
+        selectedAdjustmentIds: [],
         selectedStatementLineIds: [],
       };
     });
@@ -52,6 +54,7 @@ export class DemoStateService {
         ...current,
         selectedStatementDate: date,
         selectedReceiptIds: [],
+        selectedAdjustmentIds: [],
         selectedStatementLineIds: [],
       };
     });
@@ -85,6 +88,25 @@ export class DemoStateService {
         selectedReceiptIds: allSelected
           ? current.selectedReceiptIds.filter((id) => !uniqueIds.has(id))
           : [...new Set([...current.selectedReceiptIds, ...receiptIds])],
+      };
+    });
+  }
+
+  toggleAdjustmentSelection(adjustmentId: string): void {
+    this.writableState.update((current) => {
+      const adjustment = current.data.adjustments.find((item) => item.id === adjustmentId);
+      const matchingLine = current.data.statementLines.find((line) => line.adjustmentId === adjustmentId);
+      if (!adjustment || adjustment.status !== 'Pendente' ||
+          !matchingLine || matchingLine.status !== 'Pendente' ||
+          matchingLine.accountId !== current.selectedBankAccountId ||
+          matchingLine.transactionDate !== current.selectedStatementDate) {
+        throw new Error(`Ajuste indisponível para seleção: ${adjustmentId}.`);
+      }
+      return {
+        ...current,
+        selectedAdjustmentIds: current.selectedAdjustmentIds.includes(adjustmentId)
+          ? current.selectedAdjustmentIds.filter((id) => id !== adjustmentId)
+          : [...current.selectedAdjustmentIds, adjustmentId],
       };
     });
   }
@@ -123,17 +145,22 @@ export class DemoStateService {
     this.writableState.update((current) => ({
       ...current,
       selectedReceiptIds: [],
+      selectedAdjustmentIds: [],
       selectedStatementLineIds: [],
     }));
   }
 
   reconcileSelected(): void {
     this.writableState.update((current) => {
-      if (!canReconcileSelection(current.selectedReceiptIds, current.selectedStatementLineIds, current.data)) {
+      if (!canReconcileSelection(
+        current.selectedReceiptIds, current.selectedStatementLineIds, current.data,
+        current.selectedAdjustmentIds,
+      )) {
         throw new Error('Seleção de conciliação inválida.');
       }
 
       const receiptIds = new Set(current.selectedReceiptIds);
+      const adjustmentIds = new Set(current.selectedAdjustmentIds);
       const statementLineIds = new Set(current.selectedStatementLineIds);
       const selectedLines = current.data.statementLines.filter((line) => statementLineIds.has(line.id));
       if (
@@ -148,9 +175,14 @@ export class DemoStateService {
         throw new Error('Os lançamentos selecionados não pertencem ao extrato aberto.');
       }
 
-      const amountCents = current.data.receipts
-        .filter((receipt) => receiptIds.has(receipt.id))
-        .reduce((total, receipt) => total + receipt.amountCents, 0);
+      const amountCents = calculateConciliationSelectionTotals(
+        current.selectedReceiptIds,
+        current.selectedStatementLineIds,
+        current.data.receipts,
+        current.data.statementLines,
+        current.selectedAdjustmentIds,
+        current.data.adjustments,
+      ).counterpartAmountCents;
 
       return {
         ...current,
@@ -158,6 +190,9 @@ export class DemoStateService {
           ...current.data,
           receipts: current.data.receipts.map((receipt) =>
             receiptIds.has(receipt.id) ? { ...receipt, status: 'Conciliado' as const } : receipt,
+          ),
+          adjustments: current.data.adjustments.map((adjustment) =>
+            adjustmentIds.has(adjustment.id) ? { ...adjustment, status: 'Conciliado' as const } : adjustment,
           ),
           statementLines: current.data.statementLines.map((line) =>
             statementLineIds.has(line.id) ? { ...line, status: 'Conciliado' as const } : line,
@@ -167,6 +202,7 @@ export class DemoStateService {
             {
               id: `conciliacao-${current.data.conciliations.length + 1}`,
               receiptIds: [...current.selectedReceiptIds],
+              ...(adjustmentIds.size ? { adjustmentIds: [...current.selectedAdjustmentIds] } : {}),
               statementLineIds: [...current.selectedStatementLineIds],
               amountCents,
               reconciledAt: new Date().toISOString(),
@@ -174,6 +210,7 @@ export class DemoStateService {
           ],
         },
         selectedReceiptIds: [],
+        selectedAdjustmentIds: [],
         selectedStatementLineIds: [],
       };
     });
@@ -188,14 +225,20 @@ export class DemoStateService {
 
       let data = current.data;
       for (const record of records) {
-        if (!canReconcileSelection(record.receiptIds, record.statementLineIds, data)) {
+        if (!canReconcileSelection(record.receiptIds, record.statementLineIds, data, record.adjustmentIds ?? [])) {
           throw new Error(`Conciliação inválida no relatório: ${record.id}.`);
         }
         const receiptIds = new Set(record.receiptIds);
+        const adjustmentIds = new Set(record.adjustmentIds ?? []);
         const statementLineIds = new Set(record.statementLineIds);
-        const amountCents = data.receipts
-          .filter((receipt) => receiptIds.has(receipt.id))
-          .reduce((total, receipt) => total + receipt.amountCents, 0);
+        const amountCents = calculateConciliationSelectionTotals(
+          record.receiptIds,
+          record.statementLineIds,
+          data.receipts,
+          data.statementLines,
+          record.adjustmentIds ?? [],
+          data.adjustments,
+        ).counterpartAmountCents;
         if (amountCents !== record.amountCents) {
           throw new Error(`Valor divergente na conciliação ${record.id}.`);
         }
@@ -203,6 +246,9 @@ export class DemoStateService {
           ...data,
           receipts: data.receipts.map((receipt) =>
             receiptIds.has(receipt.id) ? { ...receipt, status: 'Conciliado' as const } : receipt,
+          ),
+          adjustments: data.adjustments.map((adjustment) =>
+            adjustmentIds.has(adjustment.id) ? { ...adjustment, status: 'Conciliado' as const } : adjustment,
           ),
           statementLines: data.statementLines.map((line) =>
             statementLineIds.has(line.id) ? { ...line, status: 'Conciliado' as const } : line,
@@ -215,6 +261,7 @@ export class DemoStateService {
         ...current,
         data,
         selectedReceiptIds: [],
+        selectedAdjustmentIds: [],
         selectedStatementLineIds: [],
       };
     });

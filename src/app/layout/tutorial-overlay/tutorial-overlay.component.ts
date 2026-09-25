@@ -74,8 +74,10 @@ export class TutorialOverlayComponent {
     if (!control) return;
     if (event.type === 'click' && control.matches('input, select')) return;
     if (event.type === 'change' && !control.matches('input, select')) return;
-    const value = control instanceof HTMLInputElement || control instanceof HTMLSelectElement
-      ? control.value : undefined;
+    const value = control.dataset['tourValue'] ?? (
+      control instanceof HTMLInputElement || control instanceof HTMLSelectElement
+        ? control.value : undefined
+    );
     this.tutorial.observe(control.dataset['tourAction'] ?? '', value);
   };
 

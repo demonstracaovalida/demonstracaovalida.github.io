@@ -52,7 +52,9 @@
           <button
             type="button"
             class="bank-card"
+            data-tour="manual-bank-card"
             data-tour-action="manual-bank"
+            [disabled]="bankSelectionBlocked()"
             [class.selected]="selectedBankAccountId() === account.id"
             [attr.aria-pressed]="selectedBankAccountId() === account.id"
             (click)="selectBankAccount(account.id)"
@@ -79,16 +81,20 @@
       </header>
 
       <div class="day-filters" aria-label="Filtrar extratos por situação">
-        <button type="button" [class.active]="dayFilter() === 'all'" (click)="setDayFilter('all')">Todos</button>
-        <button type="button" [class.active]="dayFilter() === 'pending'" (click)="setDayFilter('pending')"><i class="dot pending-dot"></i> Pendente</button>
-        <button type="button" [class.active]="dayFilter() === 'in-progress'" (click)="setDayFilter('in-progress')"><i class="dot progress-dot"></i> Conciliando</button>
-        <button type="button" [class.active]="dayFilter() === 'done'" (click)="setDayFilter('done')"><i class="dot done-dot"></i> Conciliado</button>
+        <button type="button" [class.active]="effectiveDayFilter() === 'all'" (click)="setDayFilter('all')">Todos</button>
+        <button type="button" [class.active]="effectiveDayFilter() === 'pending'" (click)="setDayFilter('pending')"><i class="dot pending-dot"></i> Pendente</button>
+        <button type="button" [class.active]="effectiveDayFilter() === 'in-progress'" (click)="setDayFilter('in-progress')"><i class="dot progress-dot"></i> Conciliando</button>
+        <button type="button" [class.active]="effectiveDayFilter() === 'done'" (click)="setDayFilter('done')"><i class="dot done-dot"></i> Conciliado</button>
       </div>
 
       <div class="older-statements">📅 Extratos Mais Antigos</div>
       <div class="statement-days" data-tour="manual-day-list">
         @for (day of filteredStatementDays(); track day.date) {
-          <button type="button" class="day-card" data-tour-action="manual-day" (click)="selectDay(day.date)">
+          <button type="button" class="day-card" data-tour-action="manual-day"
+            [attr.data-tour]="day.date === tutorialManualDate ? 'manual-day-0208' : null"
+            [attr.data-tour-value]="day.date"
+            [disabled]="daySelectionBlocked(day.date)"
+            (click)="selectDay(day.date)">
             <span class="day-card-top">
               <strong>{{ formatDate(day.date) }}</strong>
               <span class="day-status" [class.done]="day.status === 'Conciliado'" [class.pending]="day.status === 'Pendente'">● {{ day.status }}</span>
@@ -153,10 +159,10 @@
 
       <div class="matching-totals" data-tour="manual-totals">
         <div data-tour="manual-statement-total"><span>Total Extrato</span><strong>{{ formatMoney(selectionTotals().statementAmountCents) }}</strong></div>
-        <div data-tour="manual-counterpart-total"><span>Total Contrapartidas</span><strong>{{ formatMoney(selectionTotals().receiptAmountCents) }}</strong></div>
+        <div data-tour="manual-counterpart-total"><span>Total Contrapartidas</span><strong>{{ formatMoney(selectionTotals().counterpartAmountCents) }}</strong></div>
         <div><span>Recebimentos</span><strong>{{ formatMoney(selectionTotals().receiptAmountCents) }}</strong></div>
         <div><span>Cancelamentos</span><strong>{{ formatMoney(0) }}</strong></div>
-        <div><span>Ajustes</span><strong>{{ formatMoney(0) }}</strong></div>
+        <div><span>Ajustes</span><strong>{{ formatMoney(selectionTotals().adjustmentAmountCents) }}</strong></div>
         <div data-tour="manual-difference"><span>Diferença</span><strong [class.balanced]="selectionTotals().differenceCents === 0">{{ formatMoney(selectionTotals().differenceCents) }} @if (selectionTotals().differenceCents === 0) {✓}</strong></div>
       </div>
 
@@ -181,7 +187,7 @@
                   <tr>
                     <td><input type="checkbox" data-tour-action="manual-statement-selection" [attr.aria-label]="'Selecionar lançamento ' + group.description + ' ' + group.service" [checked]="isGroupSelected(group.statementLineIds, selectedStatementLineIds())" (change)="toggleStatement(group)" /></td>
                     <td>{{ group.description }}</td>
-                    <td class="positive-value">{{ formatMoney(group.amountCents) }}</td>
+                    <td class="positive-value">{{ formatMoney(group.statementAmountCents) }}</td>
                   </tr>
                 } @empty {
                   <tr><td colspan="3" class="empty-table">Nenhum lançamento pendente.</td></tr>
@@ -217,11 +223,26 @@
             <div class="panel-total">Total selecionado: {{ formatMoney(selectionTotals().receiptAmountCents) }} ({{ selectedReceiptGroupCount() }} {{ selectedReceiptGroupCount() === 1 ? 'item' : 'itens' }})</div>
           </section>
 
-          <section class="empty-counterpart-panel" aria-label="Ajustes">
+          <section class="empty-counterpart-panel" aria-label="Ajustes" data-tour="manual-adjustments">
             <header class="panel-title"><strong>⚙ Ajustes</strong></header>
-            <div class="empty-table-head">Data <span>Tipo Ajuste</span><span>Adquirente</span><span>Bandeira</span><span>Valor</span></div>
-            <p>Nenhum ajuste.</p>
-            <div class="panel-total">Total selecionado: {{ formatMoney(0) }} (0 itens)</div>
+            <table class="matching-table adjustment-table">
+              <thead><tr><th class="checkbox-column"></th><th>Data</th><th>Tipo Ajuste</th><th>Adquirente</th><th>Bandeira</th><th>Valor</th></tr></thead>
+              <tbody>
+                @for (adjustment of pendingAdjustments(); track adjustment.id) {
+                  <tr data-tour="manual-adjustment-row">
+                    <td><input type="checkbox" data-tour-action="manual-adjustment-selection" [attr.aria-label]="'Selecionar ajuste ' + adjustment.type" [checked]="selectedAdjustmentIds().includes(adjustment.id)" (change)="toggleAdjustment(adjustment.id)" /></td>
+                    <td>{{ formatDate(adjustment.transactionDate) }}</td>
+                    <td>{{ adjustment.type }}</td>
+                    <td>{{ adjustment.acquirer }}</td>
+                    <td>{{ adjustment.brand }}</td>
+                    <td class="negative-value">{{ formatMoney(adjustment.amountCents) }}</td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="6" class="empty-table">Nenhum ajuste.</td></tr>
+                }
+              </tbody>
+            </table>
+            <div class="panel-total">Total selecionado: {{ formatMoney(selectionTotals().adjustmentAmountCents) }} ({{ selectionTotals().adjustmentCount }} {{ selectionTotals().adjustmentCount === 1 ? 'item' : 'itens' }})</div>
           </section>
 
           <section class="empty-counterpart-panel cancellation-panel" aria-label="Cancelamentos">

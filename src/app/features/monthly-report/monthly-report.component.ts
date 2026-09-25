@@ -28,7 +28,7 @@ interface MonthlyReportRow {
   readonly financing: SaleGroup['financing'];
   readonly grossAmountCents: number;
   readonly feeAmountCents: number;
-  readonly adjustmentsAndFeesCents: 0;
+  readonly adjustmentsAndFeesCents: number;
   readonly cancellationAmountCents: 0;
   readonly receivedAmountCents: number;
   readonly configuredRateBasisPoints: number;
@@ -146,7 +146,7 @@ export class MonthlyReportComponent {
     const totals = this.reportTotals();
     return totals.grossAmountCents === 0
       ? 0
-      : (totals.feeAmountCents / totals.grossAmountCents) * 100;
+      : ((totals.feeAmountCents - totals.adjustmentAmountCents) / totals.grossAmountCents) * 100;
   });
 
   constructor() {
@@ -154,7 +154,8 @@ export class MonthlyReportComponent {
   }
 
   protected formatCurrency(amountCents: number): string {
-    return `R$${CURRENCY_FORMATTER.format(amountCents / 100)}`;
+    const sign = amountCents < 0 ? '-' : '';
+    return `${sign}R$${CURRENCY_FORMATTER.format(Math.abs(amountCents) / 100)}`;
   }
 
   protected formatDiscount(amountCents: number): string {
@@ -212,9 +213,9 @@ export class MonthlyReportComponent {
       financing: group.financing,
       grossAmountCents,
       feeAmountCents,
-      adjustmentsAndFeesCents: 0,
+      adjustmentsAndFeesCents: group.totals.adjustmentAmountCents,
       cancellationAmountCents: 0,
-      receivedAmountCents: group.totals.netAmountCents,
+      receivedAmountCents: group.totals.receivedAmountCents,
       configuredRateBasisPoints: weightedRateBasisPoints(
         sales,
         feesBySaleId,
@@ -225,7 +226,8 @@ export class MonthlyReportComponent {
         feesBySaleId,
         (fee) => fee.practicedRateBasisPoints,
       ),
-      finalRatePercent: grossAmountCents === 0 ? 0 : (feeAmountCents / grossAmountCents) * 100,
+      finalRatePercent: grossAmountCents === 0 ? 0
+        : ((feeAmountCents - group.totals.adjustmentAmountCents) / grossAmountCents) * 100,
       downloadedPercent:
         groupReceipts.length > 0 && groupReceipts.every((receipt) => receipt.status === 'Conciliado')
           ? 100

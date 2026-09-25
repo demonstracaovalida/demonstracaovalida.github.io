@@ -116,6 +116,7 @@ export function calculateTotals(
   const saleIds = new Set(sales.map((sale) => sale.id));
   const receipts = dataset.receipts.filter((receipt) => saleIds.has(receipt.saleId));
   const receiptIds = new Set(receipts.map((receipt) => receipt.id));
+  const adjustments = dataset.adjustments.filter((adjustment) => receiptIds.has(adjustment.receiptId));
   const statementLines = dataset.statementLines.filter((line) => receiptIds.has(line.receiptId));
 
   let grossAmountCents = 0;
@@ -138,7 +139,9 @@ export function calculateTotals(
     grossAmountCents,
     feeAmountCents,
     netAmountCents,
-    receivedAmountCents: sumAmounts(receipts.map((receipt) => receipt.amountCents)),
+    adjustmentAmountCents: sumAmounts(adjustments.map((adjustment) => adjustment.amountCents)),
+    receivedAmountCents: sumAmounts(receipts.map((receipt) => receipt.amountCents)) +
+      sumAmounts(adjustments.map((adjustment) => adjustment.amountCents)),
     statementAmountCents: sumAmounts(statementLines.map((line) => line.amountCents)),
   };
 }
@@ -184,19 +187,27 @@ export function groupReconciliationEntries(
 ): ReconciliationGroup[] {
   const salesById = new Map(dataset.sales.map((sale) => [sale.id, sale]));
   const receiptsById = new Map(dataset.receipts.map((receipt) => [receipt.id, receipt]));
+  const adjustmentsById = new Map(dataset.adjustments.map((adjustment) => [adjustment.id, adjustment]));
   const groups = new Map<string, {
     sale: DemoSale;
     receiptIds: string[];
+    adjustmentIds: string[];
     statementLineIds: string[];
     installmentCount: number;
     amountCents: number;
+    statementAmountCents: number;
   }>();
 
   for (const line of dataset.statementLines) {
     if (line.accountId !== accountId || line.transactionDate !== date || line.status !== status) continue;
     const receipt = receiptsById.get(line.receiptId);
     const sale = receipt && salesById.get(receipt.saleId);
-    if (!receipt || !sale || receipt.status !== status || receipt.amountCents !== line.amountCents) {
+    const adjustment = line.adjustmentId ? adjustmentsById.get(line.adjustmentId) : undefined;
+    if (!receipt || !sale || receipt.status !== status ||
+        (line.adjustmentId && (!adjustment || adjustment.status !== status ||
+          adjustment.receiptId !== receipt.id || adjustment.transactionDate !== date ||
+          adjustment.acquirer !== sale.acquirer || adjustment.brand !== sale.brand)) ||
+        receipt.amountCents + (adjustment?.amountCents ?? 0) !== line.amountCents) {
       throw new Error(`Lançamento sem recebimento correspondente: ${line.id}.`);
     }
 
@@ -204,14 +215,18 @@ export function groupReconciliationEntries(
     const group = groups.get(key) ?? {
       sale,
       receiptIds: [],
+      adjustmentIds: [],
       statementLineIds: [],
       installmentCount: 0,
       amountCents: 0,
+      statementAmountCents: 0,
     };
     group.receiptIds.push(receipt.id);
+    if (adjustment) group.adjustmentIds.push(adjustment.id);
     group.statementLineIds.push(line.id);
     group.installmentCount += sale.installmentCount;
     group.amountCents += receipt.amountCents;
+    group.statementAmountCents += line.amountCents;
     groups.set(key, group);
   }
 
@@ -225,14 +240,16 @@ export function groupReconciliationEntries(
     receivedDate: date,
     description: getStatementDescription(group.sale),
     receiptIds: group.receiptIds,
+    adjustmentIds: group.adjustmentIds,
     statementLineIds: group.statementLineIds,
     installmentCount: group.installmentCount,
     amountCents: group.amountCents,
+    statementAmountCents: group.statementAmountCents,
   }));
 }
 
-export function calculateDifference(statementAmountCents: number, receiptAmountCents: number): number {
-  return statementAmountCents - receiptAmountCents;
+export function calculateDifference(statementAmountCents: number, counterpartAmountCents: number): number {
+  return statementAmountCents - counterpartAmountCents;
 }
 
 export function calculateConciliationSelectionTotals(
@@ -240,20 +257,29 @@ export function calculateConciliationSelectionTotals(
   selectedStatementLineIds: readonly string[],
   receipts: DemoDataset['receipts'],
   statementLines: DemoDataset['statementLines'],
+  selectedAdjustmentIds: readonly string[] = [],
+  adjustments: DemoDataset['adjustments'] = [],
 ): ConciliationSelectionTotals {
   const receiptIds = new Set(selectedReceiptIds);
+  const adjustmentIds = new Set(selectedAdjustmentIds);
   const statementLineIds = new Set(selectedStatementLineIds);
   const selectedReceipts = receipts.filter((receipt) => receiptIds.has(receipt.id));
+  const selectedAdjustments = adjustments.filter((adjustment) => adjustmentIds.has(adjustment.id));
   const selectedStatementLines = statementLines.filter((line) => statementLineIds.has(line.id));
   const receiptAmountCents = sumAmounts(selectedReceipts.map((receipt) => receipt.amountCents));
+  const adjustmentAmountCents = sumAmounts(selectedAdjustments.map((adjustment) => adjustment.amountCents));
+  const counterpartAmountCents = receiptAmountCents + adjustmentAmountCents;
   const statementAmountCents = sumAmounts(selectedStatementLines.map((line) => line.amountCents));
 
   return {
     statementAmountCents,
     receiptAmountCents,
-    differenceCents: calculateDifference(statementAmountCents, receiptAmountCents),
+    adjustmentAmountCents,
+    counterpartAmountCents,
+    differenceCents: calculateDifference(statementAmountCents, counterpartAmountCents),
     statementLineCount: selectedStatementLines.length,
     receiptCount: selectedReceipts.length,
+    adjustmentCount: selectedAdjustments.length,
   };
 }
 
@@ -261,24 +287,31 @@ export function canReconcileSelection(
   selectedReceiptIds: readonly string[],
   selectedStatementLineIds: readonly string[],
   dataset: DemoDataset,
+  selectedAdjustmentIds: readonly string[] = [],
 ): boolean {
   if (selectedReceiptIds.length === 0 || selectedStatementLineIds.length === 0) {
     return false;
   }
 
   const receiptIds = new Set(selectedReceiptIds);
+  const adjustmentIds = new Set(selectedAdjustmentIds);
   const statementLineIds = new Set(selectedStatementLineIds);
-  if (receiptIds.size !== selectedReceiptIds.length || statementLineIds.size !== selectedStatementLineIds.length) {
+  if (receiptIds.size !== selectedReceiptIds.length ||
+      adjustmentIds.size !== selectedAdjustmentIds.length ||
+      statementLineIds.size !== selectedStatementLineIds.length) {
     return false;
   }
 
   const receiptsById = new Map(dataset.receipts.map((receipt) => [receipt.id, receipt]));
+  const adjustmentsById = new Map(dataset.adjustments.map((adjustment) => [adjustment.id, adjustment]));
   const statementLinesById = new Map(dataset.statementLines.map((line) => [line.id, line]));
   const selectedReceipts = selectedReceiptIds.map((id) => receiptsById.get(id));
+  const selectedAdjustments = selectedAdjustmentIds.map((id) => adjustmentsById.get(id));
   const selectedLines = selectedStatementLineIds.map((id) => statementLinesById.get(id));
 
   if (
     selectedReceipts.some((receipt) => !receipt || receipt.status !== 'Pendente') ||
+    selectedAdjustments.some((adjustment) => !adjustment || adjustment.status !== 'Pendente') ||
     selectedLines.some((line) => !line || line.status !== 'Pendente')
   ) {
     return false;
@@ -288,12 +321,21 @@ export function canReconcileSelection(
   if (linkedReceiptIds.size !== receiptIds.size || [...receiptIds].some((id) => !linkedReceiptIds.has(id))) {
     return false;
   }
+  const linkedAdjustmentIds = new Set(selectedLines.flatMap((line) =>
+    (line as BankStatementLine).adjustmentId ? [(line as BankStatementLine).adjustmentId!] : [],
+  ));
+  if (linkedAdjustmentIds.size !== adjustmentIds.size ||
+      [...adjustmentIds].some((id) => !linkedAdjustmentIds.has(id))) {
+    return false;
+  }
 
   const totals = calculateConciliationSelectionTotals(
     selectedReceiptIds,
     selectedStatementLineIds,
     dataset.receipts,
     dataset.statementLines,
+    selectedAdjustmentIds,
+    dataset.adjustments,
   );
 
   return totals.differenceCents === 0;

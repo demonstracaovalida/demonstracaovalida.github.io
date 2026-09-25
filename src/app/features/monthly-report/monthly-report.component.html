@@ -93,10 +93,10 @@
     <h2>Total Geral</h2>
     <dl>
       <div><dt>Total de Parcelas Recebidas no Período</dt><dd>{{ formatCurrency(reportTotals().grossAmountCents) }}</dd></div>
-      <div><dt>Total Líquido Recebido no Período</dt><dd>{{ formatCurrency(reportTotals().netAmountCents) }}</dd></div>
+      <div><dt>Total Líquido Recebido no Período</dt><dd>{{ formatCurrency(reportTotals().receivedAmountCents) }}</dd></div>
       <div><dt>Total Taxas Descontadas no Período</dt><dd>{{ formatDiscount(reportTotals().feeAmountCents) }}</dd></div>
       <div><dt>Total Cancelamentos Descontados no Período</dt><dd>{{ formatCurrency(0) }}</dd></div>
-      <div><dt>Total Taxas Administrativas do Período</dt><dd>{{ formatCurrency(0) }}</dd></div>
+      <div><dt>Total Ajustes do Período</dt><dd>{{ formatCurrency(reportTotals().adjustmentAmountCents) }}</dd></div>
       <div><dt>Taxa Média do Período</dt><dd>{{ formatRatePercent(totalAverageRatePercent()) }}</dd></div>
     </dl>
   </section>

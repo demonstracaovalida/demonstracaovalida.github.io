@@ -156,9 +156,9 @@ Taxas corretas/estáveis, totais coerentes, filtros, visual fiel, testes e build
 - Reproduzir o PNG.
 - Total Vendido = bruto.
 - Valor Taxa = valor monetário das taxas.
-- Ajustes e Tarifas = 0.
+- Ajustes = soma dos ajustes vinculados às vendas; Visa Electron inclui -R$ 50,00 em 02/08.
 - Cancelamentos = 0.
-- Total Recebido = líquido.
+- Total Recebido = líquido + ajustes.
 - Remover coluna Dias.
 - `Baixado`: 0% antes da conciliação aplicável e 100% depois.
 - Percentual deve derivar do estado central, nunca hardcoded.
@@ -238,12 +238,12 @@ Hover, submenu, entrada e transição 1→2 funcionais, visual fiel e build pass
 - Remover EC e Qtd conforme especificação.
 - Checkbox de recebimento recalcula Recebimentos e Total Contrapartidas.
 - Checkbox de extrato recalcula Total Extrato.
-- `Total Contrapartidas = Recebimentos - Cancelamentos + Ajustes`, considerando ajustes positivos ou negativos; nesta prévia, Ajustes e Cancelamentos estão vazios.
+- `Total Contrapartidas = Recebimentos - Cancelamentos + Ajustes`, considerando ajustes positivos ou negativos; o ajuste de aluguel da maquininha em 02/08 é -R$ 50,00.
 - `Diferença = Total Extrato - Total Contrapartidas`.
 - `Conciliar Selecionados` cinza/desabilitado com seleção inválida.
 - Habilitar/azul somente com seleção válida e diferença R$ 0,00.
 - Ao conciliar: marcar em memória, mostrar sucesso temporário, remover recebimentos/extratos utilizados, limpar seleção e recalcular.
-- Ajustes e Cancelamentos ficam vazios.
+- Ajustes mostra o aluguel da maquininha em 02/08; Cancelamentos fica vazio.
 - Conciliação Pix e Conciliados ficam acinzentados/indisponíveis.
 - Implementar `Reiniciar Simulação` discreto, restaurando toda a massa/estado.
 

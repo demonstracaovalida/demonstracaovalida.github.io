@@ -89,16 +89,18 @@ describe('demo data and financial calculations', () => {
     const expectedGross = data.sales.reduce((sum, sale) => sum + sale.grossAmountCents, 0);
     const expectedFees = data.fees.reduce((sum, fee) => sum + fee.amountCents, 0);
     const expectedReceipts = data.receipts.reduce((sum, receipt) => sum + receipt.amountCents, 0);
+    const expectedAdjustments = data.adjustments.reduce((sum, adjustment) => sum + adjustment.amountCents, 0);
     const expectedStatement = data.statementLines.reduce((sum, line) => sum + line.amountCents, 0);
 
     expect(totals.saleCount).toBe(data.sales.length);
     expect(totals.grossAmountCents).toBe(expectedGross);
     expect(totals.feeAmountCents).toBe(expectedFees);
     expect(totals.netAmountCents).toBe(expectedGross - expectedFees);
-    expect(totals.receivedAmountCents).toBe(expectedReceipts);
+    expect(totals.adjustmentAmountCents).toBe(expectedAdjustments);
+    expect(totals.receivedAmountCents).toBe(expectedReceipts + expectedAdjustments);
     expect(totals.statementAmountCents).toBe(expectedStatement);
     expect(expectedReceipts).toBe(expectedGross - expectedFees);
-    expect(expectedStatement).toBe(expectedReceipts);
+    expect(expectedStatement).toBe(expectedReceipts + expectedAdjustments);
 
     const groupedTotals = groupSales(data).reduce(
       (sum, group) => sum + group.totals.grossAmountCents,
@@ -111,6 +113,7 @@ describe('demo data and financial calculations', () => {
     const feesBySaleId = new Map(DEMO_INITIAL_DATA.fees.map((fee) => [fee.saleId, fee]));
     const receiptsBySaleId = new Map(DEMO_INITIAL_DATA.receipts.map((receipt) => [receipt.saleId, receipt]));
     const linesByReceiptId = new Map(DEMO_INITIAL_DATA.statementLines.map((line) => [line.receiptId, line]));
+    const adjustmentsById = new Map(DEMO_INITIAL_DATA.adjustments.map((adjustment) => [adjustment.id, adjustment]));
 
     for (const sale of DEMO_INITIAL_DATA.sales) {
       const fee = feesBySaleId.get(sale.id);
@@ -129,7 +132,8 @@ describe('demo data and financial calculations', () => {
       expect(receipt.amountCents).toBe(fee.netAmountCents);
       expect(receipt.status).toBe('Pendente');
       expect(line).toBeDefined();
-      expect(line?.amountCents).toBe(receipt.amountCents);
+      const adjustment = line?.adjustmentId ? adjustmentsById.get(line.adjustmentId) : undefined;
+      expect(line?.amountCents).toBe(receipt.amountCents + (adjustment?.amountCents ?? 0));
       expect(line?.transactionDate).toBe(receipt.receivedDate);
       expect(line?.status).toBe('Pendente');
       expect(fee.contractRateBasisPoints).toBe(getContractRateBasisPointsForService(sale.service));
@@ -140,6 +144,44 @@ describe('demo data and financial calculations', () => {
         expect([-1, 1, 2, 3]).toContain(fee.practicedRateBasisPoints - fee.contractRateBasisPoints);
       }
     }
+  });
+
+  it('deducts the Visa Electron machine rental adjustment from the 02/08 bank payment', () => {
+    const data = DEMO_INITIAL_DATA;
+    const adjustment = data.adjustments[0];
+    expect(data.adjustments).toHaveLength(1);
+    expect(adjustment).toMatchObject({
+      transactionDate: '2026-08-02',
+      type: 'Aluguel maquininha',
+      acquirer: 'Cielo',
+      brand: 'Visa Electron',
+      amountCents: -5_000,
+    });
+    const line = data.statementLines.find((item) => item.adjustmentId === adjustment.id)!;
+    const receipt = data.receipts.find((item) => item.id === adjustment.receiptId)!;
+    expect(line.transactionDate).toBe('2026-08-02');
+    expect(line.amountCents).toBe(receipt.amountCents - 5_000);
+
+    const group = groupReconciliationEntries(data, line.accountId, '2026-08-02')
+      .find((item) => item.brand === 'Visa Electron')!;
+    expect(group.adjustmentIds).toEqual([adjustment.id]);
+    expect(group.statementAmountCents).toBe(group.amountCents - 5_000);
+    expect(canReconcileSelection(group.receiptIds, group.statementLineIds, data)).toBe(false);
+    expect(canReconcileSelection(group.receiptIds, group.statementLineIds, data, group.adjustmentIds)).toBe(true);
+    expect(calculateConciliationSelectionTotals(
+      group.receiptIds,
+      group.statementLineIds,
+      data.receipts,
+      data.statementLines,
+      group.adjustmentIds,
+      data.adjustments,
+    )).toMatchObject({
+      receiptAmountCents: group.amountCents,
+      adjustmentAmountCents: -5_000,
+      counterpartAmountCents: group.amountCents - 5_000,
+      statementAmountCents: group.statementAmountCents,
+      differenceCents: 0,
+    });
   });
 
   it('keeps one contractual and practiced rate per acquirer, brand, service, and financing', () => {

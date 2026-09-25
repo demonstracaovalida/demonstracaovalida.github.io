@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { vi } from 'vitest';
 import { groupReconciliationEntries } from '../../core/demo-data/demo-calculations';
 import { DemoStateService } from '../../core/demo-data/demo-state.service';
+import { TutorialService } from '../../core/tutorial/tutorial.service';
 import { ManualReconciliationComponent } from './manual-reconciliation.component';
 
 describe('ManualReconciliationComponent', () => {
@@ -56,6 +57,83 @@ describe('ManualReconciliationComponent', () => {
     store.reset();
     fixture.detectChanges();
     expect(store.state().selectedBankAccountId).toBeNull();
+  });
+
+  it('waits for the bank selection step before accepting a bank click in the tutorial', () => {
+    const fixture = TestBed.createComponent(ManualReconciliationComponent);
+    const tutorial = TestBed.inject(TutorialService);
+    const store = TestBed.inject(DemoStateService);
+    fixture.detectChanges();
+
+    tutorial.startManual();
+    tutorial.next();
+    const rendered = fixture.nativeElement as HTMLElement;
+    rendered.querySelector<HTMLButtonElement>('.new-manual-button')!.click();
+    tutorial.observe('manual-start');
+    fixture.detectChanges();
+    expect(tutorial.step()?.id).toBe('manual-banks');
+
+    const card = rendered.querySelector<HTMLButtonElement>('.bank-card')!;
+    expect(card.disabled).toBe(true);
+    card.click();
+    fixture.detectChanges();
+    expect(store.state().selectedBankAccountId).toBeNull();
+    expect(rendered.querySelector('.bank-selection')).toBeTruthy();
+
+    tutorial.next();
+    fixture.detectChanges();
+    expect(tutorial.step()?.id).toBe('manual-select-bank');
+    expect(card.disabled).toBe(false);
+    expect(card.dataset['tour']).toBe('manual-bank-card');
+    card.click();
+    fixture.detectChanges();
+    expect(store.state().selectedBankAccountId).toBe(store.state().data.bankAccounts[0].id);
+    expect(rendered.querySelector('.days-selection')).toBeTruthy();
+  });
+
+  it('requires the 02/08 card after the date overview in the tutorial', () => {
+    const fixture = TestBed.createComponent(ManualReconciliationComponent);
+    const tutorial = TestBed.inject(TutorialService);
+    const store = TestBed.inject(DemoStateService);
+    fixture.detectChanges();
+
+    tutorial.startManual();
+    tutorial.next();
+    const rendered = fixture.nativeElement as HTMLElement;
+    rendered.querySelector<HTMLButtonElement>('.new-manual-button')!.click();
+    tutorial.observe('manual-start');
+    tutorial.next();
+    fixture.detectChanges();
+    rendered.querySelector<HTMLButtonElement>('.bank-card')!.click();
+    tutorial.observe('manual-bank');
+    fixture.detectChanges();
+    expect(tutorial.step()?.id).toBe('manual-days');
+
+    const cards = [...rendered.querySelectorAll<HTMLButtonElement>('.day-card')];
+    const target = cards.find((card) => card.textContent?.includes('02/08/2026'))!;
+    const other = cards.find((card) => card !== target)!;
+    expect(cards.every((card) => card.disabled)).toBe(true);
+    other.click();
+    fixture.detectChanges();
+    expect(store.state().selectedStatementDate).toBeNull();
+
+    tutorial.next();
+    fixture.detectChanges();
+    expect(tutorial.step()?.id).toBe('manual-select-day');
+    expect(target.dataset['tour']).toBe('manual-day-0208');
+    expect(target.dataset['tourValue']).toBe('2026-08-02');
+    expect(target.disabled).toBe(false);
+    expect(other.disabled).toBe(true);
+    other.click();
+    fixture.detectChanges();
+    expect(store.state().selectedStatementDate).toBeNull();
+
+    target.click();
+    tutorial.observe('manual-day', target.dataset['tourValue']);
+    fixture.detectChanges();
+    expect(store.state().selectedStatementDate).toBe('2026-08-02');
+    expect(rendered.querySelector('.matching-stage')).toBeTruthy();
+    expect(tutorial.step()?.id).toBe('manual-statement');
   });
 
   it('filters statement days and history, then returns to the date selection', () => {
@@ -188,6 +266,59 @@ describe('ManualReconciliationComponent', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('requires the negative machine rental adjustment to balance Visa Electron on 02/08', () => {
+    const fixture = TestBed.createComponent(ManualReconciliationComponent);
+    fixture.detectChanges();
+    const rendered = fixture.nativeElement as HTMLElement;
+    const store = TestBed.inject(DemoStateService);
+    rendered.querySelector<HTMLButtonElement>('.new-manual-button')!.click();
+    fixture.detectChanges();
+    rendered.querySelector<HTMLButtonElement>('.bank-card')!.click();
+    fixture.detectChanges();
+    [...rendered.querySelectorAll<HTMLButtonElement>('.day-card')]
+      .find((card) => card.textContent?.includes('02/08/2026'))!.click();
+    fixture.detectChanges();
+
+    const group = groupReconciliationEntries(
+      store.state().data, store.state().selectedBankAccountId!, '2026-08-02',
+    ).find((item) => item.brand === 'Visa Electron')!;
+    const statementRow = [...rendered.querySelectorAll<HTMLTableRowElement>('.statement-table tbody tr')]
+      .find((row) => row.textContent?.includes('Visa Electron'))!;
+    const receiptRow = [...rendered.querySelectorAll<HTMLTableRowElement>('.receipt-table tbody tr')]
+      .find((row) => row.textContent?.includes('Visa Electron'))!;
+    const adjustmentRow = rendered.querySelector<HTMLTableRowElement>('.adjustment-table tbody tr')!;
+    const action = rendered.querySelector<HTMLButtonElement>('.reconcile-action')!;
+
+    expect(statementRow.cells[2].textContent?.trim()).toBe(formatMoney(group.amountCents - 5_000));
+    expect(receiptRow.cells[5].textContent?.trim()).toBe(formatMoney(group.amountCents));
+    expect(adjustmentRow.textContent).toContain('02/08/2026');
+    expect(adjustmentRow.textContent).toContain('Aluguel maquininha');
+    expect(adjustmentRow.textContent).toContain('Cielo');
+    expect(adjustmentRow.textContent).toContain('Visa Electron');
+    expect(adjustmentRow.textContent).toContain('-R$ 50,00');
+
+    receiptRow.querySelector<HTMLInputElement>('input')!.click();
+    statementRow.querySelector<HTMLInputElement>('input')!.click();
+    fixture.detectChanges();
+    expect(action.disabled).toBe(true);
+    expect(rendered.querySelector('.matching-totals > div:nth-child(2) strong')?.textContent?.trim())
+      .toBe(formatMoney(group.amountCents));
+
+    adjustmentRow.querySelector<HTMLInputElement>('input')!.click();
+    fixture.detectChanges();
+    expect(store.state().selectedAdjustmentIds).toEqual(group.adjustmentIds);
+    expect(rendered.querySelector('.matching-totals > div:nth-child(2) strong')?.textContent?.trim())
+      .toBe(formatMoney(group.statementAmountCents));
+    expect(rendered.querySelector('.matching-totals > div:nth-child(5) strong')?.textContent?.trim())
+      .toBe('-R$ 50,00');
+    expect(action.disabled).toBe(false);
+
+    action.click();
+    fixture.detectChanges();
+    expect(store.state().data.adjustments[0].status).toBe('Conciliado');
+    expect(rendered.querySelector('.adjustment-table tbody')?.textContent).toContain('Nenhum ajuste');
   });
 });
 

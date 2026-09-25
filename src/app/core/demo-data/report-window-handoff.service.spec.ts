@@ -11,6 +11,7 @@ function reconcileOnePayment(store: DemoStateService): void {
   store.selectBankAccount(accountId);
   store.selectStatementDate(date);
   store.toggleReceiptGroupSelection(payment.receiptIds);
+  for (const adjustmentId of payment.adjustmentIds) store.toggleAdjustmentSelection(adjustmentId);
   store.toggleStatementGroupSelection(payment.statementLineIds);
   store.reconcileSelected();
 }

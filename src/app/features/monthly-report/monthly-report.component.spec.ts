@@ -5,10 +5,11 @@ import { DemoStateService } from '../../core/demo-data/demo-state.service';
 import { MonthlyReportComponent } from './monthly-report.component';
 
 function formatCurrency(amountCents: number): string {
-  return `R$${new Intl.NumberFormat('pt-BR', {
+  const sign = amountCents < 0 ? '-' : '';
+  return `${sign}R$${new Intl.NumberFormat('pt-BR', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(amountCents / 100)}`;
+  }).format(Math.abs(amountCents) / 100)}`;
 }
 
 function formatDiscount(amountCents: number): string {
@@ -85,6 +86,25 @@ describe('MonthlyReportComponent', () => {
     );
   });
 
+  it('shows the machine rental adjustment in the Visa Electron monthly result', () => {
+    queryParamMap = convertToParamMap({
+      startDate: '2026-08-01',
+      endDate: '2026-08-31',
+      brand: 'Visa Electron',
+    });
+    const fixture = TestBed.createComponent(MonthlyReportComponent);
+    fixture.detectChanges();
+    const data = TestBed.inject(DemoStateService).state().data;
+    const group = groupSales(data, filterSales(data, {
+      startDate: '2026-08-01', endDate: '2026-08-31', brand: 'Visa Electron',
+    }))[0];
+    const row = (fixture.nativeElement as HTMLElement).querySelector<HTMLTableRowElement>('.monthly-row')!;
+
+    expect(group.totals.adjustmentAmountCents).toBe(-5_000);
+    expect(row.cells[4].textContent?.trim()).toBe('-R$50,00');
+    expect(row.cells[8].textContent?.trim()).toBe(formatCurrency(group.totals.receivedAmountCents));
+  });
+
   it('updates Baixado only after every corresponding manual payment is reconciled, then resets it', () => {
     queryParamMap = convertToParamMap({
       startDate: '2026-08-01',
@@ -114,6 +134,7 @@ describe('MonthlyReportComponent', () => {
       const payment = groupReconciliationEntries(stateService.state().data, accountId, date)
         .find((group) => group.brand === candidateGroup.brand && group.service === candidateGroup.service)!;
       stateService.toggleReceiptGroupSelection(payment.receiptIds);
+      for (const adjustmentId of payment.adjustmentIds) stateService.toggleAdjustmentSelection(adjustmentId);
       stateService.toggleStatementGroupSelection(payment.statementLineIds);
       stateService.reconcileSelected();
       fixture.detectChanges();

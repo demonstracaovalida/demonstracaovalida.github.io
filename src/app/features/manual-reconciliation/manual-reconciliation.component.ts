@@ -8,6 +8,7 @@ import {
 import { DemoStateService } from '../../core/demo-data/demo-state.service';
 import type { IsoDate, ReconciliationGroup } from '../../core/demo-data/demo-data.models';
 import { TutorialService, type ManualTutorialStage } from '../../core/tutorial/tutorial.service';
+import { TUTORIAL_MANUAL_DATE } from '../../core/tutorial/tutorial-steps';
 
 type DayFilter = 'all' | 'pending' | 'in-progress' | 'done';
 
@@ -39,9 +40,16 @@ export class ManualReconciliationComponent {
 
   protected readonly stage = signal<ManualTutorialStage>('intro');
   protected readonly dayFilter = signal<DayFilter>('all');
+  protected readonly effectiveDayFilter = computed<DayFilter>(() => {
+    const stepId = this.tutorial.step()?.id;
+    return stepId === 'manual-days' || stepId === 'manual-select-day'
+      ? 'all' : this.dayFilter();
+  });
   protected readonly historySearch = signal('');
   protected readonly successVisible = signal(false);
   protected readonly bankAccounts = computed(() => this.demoState.state().data.bankAccounts);
+  protected readonly bankSelectionBlocked = computed(() => this.tutorial.step()?.id === 'manual-banks');
+  protected readonly tutorialManualDate = TUTORIAL_MANUAL_DATE;
   protected readonly selectedBankAccountId = computed(
     () => this.demoState.state().selectedBankAccountId,
   );
@@ -73,7 +81,7 @@ export class ManualReconciliationComponent {
   });
   protected readonly filteredStatementDays = computed(() =>
     this.statementDays().filter((day) => {
-      const filter = this.dayFilter();
+      const filter = this.effectiveDayFilter();
       return filter === 'all' ||
         (filter === 'pending' && day.status === 'Pendente') ||
         (filter === 'in-progress' && day.status === 'Conciliando') ||
@@ -84,6 +92,16 @@ export class ManualReconciliationComponent {
     const session = this.demoState.state();
     if (!session.selectedBankAccountId || !session.selectedStatementDate) return [];
     return groupReconciliationEntries(session.data, session.selectedBankAccountId, session.selectedStatementDate);
+  });
+  protected readonly pendingAdjustments = computed(() => {
+    const session = this.demoState.state();
+    if (!session.selectedBankAccountId || !session.selectedStatementDate) return [];
+    const availableIds = new Set(session.data.statementLines
+      .filter((line) => line.accountId === session.selectedBankAccountId &&
+        line.transactionDate === session.selectedStatementDate && line.status === 'Pendente')
+      .map((line) => line.adjustmentId));
+    return session.data.adjustments.filter((adjustment) =>
+      adjustment.status === 'Pendente' && availableIds.has(adjustment.id));
   });
   protected readonly visibleStatementGroups = computed(() => {
     const search = this.historySearch().trim().toLocaleLowerCase('pt-BR');
@@ -98,6 +116,8 @@ export class ManualReconciliationComponent {
       session.selectedStatementLineIds,
       session.data.receipts,
       session.data.statementLines,
+      session.selectedAdjustmentIds,
+      session.data.adjustments,
     );
   });
   protected readonly canReconcile = computed(() => {
@@ -106,9 +126,11 @@ export class ManualReconciliationComponent {
       session.selectedReceiptIds,
       session.selectedStatementLineIds,
       session.data,
+      session.selectedAdjustmentIds,
     );
   });
   protected readonly selectedReceiptIds = computed(() => this.demoState.state().selectedReceiptIds);
+  protected readonly selectedAdjustmentIds = computed(() => this.demoState.state().selectedAdjustmentIds);
   protected readonly selectedStatementLineIds = computed(() => this.demoState.state().selectedStatementLineIds);
   protected readonly selectedReceiptGroupCount = computed(() =>
     this.pendingGroups().filter((group) => this.isGroupSelected(group.receiptIds, this.selectedReceiptIds())).length,
@@ -127,15 +149,23 @@ export class ManualReconciliationComponent {
   }
 
   protected selectBankAccount(accountId: string): void {
+    if (this.bankSelectionBlocked()) return;
     this.demoState.selectBankAccount(accountId);
     this.dayFilter.set('all');
     this.setStage('days');
   }
 
   protected selectDay(date: IsoDate): void {
+    if (this.daySelectionBlocked(date)) return;
     this.demoState.selectStatementDate(date);
     this.historySearch.set('');
     this.setStage('matching');
+  }
+
+  protected daySelectionBlocked(date: IsoDate): boolean {
+    const stepId = this.tutorial.step()?.id;
+    return stepId === 'manual-days' ||
+      (stepId === 'manual-select-day' && date !== TUTORIAL_MANUAL_DATE);
   }
 
   protected changeBank(): void {
@@ -159,6 +189,10 @@ export class ManualReconciliationComponent {
 
   protected toggleReceipt(group: ReconciliationGroup): void {
     this.demoState.toggleReceiptGroupSelection(group.receiptIds);
+  }
+
+  protected toggleAdjustment(adjustmentId: string): void {
+    this.demoState.toggleAdjustmentSelection(adjustmentId);
   }
 
   protected toggleStatement(group: ReconciliationGroup): void {

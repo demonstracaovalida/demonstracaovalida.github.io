@@ -160,6 +160,7 @@ describe('SalesReportComponent', () => {
     store.selectBankAccount(accountId);
     store.selectStatementDate('2026-08-02');
     store.toggleReceiptGroupSelection(payment.receiptIds);
+    for (const adjustmentId of payment.adjustmentIds) store.toggleAdjustmentSelection(adjustmentId);
     store.toggleStatementGroupSelection(payment.statementLineIds);
     store.reconcileSelected();
     fixture.detectChanges();

@@ -219,7 +219,9 @@ O lançamento bancário usado na conciliação deve ser DERIVADO do recebimento 
 
 Para cada contrapartida conciliável:
 
-`valor do extrato === valor do recebimento`
+`valor do extrato === valor do recebimento + ajustes vinculados`
+
+Exceção demonstrada em 02/08/2026: um ajuste `Aluguel maquininha` de `-R$ 50,00`, Cielo / Visa Electron, reduz em R$ 50,00 o lançamento bancário Visa Electron desse dia. O recebimento da venda permanece inalterado. O ajuste é selecionável e precisa entrar nas contrapartidas para essa conciliação fechar em zero.
 
 Exemplo:
 
@@ -412,9 +414,9 @@ Reproduzir visualmente o print.
 Regras:
 - `Total Vendido`: total bruto real das vendas do agrupamento/mês;
 - `Valor Taxa`: valor monetário das taxas, NÃO a porcentagem;
-- `Ajustes e Tarifas`: 0;
+- `Ajustes`: soma dos ajustes vinculados às vendas do agrupamento; Visa Electron inclui `-R$ 50,00`;
 - `Cancelamentos`: 0;
-- `Total Recebido`: total líquido (`bruto - taxas`);
+- `Total Recebido`: total líquido mais ajustes (`bruto - taxas + ajustes`);
 - remover coluna `Dias`.
 
 `Baixado` possui somente os estados relevantes:
@@ -504,7 +506,7 @@ Ao selecionar checkbox de um recebimento:
 Ao selecionar checkbox do lançamento correspondente no extrato:
 - atualizar `Total Extrato`.
 
-`Total Contrapartidas = Recebimentos - Cancelamentos + Ajustes`, considerando o sinal de cada ajuste. Nesta demonstração, Ajustes e Cancelamentos estão vazios, então o valor coincide com os recebimentos selecionados.
+`Total Contrapartidas = Recebimentos - Cancelamentos + Ajustes`, considerando o sinal de cada ajuste. Há um ajuste negativo de R$ 50,00 em 02/08; Cancelamentos permanece vazio.
 
 Calcular:
 `Diferença = Total Extrato - Total Contrapartidas`
@@ -523,11 +525,11 @@ Não permitir conciliar valores incompatíveis apenas para avançar a demo.
 ## Conciliação concluída
 
 Ao clicar em `Conciliar Selecionados` com diferença zero:
-1. marcar em memória os recebimentos selecionados como conciliados;
+1. marcar em memória os recebimentos e ajustes selecionados como conciliados;
 2. marcar os lançamentos de extrato correspondentes como utilizados/conciliados;
 3. mostrar brevemente uma mensagem de sucesso;
 4. a mensagem desaparece automaticamente, sem exigir clique;
-5. remover da grade os recebimentos já conciliados;
+5. remover da grade os recebimentos e ajustes já conciliados;
 6. remover da grade os lançamentos de extrato já utilizados;
 7. recalcular totais e seleção;
 8. refletir o novo estado nas telas dependentes, inclusive `Baixado` quando aplicável.
@@ -536,7 +538,7 @@ A mensagem deve parecer pertencente ao sistema; não usar um toast moderno desto
 
 ## Outras abas/seções
 
-- Ajustes: manter visualmente, sempre vazio;
+- Ajustes: exibir o lançamento fixo de 02/08 e permitir sua seleção;
 - Cancelamentos: manter visualmente, sempre vazio;
 - Conciliação Pix: indisponível para clique e acinzentada;
 - Conciliados: indisponível para clique e acinzentada.

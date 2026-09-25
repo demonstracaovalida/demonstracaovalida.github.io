@@ -4,6 +4,7 @@ import {
   type CompanyBranch,
   type DemoBankAccount,
   type DemoDataset,
+  type DemoAdjustment,
   type DemoSale,
   type IsoDate,
   type PaymentBrand,
@@ -204,26 +205,54 @@ function createReceipts(sales: readonly DemoSale[], fees: readonly SaleFee[]): P
   });
 }
 
+function createAdjustments(sales: readonly DemoSale[], receipts: readonly PaymentReceipt[]): DemoAdjustment[] {
+  const salesById = new Map(sales.map((sale) => [sale.id, sale]));
+  const visaElectronReceipt = receipts
+    .filter((receipt) =>
+      receipt.receivedDate === '2026-08-02' &&
+      salesById.get(receipt.saleId)?.brand === 'Visa Electron',
+    )
+    .sort((left, right) => right.amountCents - left.amountCents)[0];
+  if (!visaElectronReceipt || visaElectronReceipt.amountCents <= 5_000) {
+    throw new Error('Recebimento Visa Electron insuficiente para o ajuste de 02/08.');
+  }
+
+  return [{
+    id: 'ajuste-aluguel-maquininha-20260802',
+    receiptId: visaElectronReceipt.id,
+    transactionDate: '2026-08-02',
+    type: 'Aluguel maquininha',
+    acquirer: 'Cielo',
+    brand: 'Visa Electron',
+    amountCents: -5_000,
+    status: 'Pendente',
+  }];
+}
+
 function createStatementLines(
   sales: readonly DemoSale[],
   receipts: readonly PaymentReceipt[],
+  adjustments: readonly DemoAdjustment[],
 ): BankStatementLine[] {
   const saleById = new Map(sales.map((sale) => [sale.id, sale]));
+  const adjustmentByReceiptId = new Map(adjustments.map((adjustment) => [adjustment.receiptId, adjustment]));
 
   return receipts.map((receipt) => {
     const sale = saleById.get(receipt.saleId);
     if (!sale) {
       throw new Error(`Venda ausente para o recebimento ${receipt.id}.`);
     }
+    const adjustment = adjustmentByReceiptId.get(receipt.id);
 
     return {
       id: `extrato-${receipt.id}`,
       bankName: DEMO_BANK_ACCOUNTS[0].bankName,
       accountId: DEMO_BANK_ACCOUNTS[0].id,
       receiptId: receipt.id,
+      ...(adjustment ? { adjustmentId: adjustment.id } : {}),
       transactionDate: receipt.receivedDate,
       description: getStatementDescription(sale),
-      amountCents: receipt.amountCents,
+      amountCents: receipt.amountCents + (adjustment?.amountCents ?? 0),
       status: 'Pendente',
     };
   });
@@ -233,7 +262,8 @@ function createInitialData(): DemoDataset {
   const sales = createSales();
   const fees = createFees(sales);
   const receipts = createReceipts(sales, fees);
-  const statementLines = createStatementLines(sales, receipts);
+  const adjustments = createAdjustments(sales, receipts);
+  const statementLines = createStatementLines(sales, receipts, adjustments);
 
   return {
     companies: DEMO_COMPANIES,
@@ -241,6 +271,7 @@ function createInitialData(): DemoDataset {
     sales,
     fees,
     receipts,
+    adjustments,
     statementLines,
     conciliations: [],
   };

@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, vi } from 'vitest';
+import { groupReconciliationEntries } from '../demo-data/demo-calculations';
 import { DemoStateService } from '../demo-data/demo-state.service';
 import { TutorialService } from './tutorial.service';
 
@@ -160,6 +161,48 @@ describe('TutorialService', () => {
     expect(tutorial.isReportOptionAvailable('sales')).toBe(true);
     expect(tutorial.isReportOptionAvailable('fees')).toBe(true);
     expect(tutorial.isReportOptionAvailable('monthly')).toBe(true);
+  });
+
+  it('guides the 02/08 manual reconciliation through its negative adjustment', () => {
+    const tutorial = TestBed.inject(TutorialService);
+    const store = TestBed.inject(DemoStateService);
+    const accountId = store.state().data.bankAccounts[0].id;
+    store.selectBankAccount(accountId);
+    store.selectStatementDate('2026-08-02');
+    const group = groupReconciliationEntries(store.state().data, accountId, '2026-08-02')
+      .find((item) => item.brand === 'Visa Electron')!;
+
+    tutorial.setManualStage('matching');
+    tutorial.startManual();
+    expect(tutorial.step()?.id).toBe('manual-statement');
+    while (tutorial.step()?.kind === 'informativa') tutorial.next();
+    expect(tutorial.step()?.id).toBe('manual-select-statement');
+
+    store.toggleStatementGroupSelection(group.statementLineIds);
+    tutorial.observe('manual-statement-selection');
+    store.toggleReceiptGroupSelection(group.receiptIds);
+    tutorial.observe('manual-receipt-selection');
+    expect(tutorial.step()?.id).toBe('manual-select-adjustment');
+
+    store.toggleAdjustmentSelection(group.adjustmentIds[0]);
+    tutorial.observe('manual-adjustment-selection');
+    expect(tutorial.step()?.id).toBe('manual-reconcile');
+  });
+
+  it('advances the date selection only for 02/08', () => {
+    const tutorial = TestBed.inject(TutorialService);
+    tutorial.setManualStage('days');
+    tutorial.startManual();
+    expect(tutorial.step()?.id).toBe('manual-days');
+    tutorial.next();
+    expect(tutorial.step()?.id).toBe('manual-select-day');
+    expect(tutorial.step()?.targets).toEqual(['manual-day-0208']);
+    expect(tutorial.step()?.text).toBe('Clique na data 02/08 para abrir a grade de conciliação.');
+
+    tutorial.observe('manual-day', '2026-08-03');
+    expect(tutorial.step()?.id).toBe('manual-select-day');
+    tutorial.observe('manual-day', '2026-08-02');
+    expect(tutorial.step()?.id).toBe('manual-statement');
   });
 
 });

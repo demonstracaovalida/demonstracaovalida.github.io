@@ -1,9 +1,8 @@
-import { Location } from '@angular/common';
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import type { ReportType } from '../demo-data/demo-data.models';
 import { DemoStateService } from '../demo-data/demo-state.service';
-import { TUTORIAL_STEPS } from './tutorial-steps';
+import { TUTORIAL_MANUAL_DATE, TUTORIAL_STEPS } from './tutorial-steps';
 
 const REPORT_ORDER: readonly ReportType[] = ['sales', 'fees', 'monthly'];
 const REPORT_SELECTION_STEPS: Record<ReportType, string> = {
@@ -24,7 +23,6 @@ const MANUAL_ENTRY_STEPS: Record<ManualTutorialStage, string> = {
 @Injectable({ providedIn: 'root' })
 export class TutorialService {
   private readonly router = inject(Router, { optional: true });
-  private readonly location = inject(Location);
   private readonly demoState = inject(DemoStateService);
   private readonly stepId = signal<string | null>(this.reportEntryStep());
   private readonly visitedReports = new Set<ReportType>();
@@ -108,10 +106,23 @@ export class TutorialService {
     if (step.id === 'home-select-sales' && value !== 'sales') return;
     if (step.id === 'home-select-fees' && value !== 'fees') return;
     if (step.id === 'home-select-monthly' && value !== 'monthly') return;
+    if (step.id === 'manual-select-day' && value !== TUTORIAL_MANUAL_DATE) return;
     if (action === 'manual-statement-selection' &&
       this.demoState.state().selectedStatementLineIds.length === 0) return;
     if (action === 'manual-receipt-selection' &&
       this.demoState.state().selectedReceiptIds.length === 0) return;
+    if (action === 'manual-adjustment-selection' &&
+      this.demoState.state().selectedAdjustmentIds.length === 0) return;
+    if (step.id === 'manual-select-receipt') {
+      const session = this.demoState.state();
+      const adjustmentNeeded = session.data.statementLines.some((line) =>
+        session.selectedStatementLineIds.includes(line.id) &&
+        line.adjustmentId && !session.selectedAdjustmentIds.includes(line.adjustmentId));
+      if (adjustmentNeeded) {
+        this.stepId.set('manual-select-adjustment');
+        return;
+      }
+    }
     this.stepId.set(step.next ?? null);
   }
 
@@ -143,8 +154,10 @@ export class TutorialService {
   };
 
   private reportEntryStep(): string | null {
-    // Location resolves both path and hash routes, including their query parameters.
-    const url = new URL(this.location.path(), window.location.origin);
+    const browserUrl = new URL(window.location.href);
+    const url = browserUrl.hash.startsWith('#/')
+      ? new URL(browserUrl.hash.slice(1), browserUrl.origin)
+      : browserUrl;
     if (url.searchParams.get('tutorial') !== 'report') return null;
     return ({
       '/relatorio-vendas': 'sales-overview',

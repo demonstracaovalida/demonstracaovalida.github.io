@@ -184,11 +184,15 @@
   cursor: pointer;
 }
 
-.bank-card:hover,
+.bank-card:not(:disabled):hover,
 .bank-card:focus-visible,
 .bank-card.selected {
   border-color: #2477c4;
   outline: none;
+}
+
+.bank-card:disabled {
+  cursor: default;
 }
 
 .bank-title {

@@ -71,11 +71,23 @@ export interface PaymentReceipt {
   readonly status: ReceiptStatus;
 }
 
+export interface DemoAdjustment {
+  readonly id: string;
+  readonly receiptId: string;
+  readonly transactionDate: IsoDate;
+  readonly type: string;
+  readonly acquirer: string;
+  readonly brand: PaymentBrand;
+  readonly amountCents: number;
+  readonly status: ReceiptStatus;
+}
+
 export interface BankStatementLine {
   readonly id: string;
   readonly bankName: string;
   readonly accountId: string;
   readonly receiptId: string;
+  readonly adjustmentId?: string;
   readonly transactionDate: IsoDate;
   readonly description: string;
   readonly amountCents: number;
@@ -85,6 +97,7 @@ export interface BankStatementLine {
 export interface ConciliationRecord {
   readonly id: string;
   readonly receiptIds: readonly string[];
+  readonly adjustmentIds?: readonly string[];
   readonly statementLineIds: readonly string[];
   readonly amountCents: number;
   readonly reconciledAt: string;
@@ -96,6 +109,7 @@ export interface DemoDataset {
   readonly sales: readonly DemoSale[];
   readonly fees: readonly SaleFee[];
   readonly receipts: readonly PaymentReceipt[];
+  readonly adjustments: readonly DemoAdjustment[];
   readonly statementLines: readonly BankStatementLine[];
   readonly conciliations: readonly ConciliationRecord[];
 }
@@ -116,6 +130,7 @@ export interface DemoTotals {
   readonly grossAmountCents: number;
   readonly feeAmountCents: number;
   readonly netAmountCents: number;
+  readonly adjustmentAmountCents: number;
   readonly receivedAmountCents: number;
   readonly statementAmountCents: number;
 }
@@ -141,17 +156,22 @@ export interface ReconciliationGroup {
   readonly receivedDate: IsoDate;
   readonly description: string;
   readonly receiptIds: readonly string[];
+  readonly adjustmentIds: readonly string[];
   readonly statementLineIds: readonly string[];
   readonly installmentCount: number;
   readonly amountCents: number;
+  readonly statementAmountCents: number;
 }
 
 export interface ConciliationSelectionTotals {
   readonly statementAmountCents: number;
   readonly receiptAmountCents: number;
+  readonly adjustmentAmountCents: number;
+  readonly counterpartAmountCents: number;
   readonly differenceCents: number;
   readonly statementLineCount: number;
   readonly receiptCount: number;
+  readonly adjustmentCount: number;
 }
 
 /** Every DemoStateService instance owns an independent copy of this state. */
@@ -160,5 +180,6 @@ export interface DemoSessionState {
   readonly selectedBankAccountId: string | null;
   readonly selectedStatementDate: IsoDate | null;
   readonly selectedReceiptIds: readonly string[];
+  readonly selectedAdjustmentIds: readonly string[];
   readonly selectedStatementLineIds: readonly string[];
 }
