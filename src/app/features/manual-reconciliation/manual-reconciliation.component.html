@@ -166,8 +166,8 @@
         <div data-tour="manual-difference"><span>Diferença</span><strong [class.balanced]="selectionTotals().differenceCents === 0">{{ formatMoney(selectionTotals().differenceCents) }} @if (selectionTotals().differenceCents === 0) {✓}</strong></div>
       </div>
 
-      @if (successVisible()) {
-        <div class="reconciliation-success" role="status">Conciliação realizada com sucesso.</div>
+      @for (toastId of successToastIds(); track toastId) {
+        <div class="reconciliation-success" role="status">Conciliação realizada com sucesso!</div>
       }
 
       <div class="matching-columns">

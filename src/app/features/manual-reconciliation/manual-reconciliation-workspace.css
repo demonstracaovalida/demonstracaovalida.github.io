@@ -303,16 +303,31 @@
 
 .reconciliation-success {
   position: fixed;
-  z-index: 5;
+  z-index: 1004;
   top: 155px;
   left: 50%;
-  padding: 10px 24px;
+  box-sizing: border-box;
+  min-width: 243px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 15px;
   transform: translateX(-50%);
-  border: 1px solid #93ca9a;
-  border-radius: 3px;
-  color: #25612e;
-  background: #e7f5e8;
-  font-size: 14px;
+  border: 1px solid #82998d;
+  border-radius: 6px;
+  color: #12cd91;
+  background: #09291e;
+  box-shadow: 0 1px 5px rgb(0 0 0 / 25%);
+  font-size: 13px;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: reconciliation-success-fade 5s linear forwards;
+}
+
+@keyframes reconciliation-success-fade {
+  0%, 60% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 .matching-columns {

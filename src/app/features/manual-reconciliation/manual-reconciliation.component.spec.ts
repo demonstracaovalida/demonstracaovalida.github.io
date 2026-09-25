@@ -240,9 +240,16 @@ describe('ManualReconciliationComponent', () => {
         .filter((row) => row.textContent?.includes('Visa Electron'))).toHaveLength(0);
       expect([...rendered.querySelectorAll<HTMLTableRowElement>('.statement-table tbody tr')]
         .filter((row) => row.textContent?.includes('Visa Electron'))).toHaveLength(0);
-      expect(rendered.querySelector('[role="status"]')?.textContent).toContain('sucesso');
+      expect(rendered.querySelector('[role="status"]')?.textContent?.trim())
+        .toBe('Conciliação realizada com sucesso!');
 
-      vi.advanceTimersByTime(2500);
+      vi.advanceTimersByTime(3000);
+      fixture.detectChanges();
+      expect(rendered.querySelector('[role="status"]')).toBeTruthy();
+      vi.advanceTimersByTime(1999);
+      fixture.detectChanges();
+      expect(rendered.querySelector('[role="status"]')).toBeTruthy();
+      vi.advanceTimersByTime(1);
       fixture.detectChanges();
       expect(rendered.querySelector('[role="status"]')).toBeNull();
 

@@ -37,6 +37,7 @@ export class ManualReconciliationComponent {
   private readonly tutorial = inject(TutorialService);
   private readonly destroyRef = inject(DestroyRef);
   private successTimer: ReturnType<typeof setTimeout> | null = null;
+  private successToastSequence = 0;
 
   protected readonly stage = signal<ManualTutorialStage>('intro');
   protected readonly dayFilter = signal<DayFilter>('all');
@@ -46,7 +47,7 @@ export class ManualReconciliationComponent {
       ? 'all' : this.dayFilter();
   });
   protected readonly historySearch = signal('');
-  protected readonly successVisible = signal(false);
+  protected readonly successToastIds = signal<readonly number[]>([]);
   protected readonly bankAccounts = computed(() => this.demoState.state().data.bankAccounts);
   protected readonly bankSelectionBlocked = computed(() => this.tutorial.step()?.id === 'manual-banks');
   protected readonly tutorialManualDate = TUTORIAL_MANUAL_DATE;
@@ -219,14 +220,14 @@ export class ManualReconciliationComponent {
     if (!this.canReconcile()) return;
     this.demoState.reconcileSelected();
     this.tutorial.observe('manual-reconciled');
-    this.successVisible.set(true);
     this.clearSuccessTimer();
-    this.successTimer = setTimeout(() => this.successVisible.set(false), 2500);
+    this.successToastIds.set([++this.successToastSequence]);
+    this.successTimer = setTimeout(() => this.successToastIds.set([]), 5000);
   }
 
   protected resetSimulation(): void {
     this.clearSuccessTimer();
-    this.successVisible.set(false);
+    this.successToastIds.set([]);
     this.demoState.reset();
     this.dayFilter.set('all');
     this.historySearch.set('');
