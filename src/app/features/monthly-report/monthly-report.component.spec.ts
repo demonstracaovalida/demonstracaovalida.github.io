@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { calculateTotals, filterSales, groupSales } from '../../core/demo-data/demo-calculations';
+import { calculateTotals, filterSales, groupReconciliationEntries, groupSales } from '../../core/demo-data/demo-calculations';
 import { DemoStateService } from '../../core/demo-data/demo-state.service';
 import { MonthlyReportComponent } from './monthly-report.component';
 
@@ -85,7 +85,7 @@ describe('MonthlyReportComponent', () => {
     );
   });
 
-  it('derives Baixado as 100% only when every receipt in the filtered row is reconciled', () => {
+  it('updates Baixado only after every corresponding manual payment is reconciled, then resets it', () => {
     queryParamMap = convertToParamMap({
       startDate: '2026-08-01',
       endDate: '2026-08-31',
@@ -97,36 +97,39 @@ describe('MonthlyReportComponent', () => {
     const dataset = stateService.state().data;
     const candidateGroup = groupSales(dataset).find((group) => group.saleIds.length > 1)!;
     const candidateSaleIds = new Set(candidateGroup.saleIds);
-    const firstSaleId = candidateGroup.saleIds[0];
+    const receiptDates = [...new Set(dataset.receipts
+      .filter((receipt) => candidateSaleIds.has(receipt.saleId))
+      .map((receipt) => receipt.receivedDate))];
     const rendered = fixture.nativeElement as HTMLElement;
     const row = rendered.querySelector<HTMLTableRowElement>(
       `[data-row-key="${candidateGroup.key}"]`,
     )!;
 
     expect(row.cells[10].textContent?.trim()).toBe('0,00 %');
+    expect(receiptDates.length).toBeGreaterThan(1);
+    const accountId = dataset.bankAccounts[0].id;
+    stateService.selectBankAccount(accountId);
+    for (const [index, date] of receiptDates.entries()) {
+      stateService.selectStatementDate(date);
+      const payment = groupReconciliationEntries(stateService.state().data, accountId, date)
+        .find((group) => group.brand === candidateGroup.brand && group.service === candidateGroup.service)!;
+      stateService.toggleReceiptGroupSelection(payment.receiptIds);
+      stateService.toggleStatementGroupSelection(payment.statementLineIds);
+      stateService.reconcileSelected();
+      fixture.detectChanges();
+      if (index < receiptDates.length - 1) {
+        expect(row.cells[10].textContent?.trim()).toBe('0,00 %');
+      }
+    }
 
-    stateService.update((session) => ({
-      ...session,
-      data: {
-        ...session.data,
-        receipts: session.data.receipts.map((receipt) =>
-          receipt.saleId === firstSaleId ? { ...receipt, status: 'Conciliado' } : receipt,
-        ),
-      },
-    }));
-    fixture.detectChanges();
-    expect(row.cells[10].textContent?.trim()).toBe('0,00 %');
-
-    stateService.update((session) => ({
-      ...session,
-      data: {
-        ...session.data,
-        receipts: session.data.receipts.map((receipt) =>
-          candidateSaleIds.has(receipt.saleId) ? { ...receipt, status: 'Conciliado' } : receipt,
-        ),
-      },
-    }));
+    expect(stateService.state().data.receipts
+      .filter((receipt) => candidateSaleIds.has(receipt.saleId))
+      .every((receipt) => receipt.status === 'Conciliado')).toBe(true);
     fixture.detectChanges();
     expect(row.cells[10].textContent?.trim()).toBe('100,00 %');
+
+    stateService.reset();
+    fixture.detectChanges();
+    expect(row.cells[10].textContent?.trim()).toBe('0,00 %');
   });
 });

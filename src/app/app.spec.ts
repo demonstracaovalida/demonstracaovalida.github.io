@@ -99,6 +99,24 @@ describe('App', () => {
     expect((fixture.nativeElement.querySelector('app-top-navbar') as HTMLElement).hidden).toBe(false);
   });
 
+  it('returns to Início from Filiais through the navbar', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/filiais');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLAnchorElement>('a.navigation-item[routerLink="/"]')!.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(router.url).toBe('/');
+    expect(fixture.nativeElement.querySelector('app-home')).toBeTruthy();
+  });
+
   it('opens Nova Conciliação through the submenu without linking the parent item', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();

@@ -17,6 +17,7 @@ import type {
   SaleGroup,
 } from '../../core/demo-data/demo-data.models';
 import { DemoStateService } from '../../core/demo-data/demo-state.service';
+import { ReportWindowHandoffService } from '../../core/demo-data/report-window-handoff.service';
 
 interface MonthlyReportRow {
   readonly key: string;
@@ -111,6 +112,7 @@ function productCodesByBrand(dataset: DemoDataset): ReadonlyMap<PaymentBrand, st
 export class MonthlyReportComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly demoState = inject(DemoStateService);
+  private readonly reportHandoff = inject(ReportWindowHandoffService);
 
   protected readonly filters = readFilters(
     this.route.snapshot.queryParamMap,
@@ -146,6 +148,10 @@ export class MonthlyReportComponent {
       ? 0
       : (totals.feeAmountCents / totals.grossAmountCents) * 100;
   });
+
+  constructor() {
+    this.reportHandoff.requestSnapshotFromOpener();
+  }
 
   protected formatCurrency(amountCents: number): string {
     return `R$${CURRENCY_FORMATTER.format(amountCents / 100)}`;

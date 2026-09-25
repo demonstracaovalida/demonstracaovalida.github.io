@@ -19,6 +19,7 @@ import type {
   ReportType,
 } from '../../core/demo-data/demo-data.models';
 import { DemoStateService } from '../../core/demo-data/demo-state.service';
+import { ReportWindowHandoffService } from '../../core/demo-data/report-window-handoff.service';
 
 const PLOT_LEFT = 115;
 const PLOT_RIGHT_INSET = 15;
@@ -65,6 +66,7 @@ interface ChartTick {
 })
 export class HomeComponent {
   private readonly demoState = inject(DemoStateService);
+  private readonly reportHandoff = inject(ReportWindowHandoffService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly chartElement = viewChild.required<ElementRef<SVGSVGElement>>('salesChart');
   private readonly chartWidth = signal(1000);
@@ -193,7 +195,7 @@ export class HomeComponent {
         fees: 'relatorio-taxas',
         monthly: 'resultado-mensal',
       }[filters.reportType];
-      window.open(`/${route}?${query.toString()}`, '_blank');
+      this.reportHandoff.openReport(`/${route}?${query.toString()}`);
     }
   }
 

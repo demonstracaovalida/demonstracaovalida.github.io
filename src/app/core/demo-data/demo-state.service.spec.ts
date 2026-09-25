@@ -1,3 +1,4 @@
+import { calculateTotals, groupReconciliationEntries } from './demo-calculations';
 import { DemoStateService } from './demo-state.service';
 
 describe('DemoStateService', () => {
@@ -82,5 +83,48 @@ describe('DemoStateService', () => {
     expect(store.state().selectedReceiptIds).toEqual([]);
     expect(store.state().selectedStatementLineIds).toEqual([]);
     expect(() => store.toggleReceiptSelection(line.receiptId)).toThrow();
+  });
+
+  it('copies a reconciled report snapshot once without linking two tabs or surviving reset and reload', () => {
+    const sourceTab = new DemoStateService();
+    const reportTab = new DemoStateService();
+    const accountId = sourceTab.state().data.bankAccounts[0].id;
+    const date = sourceTab.state().data.statementLines[0].transactionDate;
+    const payment = groupReconciliationEntries(sourceTab.state().data, accountId, date)[0];
+    const originalTotals = calculateTotals(sourceTab.state().data);
+
+    sourceTab.selectBankAccount(accountId);
+    sourceTab.selectStatementDate(date);
+    sourceTab.toggleReceiptGroupSelection(payment.receiptIds);
+    sourceTab.toggleStatementGroupSelection(payment.statementLineIds);
+    sourceTab.reconcileSelected();
+
+    const snapshot = structuredClone(sourceTab.state().data.conciliations);
+    expect(reportTab.state().data.conciliations).toHaveLength(0);
+    reportTab.applyConciliationSnapshot(snapshot);
+    expect(reportTab.state().data.conciliations).toEqual(snapshot);
+    expect(reportTab.state().data.receipts
+      .filter((receipt) => payment.receiptIds.includes(receipt.id))
+      .every((receipt) => receipt.status === 'Conciliado')).toBe(true);
+    expect(reportTab.state().data.statementLines
+      .filter((line) => payment.statementLineIds.includes(line.id))
+      .every((line) => line.status === 'Conciliado')).toBe(true);
+    expect(calculateTotals(reportTab.state().data)).toEqual(originalTotals);
+
+    sourceTab.reset();
+    expect(reportTab.state().data.conciliations).toHaveLength(1);
+    const freshTab = new DemoStateService();
+    expect(freshTab.state().data.conciliations).toHaveLength(0);
+    expect(freshTab.state().data.receipts.every((receipt) => receipt.status === 'Pendente')).toBe(true);
+
+    const invalidTab = new DemoStateService();
+    expect(() => invalidTab.applyConciliationSnapshot([
+      { ...snapshot[0], amountCents: snapshot[0].amountCents + 1 },
+    ])).toThrow('Valor divergente');
+    expect(invalidTab.state().data.conciliations).toHaveLength(0);
+
+    reportTab.reset();
+    expect(reportTab.state().data.conciliations).toHaveLength(0);
+    expect(reportTab.state().data.receipts.every((receipt) => receipt.status === 'Pendente')).toBe(true);
   });
 });

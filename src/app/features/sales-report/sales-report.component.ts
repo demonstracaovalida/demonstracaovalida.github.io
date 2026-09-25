@@ -18,6 +18,7 @@ import type {
   SaleGroup,
 } from '../../core/demo-data/demo-data.models';
 import { DemoStateService } from '../../core/demo-data/demo-state.service';
+import { ReportWindowHandoffService } from '../../core/demo-data/report-window-handoff.service';
 
 interface SaleDetails {
   readonly sale: DemoSale;
@@ -31,8 +32,8 @@ interface SalesReportGroup extends SaleGroup {
   readonly details: readonly SaleDetails[];
   readonly contractRateBasisPoints: number;
   readonly practicedRateBasisPoints: number;
-  readonly pendingPercent: number;
-  readonly validatedPercent: number;
+  readonly pendingPercent: 0;
+  readonly validatedPercent: 100;
 }
 
 interface SalesReportDay {
@@ -105,6 +106,7 @@ function weightedRateBasisPoints(
 export class SalesReportComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly demoState = inject(DemoStateService);
+  private readonly reportHandoff = inject(ReportWindowHandoffService);
   private readonly numberFormatter = new Intl.NumberFormat('pt-BR', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -170,6 +172,10 @@ export class SalesReportComponent {
     this.demoState.state().data.companies.find((company) => company.isCurrentCompany),
   );
 
+  constructor() {
+    this.reportHandoff.requestSnapshotFromOpener();
+  }
+
   protected togglePendingOnly(): void {
     this.pendingOnly.update((pendingOnly) => !pendingOnly);
   }
@@ -222,9 +228,6 @@ export class SalesReportComponent {
 
       return { sale, fee, receipt };
     });
-    const pendingCount = details.filter((item) => item.receipt.status === 'Pendente').length;
-    const validatedCount = details.filter((item) => item.receipt.status === 'Conciliado').length;
-
     return {
       ...group,
       key: `${date}|${group.key}`,
@@ -238,8 +241,8 @@ export class SalesReportComponent {
         details,
         (fee) => fee.practicedRateBasisPoints,
       ),
-      pendingPercent: details.length === 0 ? 0 : (validatedCount / details.length) * 100,
-      validatedPercent: details.length === 0 ? 0 : (pendingCount / details.length) * 100,
+      pendingPercent: 0,
+      validatedPercent: 100,
     };
   }
 }

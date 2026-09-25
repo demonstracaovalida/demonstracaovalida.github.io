@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { calculateTotals, filterSales, groupSales } from '../../core/demo-data/demo-calculations';
+import { calculateTotals, filterSales, groupReconciliationEntries, groupSales } from '../../core/demo-data/demo-calculations';
 import { DemoStateService } from '../../core/demo-data/demo-state.service';
 import { SalesReportComponent } from './sales-report.component';
 
@@ -137,5 +137,50 @@ describe('SalesReportComponent', () => {
 
     expect(button.getAttribute('aria-pressed')).toBe('true');
     expect(TestBed.inject(DemoStateService).state().data.sales).toHaveLength(originalCount);
+  });
+
+  it('updates Pendente, Validado and detail statuses after a real reconciliation, then restores them', () => {
+    queryParamMap = convertToParamMap({
+      startDate: '2026-08-01',
+      endDate: '2026-08-01',
+      brand: 'Visa Electron',
+      detailLevel: 'detail',
+    });
+    const fixture = TestBed.createComponent(SalesReportComponent);
+    fixture.detectChanges();
+    const rendered = fixture.nativeElement as HTMLElement;
+    const store = TestBed.inject(DemoStateService);
+    const accountId = store.state().data.bankAccounts[0].id;
+    const payment = groupReconciliationEntries(store.state().data, accountId, '2026-08-02')
+      .find((group) => group.brand === 'Visa Electron')!;
+    const initialTotal = rendered.querySelector('.general-total .amount-cell')?.textContent;
+    expect([...rendered.querySelectorAll<HTMLTableRowElement>('.detail-table tbody tr')]
+      .every((row) => row.cells[13].textContent?.trim() === 'Pendente')).toBe(true);
+
+    store.selectBankAccount(accountId);
+    store.selectStatementDate('2026-08-02');
+    store.toggleReceiptGroupSelection(payment.receiptIds);
+    store.toggleStatementGroupSelection(payment.statementLineIds);
+    store.reconcileSelected();
+    fixture.detectChanges();
+
+    const groupRow = rendered.querySelector<HTMLTableRowElement>('.group-row')!;
+    expect(groupRow.cells[8].textContent?.trim()).toBe('0 %');
+    expect(groupRow.cells[9].textContent?.trim()).toBe('100 %');
+    expect([...rendered.querySelectorAll<HTMLTableRowElement>('.detail-table tbody tr')]
+      .every((row) => row.cells[13].textContent?.trim() === 'Conciliado')).toBe(true);
+    expect(rendered.querySelector('.general-total .amount-cell')?.textContent).toBe(initialTotal);
+
+    rendered.querySelector<HTMLButtonElement>('.pending-filter')!.click();
+    fixture.detectChanges();
+    expect(rendered.querySelectorAll('.group-row')).toHaveLength(0);
+
+    store.reset();
+    fixture.detectChanges();
+    expect(rendered.querySelectorAll('.group-row')).toHaveLength(1);
+    expect(rendered.querySelector<HTMLTableRowElement>('.group-row')!.cells[8].textContent?.trim()).toBe('0 %');
+    expect(rendered.querySelector<HTMLTableRowElement>('.group-row')!.cells[9].textContent?.trim()).toBe('100 %');
+    expect([...rendered.querySelectorAll<HTMLTableRowElement>('.detail-table tbody tr')]
+      .every((row) => row.cells[13].textContent?.trim() === 'Pendente')).toBe(true);
   });
 });

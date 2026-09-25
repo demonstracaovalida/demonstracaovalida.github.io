@@ -1,7 +1,7 @@
 import { Injectable, signal, type Signal, type WritableSignal } from '@angular/core';
 import { canReconcileSelection } from './demo-calculations';
 import { DEMO_INITIAL_DATA } from './demo-data';
-import type { DemoSessionState, IsoDate } from './demo-data.models';
+import type { ConciliationRecord, DemoSessionState, IsoDate } from './demo-data.models';
 
 function createInitialSessionState(): DemoSessionState {
   return {
@@ -173,6 +173,47 @@ export class DemoStateService {
             },
           ],
         },
+        selectedReceiptIds: [],
+        selectedStatementLineIds: [],
+      };
+    });
+  }
+
+  /** Applies a one-time report snapshot to this tab's own initial dataset. */
+  applyConciliationSnapshot(records: readonly ConciliationRecord[]): void {
+    this.writableState.update((current) => {
+      if (current.data.conciliations.length > 0) {
+        throw new Error('O estado desta aba já contém conciliações.');
+      }
+
+      let data = current.data;
+      for (const record of records) {
+        if (!canReconcileSelection(record.receiptIds, record.statementLineIds, data)) {
+          throw new Error(`Conciliação inválida no relatório: ${record.id}.`);
+        }
+        const receiptIds = new Set(record.receiptIds);
+        const statementLineIds = new Set(record.statementLineIds);
+        const amountCents = data.receipts
+          .filter((receipt) => receiptIds.has(receipt.id))
+          .reduce((total, receipt) => total + receipt.amountCents, 0);
+        if (amountCents !== record.amountCents) {
+          throw new Error(`Valor divergente na conciliação ${record.id}.`);
+        }
+        data = {
+          ...data,
+          receipts: data.receipts.map((receipt) =>
+            receiptIds.has(receipt.id) ? { ...receipt, status: 'Conciliado' as const } : receipt,
+          ),
+          statementLines: data.statementLines.map((line) =>
+            statementLineIds.has(line.id) ? { ...line, status: 'Conciliado' as const } : line,
+          ),
+          conciliations: [...data.conciliations, structuredClone(record)],
+        };
+      }
+
+      return {
+        ...current,
+        data,
         selectedReceiptIds: [],
         selectedStatementLineIds: [],
       };

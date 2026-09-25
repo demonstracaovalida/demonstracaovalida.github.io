@@ -16,6 +16,7 @@ import type {
   SaleService,
 } from '../../core/demo-data/demo-data.models';
 import { DemoStateService } from '../../core/demo-data/demo-state.service';
+import { ReportWindowHandoffService } from '../../core/demo-data/report-window-handoff.service';
 
 interface FeeConfigurationRow {
   readonly key: string;
@@ -91,6 +92,7 @@ function identifierFor(index: number): string {
 export class FeesReportComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly demoState = inject(DemoStateService);
+  private readonly reportHandoff = inject(ReportWindowHandoffService);
   private readonly numberFormatter = new Intl.NumberFormat('pt-BR', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -167,6 +169,10 @@ export class FeesReportComponent {
   protected readonly currentCompany = computed(() =>
     this.demoState.state().data.companies.find((company) => company.isCurrentCompany),
   );
+
+  constructor() {
+    this.reportHandoff.requestSnapshotFromOpener();
+  }
 
   protected isExpanded(acquirer: string): boolean {
     return !this.collapsedAcquirers().has(acquirer);
