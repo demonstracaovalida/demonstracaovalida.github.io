@@ -36,6 +36,16 @@ ng build
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
+## GitHub Pages
+
+O workflow [deploy-pages.yml](.github/workflows/deploy-pages.yml) publica a aplicação a cada push na branch `main`. No GitHub, selecione **Settings → Pages → Build and deployment → Source: GitHub Actions**. O workflow usa o caminho base fornecido pelo Pages e envia `dist/demonstracaoValida/browser`.
+
+As rotas usam `#`, permitindo abrir relatórios em nova aba e recarregar qualquer tela em uma hospedagem estática. Para conferir localmente um build no caminho do repositório, execute:
+
+```bash
+npm run build -- --base-href /valida-demonstracao/
+```
+
 ## Running unit tests
 
 To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:

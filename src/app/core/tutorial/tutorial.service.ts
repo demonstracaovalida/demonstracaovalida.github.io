@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import type { ReportType } from '../demo-data/demo-data.models';
@@ -14,6 +15,7 @@ const REPORT_SELECTION_STEPS: Record<ReportType, string> = {
 @Injectable({ providedIn: 'root' })
 export class TutorialService {
   private readonly router = inject(Router, { optional: true });
+  private readonly location = inject(Location);
   private readonly demoState = inject(DemoStateService);
   private readonly stepId = signal<string | null>(this.reportEntryStep());
   private readonly visitedReports = new Set<ReportType>();
@@ -124,7 +126,8 @@ export class TutorialService {
   };
 
   private reportEntryStep(): string | null {
-    const url = new URL(window.location.href);
+    // Location resolves both path and hash routes, including their query parameters.
+    const url = new URL(this.location.path(), window.location.origin);
     if (url.searchParams.get('tutorial') !== 'report') return null;
     return ({
       '/relatorio-vendas': 'sales-overview',

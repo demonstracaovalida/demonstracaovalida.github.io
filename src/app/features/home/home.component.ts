@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import {
   afterNextRender,
   Component,
@@ -69,6 +69,7 @@ interface ChartTick {
 export class HomeComponent {
   private readonly demoState = inject(DemoStateService);
   private readonly reportHandoff = inject(ReportWindowHandoffService);
+  private readonly location = inject(Location);
   protected readonly tutorial = inject(TutorialService);
   protected readonly welcome = inject(HomeWelcomeService);
   private readonly destroyRef = inject(DestroyRef);
@@ -207,7 +208,8 @@ export class HomeComponent {
         monthly: 'resultado-mensal',
       }[filters.reportType];
       if (this.tutorial.isAwaitingReport()) query.set('tutorial', 'report');
-      const reportWindow = this.reportHandoff.openReport(`/${route}?${query.toString()}`);
+      const reportUrl = this.location.prepareExternalUrl(`/${route}?${query.toString()}`);
+      const reportWindow = this.reportHandoff.openReport(reportUrl);
       if (this.tutorial.isAwaitingReport()) {
         this.tutorial.registerReportWindow(reportWindow, filters.reportType);
       }
