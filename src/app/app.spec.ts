@@ -79,4 +79,23 @@ describe('App', () => {
     expect(compiled.querySelector('app-monthly-report')).toBeTruthy();
     expect((compiled.querySelector('app-top-navbar') as HTMLElement).hidden).toBe(true);
   });
+
+  it('opens Filiais from the navbar and keeps the shared shell visible', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const rendered = fixture.nativeElement as HTMLElement;
+    const link = rendered.querySelector<HTMLAnchorElement>(
+      'a[routerLink="/filiais"]',
+    );
+    expect(link).toBeTruthy();
+    link!.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(TestBed.inject(Router).url).toBe('/filiais');
+    expect(fixture.nativeElement.querySelector('app-branches')).toBeTruthy();
+    expect((fixture.nativeElement.querySelector('app-top-navbar') as HTMLElement).hidden).toBe(false);
+  });
 });
