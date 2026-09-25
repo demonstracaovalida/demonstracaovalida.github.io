@@ -7,9 +7,8 @@ import {
 } from '../../core/demo-data/demo-calculations';
 import { DemoStateService } from '../../core/demo-data/demo-state.service';
 import type { IsoDate, ReconciliationGroup } from '../../core/demo-data/demo-data.models';
-import { TutorialService } from '../../core/tutorial/tutorial.service';
+import { TutorialService, type ManualTutorialStage } from '../../core/tutorial/tutorial.service';
 
-type ManualStage = 'intro' | 'banks' | 'days' | 'matching';
 type DayFilter = 'all' | 'pending' | 'in-progress' | 'done';
 
 interface StatementDay {
@@ -38,7 +37,7 @@ export class ManualReconciliationComponent {
   private readonly destroyRef = inject(DestroyRef);
   private successTimer: ReturnType<typeof setTimeout> | null = null;
 
-  protected readonly stage = signal<ManualStage>('intro');
+  protected readonly stage = signal<ManualTutorialStage>('intro');
   protected readonly dayFilter = signal<DayFilter>('all');
   protected readonly historySearch = signal('');
   protected readonly successVisible = signal(false);
@@ -119,34 +118,35 @@ export class ManualReconciliationComponent {
   );
 
   constructor() {
+    this.tutorial.setManualStage(this.stage());
     this.destroyRef.onDestroy(() => this.clearSuccessTimer());
   }
 
   protected startNewReconciliation(): void {
-    this.stage.set('banks');
+    this.setStage('banks');
   }
 
   protected selectBankAccount(accountId: string): void {
     this.demoState.selectBankAccount(accountId);
     this.dayFilter.set('all');
-    this.stage.set('days');
+    this.setStage('days');
   }
 
   protected selectDay(date: IsoDate): void {
     this.demoState.selectStatementDate(date);
     this.historySearch.set('');
-    this.stage.set('matching');
+    this.setStage('matching');
   }
 
   protected changeBank(): void {
     this.demoState.clearSelection();
-    this.stage.set('banks');
+    this.setStage('banks');
   }
 
   protected changeDate(): void {
     this.demoState.clearSelection();
     this.dayFilter.set('all');
-    this.stage.set('days');
+    this.setStage('days');
   }
 
   protected setDayFilter(filter: DayFilter): void {
@@ -196,7 +196,12 @@ export class ManualReconciliationComponent {
     this.demoState.reset();
     this.dayFilter.set('all');
     this.historySearch.set('');
-    this.stage.set('intro');
+    this.setStage('intro');
+  }
+
+  private setStage(stage: ManualTutorialStage): void {
+    this.stage.set(stage);
+    this.tutorial.setManualStage(stage);
   }
 
   protected formatMoney(amountCents: number): string {

@@ -12,6 +12,15 @@ const REPORT_SELECTION_STEPS: Record<ReportType, string> = {
   monthly: 'home-select-monthly',
 };
 
+export type ManualTutorialStage = 'intro' | 'banks' | 'days' | 'matching';
+
+const MANUAL_ENTRY_STEPS: Record<ManualTutorialStage, string> = {
+  intro: 'manual-intro',
+  banks: 'manual-banks',
+  days: 'manual-days',
+  matching: 'manual-statement',
+};
+
 @Injectable({ providedIn: 'root' })
 export class TutorialService {
   private readonly router = inject(Router, { optional: true });
@@ -21,6 +30,7 @@ export class TutorialService {
   private readonly visitedReports = new Set<ReportType>();
   private reportWindow: Window | null = null;
   private currentReportType: ReportType | null = null;
+  private manualStage: ManualTutorialStage = 'intro';
 
   readonly step = computed(() => {
     const id = this.stepId();
@@ -36,10 +46,17 @@ export class TutorialService {
   }
 
   startHome(): void {
-    this.visitedReports.clear();
-    this.reportWindow = null;
-    this.currentReportType = null;
+    this.stop();
     this.stepId.set('home-cards');
+  }
+
+  setManualStage(stage: ManualTutorialStage): void {
+    this.manualStage = stage;
+  }
+
+  startManual(): void {
+    this.stop();
+    this.stepId.set(MANUAL_ENTRY_STEPS[this.manualStage]);
   }
 
   stop(propagate = true): void {

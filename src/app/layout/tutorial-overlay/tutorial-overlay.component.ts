@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { afterNextRender, Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { TutorialService } from '../../core/tutorial/tutorial.service';
 
@@ -21,6 +22,7 @@ export class TutorialOverlayComponent {
   protected readonly viewport = signal({ width: 0, height: 0 });
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly location = inject(Location);
   private readonly observer = new MutationObserver(() => this.scheduleMeasurement());
   private frame = 0;
   private optionalTimer: ReturnType<typeof setTimeout> | null = null;
@@ -104,7 +106,7 @@ export class TutorialOverlayComponent {
       this.hole.set({ left: 0, top: 0, width: 0, height: 0 });
       this.bubble.set({ left: Math.max(12, (width - 350) / 2), top: Math.max(70, (height - 140) / 2) });
       if (step.optionalWhenMissing && !this.optionalTimer &&
-          (step.route === '*' || window.location.pathname === step.route)) {
+          (step.route === '*' || this.location.path().split('?')[0] === step.route)) {
         this.optionalTimer = setTimeout(() => {
           this.optionalTimer = null;
           this.tutorial.skipMissingTarget(step.id);

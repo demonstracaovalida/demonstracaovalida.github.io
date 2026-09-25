@@ -36,6 +36,10 @@
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m8 1 1.4 1.7 2.2-.3.5 2.2 2 1-.8 2 1 2-1.8 1.2-.2 2.2-2.2.2L8 15l-1.8-1.4-2.2.2-.4-2.2-1.9-1 .7-2-1-2 1.8-1.2.2-2.2 2.2-.2zM8 5a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" /></svg>
       <span>MeuValida</span><i class="caret" aria-hidden="true"></i>
     </span>
+
+    @if (showTutorialButton()) {
+      <button class="navigation-item tutorial-start" type="button" (click)="startTutorial()">Iniciar tutorial</button>
+    }
   </nav>
 
   <div class="company-indicator" aria-label="Empresa atual: CONCILIADOR DEMONSTRAÇÃO">

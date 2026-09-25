@@ -116,6 +116,10 @@ button.navigation-item {
   stroke-width: 1.8;
 }
 
+.tutorial-start {
+  white-space: nowrap;
+}
+
 .caret {
   width: 0;
   height: 0;
