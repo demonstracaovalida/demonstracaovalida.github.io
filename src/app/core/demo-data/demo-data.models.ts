@@ -54,9 +54,9 @@ export interface DemoSale {
 export interface SaleFee {
   readonly id: string;
   readonly saleId: string;
-  /** Percentage in basis points: 75 means 0.75%. */
+  /** Rate charged in basis points: 75 means 0.75%; fixed per fee configuration. */
   readonly practicedRateBasisPoints: number;
-  /** Fixed demo contract rate, using the same basis point unit. */
+  /** Contractual service rate, using the same basis point unit. */
   readonly contractRateBasisPoints: number;
   readonly amountCents: number;
   readonly netAmountCents: number;

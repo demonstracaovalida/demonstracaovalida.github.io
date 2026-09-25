@@ -12,13 +12,13 @@
       <span>Início</span>
     </a>
 
-    <div class="navigation-dropdown">
+    <div class="navigation-dropdown" data-tour="nav-conciliation">
       <button class="navigation-item" type="button" aria-haspopup="true" aria-label="Conciliação, abrir submenu">
         <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2h12v3H2zm0 5h12v2H2zm0 4h8v3H2z" /></svg>
         <span>Conciliação</span><i class="caret" aria-hidden="true"></i>
       </button>
       <div class="navigation-submenu">
-        <a routerLink="/nova-conciliacao">Nova Conciliação</a>
+        <a routerLink="/nova-conciliacao" data-tour-action="nav-manual">Nova Conciliação</a>
       </div>
     </div>
 
@@ -27,7 +27,7 @@
       <span>Ocorrências</span>
     </span>
 
-    <a class="navigation-item" routerLink="/filiais">
+    <a class="navigation-item" routerLink="/filiais" data-tour="nav-branches" data-tour-action="nav-branches">
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14V2h12v12M0 14h16M5 5h2m2 0h2M5 8h2m2 0h2M6 14v-3h4v3" /></svg>
       <span>Filiais</span>
     </a>

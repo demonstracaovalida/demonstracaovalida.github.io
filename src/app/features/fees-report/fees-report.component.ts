@@ -69,13 +69,12 @@ function readFilters(params: ParamMap, dataset: DemoDataset): DemoFilters {
   };
 }
 
-function configurationKey(sale: DemoSale, contractRateBasisPoints: number): string {
+function configurationKey(sale: DemoSale): string {
   return [
     sale.acquirer,
     sale.brand,
     sale.service,
     sale.financing,
-    contractRateBasisPoints,
   ].join('|');
 }
 
@@ -116,7 +115,7 @@ export class FeesReportComponent {
         throw new Error(`Taxa ausente para a venda ${sale.id}.`);
       }
 
-      const key = configurationKey(sale, fee.contractRateBasisPoints);
+      const key = configurationKey(sale);
       if (!stableIdentifiers.has(key)) {
         stableIdentifiers.set(key, nextIdentifier++);
       }
@@ -129,7 +128,7 @@ export class FeesReportComponent {
         throw new Error(`Taxa ausente para a venda ${sale.id}.`);
       }
 
-      const key = configurationKey(sale, fee.contractRateBasisPoints);
+      const key = configurationKey(sale);
       const salesForConfiguration = groupedSales.get(key) ?? [];
       salesForConfiguration.push(sale);
       groupedSales.set(key, salesForConfiguration);

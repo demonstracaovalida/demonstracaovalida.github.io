@@ -175,17 +175,22 @@ Manter combinações semanticamente plausíveis:
 ### Financiamento
 - sempre `A Vista`
 
-### Taxas praticadas
+### Taxas contratuais
 - Débito: `0,75%`
 - Crédito: `1,10%`
 - Voucher: `3,60%`
+
+### Taxas praticadas
+- determinísticas e únicas por adquirente, bandeira, serviço e financiamento;
+- taxa contratual menos `0,01` ponto percentual, ou taxa contratual mais `0,01`, `0,02` ou `0,03` ponto percentual.
+- exceção para a bandeira Ticket: contrato `3,60%` e praticada `6,25%`.
 
 ### Valor da parcela
 - maior que R$ 0,99
 - menor que R$ 101,00
 
 ### Valor da taxa em reais
-`valorTaxa = valorBruto * taxaPercentual`
+`valorTaxa = valorBruto * taxaPraticadaPercentual`
 
 ### Valor líquido
 `valorLiquido = valorBruto - valorTaxa`
@@ -374,21 +379,24 @@ Referência:
 
 Reproduzir visualmente o print.
 
-A taxa praticada vem diretamente da regra da venda:
+A taxa contratual é fixa por serviço:
 - Débito 0,75%
 - Crédito 1,10%
 - Voucher 3,60%
 
-A taxa contrato deve ser fixa/determinística para cada linha/grupo da massa e assumir um destes valores em relação à praticada:
-- igual;
-- praticada - 0,02 ponto percentual;
-- praticada + 0,02 ponto percentual.
+A taxa praticada deve ser fixa/determinística para cada combinação de adquirente, bandeira, serviço e financiamento e assumir um destes valores em relação à contratual:
+- contratual - 0,01 ponto percentual;
+- contratual + 0,01 ponto percentual;
+- contratual + 0,02 ponto percentual;
+- contratual + 0,03 ponto percentual.
+
+Exceção: todas as vendas da bandeira Ticket têm taxa contratual de 3,60% e taxa praticada de 6,25%, para demonstrar o descumprimento do contrato.
 
 Exemplos:
-- 0,75% → 0,73%, 0,75% ou 0,77%
-- 1,10% → 1,08%, 1,10% ou 1,12%
+- contrato 0,75% → praticada 0,74%, 0,76%, 0,77% ou 0,78%
+- contrato 1,10% → praticada 1,09%, 1,11%, 1,12% ou 1,13%
 
-Não usar `Math.random()` a cada renderização. A taxa contrato não pode mudar ao navegar, filtrar ou redesenhar a tela.
+Não usar `Math.random()` a cada renderização. As taxas não podem mudar ao navegar, filtrar ou redesenhar a tela.
 
 Todos os totais devem ser derivados da mesma massa de vendas.
 
@@ -495,6 +503,8 @@ Ao selecionar checkbox de um recebimento:
 
 Ao selecionar checkbox do lançamento correspondente no extrato:
 - atualizar `Total Extrato`.
+
+`Total Contrapartidas = Recebimentos - Cancelamentos + Ajustes`, considerando o sinal de cada ajuste. Nesta demonstração, Ajustes e Cancelamentos estão vazios, então o valor coincide com os recebimentos selecionados.
 
 Calcular:
 `Diferença = Total Extrato - Total Contrapartidas`

@@ -1,5 +1,5 @@
 <main class="sales-report" aria-label="Relatório de vendas">
-  <header class="report-header">
+  <header class="report-header" data-tour="report-heading">
     <h1>
       Status Conciliação da Parcela entre
       {{ formatDate(filters.startDate ?? '2026-08-01') }} e
@@ -27,7 +27,7 @@
   </div>
 
   <div class="report-table-scroll">
-    <table class="group-table" aria-label="Vendas agrupadas por dia">
+    <table class="group-table" aria-label="Vendas agrupadas por dia" data-tour="sales-table">
       <colgroup>
         <col class="expand-column" />
         <col class="network-column" />
@@ -81,6 +81,8 @@
                 <button
                   type="button"
                   class="expand-button"
+                  data-tour="sales-expand"
+                  data-tour-action="sales-expand"
                   [attr.aria-label]="(isExpanded(group) ? 'Recolher' : 'Expandir') + ' ' + group.brand"
                   [attr.aria-expanded]="isExpanded(group)"
                   (click)="toggleGroup(group)"
@@ -102,7 +104,7 @@
             @if (isExpanded(group)) {
               <tr class="detail-row">
                 <td colspan="10">
-                  <div class="detail-table-scroll">
+                  <div class="detail-table-scroll" data-tour="sales-details">
                     <table class="detail-table" aria-label="Detalhamento das vendas do grupo">
                       <colgroup>
                         <col class="detail-date-column" />
@@ -175,7 +177,7 @@
         }
       </tbody>
       <tfoot>
-        <tr class="general-total">
+        <tr class="general-total" data-tour="sales-total">
           <td colspan="7">Total Geral ({{ groupCount() }})</td>
           <td class="amount-cell">{{ formatCurrency(reportTotals().grossAmountCents) }}</td>
           <td colspan="2"></td>

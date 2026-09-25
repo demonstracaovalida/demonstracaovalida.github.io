@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { filterSales, getRateBasisPointsForService } from '../../core/demo-data/demo-calculations';
+import { filterSales, getContractRateBasisPointsForService } from '../../core/demo-data/demo-calculations';
 import { DemoStateService } from '../../core/demo-data/demo-state.service';
 import { FeesReportComponent } from './fees-report.component';
 
@@ -26,10 +26,10 @@ describe('FeesReportComponent', () => {
     }).compileComponents();
   });
 
-  it('groups filtered data by its deterministic fee configuration and shows both source rates', () => {
+  it('shows one contract for Ticket Voucher throughout August and both source rates', () => {
     queryParamMap = convertToParamMap({
-      startDate: '2026-08-08',
-      endDate: '2026-08-08',
+      startDate: '2026-08-01',
+      endDate: '2026-08-31',
       acquirer: 'Cielo',
       brand: 'Ticket',
     });
@@ -38,8 +38,8 @@ describe('FeesReportComponent', () => {
 
     const dataset = TestBed.inject(DemoStateService).state().data;
     const selectedSales = filterSales(dataset, {
-      startDate: '2026-08-08',
-      endDate: '2026-08-08',
+      startDate: '2026-08-01',
+      endDate: '2026-08-31',
       acquirer: 'Cielo',
       brand: 'Ticket',
       dateBasis: 'sale',
@@ -53,23 +53,23 @@ describe('FeesReportComponent', () => {
         sale.brand,
         sale.service,
         sale.financing,
-        fee.contractRateBasisPoints,
       ].join('|');
       expected.set(key, {
         contract: fee.contractRateBasisPoints,
         practiced: fee.practicedRateBasisPoints,
       });
-      expect(fee.practicedRateBasisPoints).toBe(getRateBasisPointsForService(sale.service));
-      expect([-2, 0, 2]).toContain(
-        fee.contractRateBasisPoints - fee.practicedRateBasisPoints,
-      );
+      expect(fee.contractRateBasisPoints).toBe(getContractRateBasisPointsForService(sale.service));
+      expect(fee.contractRateBasisPoints).toBe(360);
+      expect(fee.practicedRateBasisPoints).toBe(625);
     }
 
     const rendered = fixture.nativeElement as HTMLElement;
     const rows = [...rendered.querySelectorAll<HTMLTableRowElement>('.fee-row')];
+    expect(selectedSales.length).toBeGreaterThan(1);
+    expect(expected.size).toBe(1);
     expect(rows).toHaveLength(expected.size);
     expect(rendered.querySelector('.fees-header h1')?.textContent).toContain(
-      '08/08/2026 e 08/08/2026',
+      '01/08/2026 e 31/08/2026',
     );
     expect(rendered.querySelector('.fees-company')?.textContent).toContain(
       'CONCILIADOR DEMONSTRAÇÃO',
@@ -78,6 +78,7 @@ describe('FeesReportComponent', () => {
     for (const row of rows) {
       const rates = expected.get(row.dataset['configKey']!);
       expect(rates).toBeDefined();
+      expect(row.getAttribute('data-tour')).toBe('fees-rate fees-ticket');
       expect(row.cells[3].textContent?.trim()).toBe('Ticket');
       expect(row.cells[6].textContent?.trim()).toBe(formatRate(rates!.contract));
       expect(row.cells[7].textContent?.trim()).toBe(formatRate(rates!.practiced));
@@ -85,12 +86,22 @@ describe('FeesReportComponent', () => {
   });
 
   it('keeps contract rates stable when rerendered and allows collapsing the acquirer group', () => {
+    queryParamMap = convertToParamMap({});
     const fixture = TestBed.createComponent(FeesReportComponent);
     fixture.detectChanges();
     const rendered = fixture.nativeElement as HTMLElement;
     const rateSnapshot = [...rendered.querySelectorAll<HTMLTableRowElement>('.fee-row')].map(
       (row) => [row.cells[6].textContent?.trim(), row.cells[7].textContent?.trim()],
     );
+    const configurationKeys = [...rendered.querySelectorAll<HTMLTableRowElement>('.fee-row')].map(
+      (row) => [row.cells[2], row.cells[3], row.cells[4], row.cells[5]]
+        .map((cell) => cell.textContent?.trim()).join('|'),
+    );
+    const sourceConfigurations = new Set(TestBed.inject(DemoStateService).state().data.sales.map(
+      (sale) => [sale.acquirer, sale.brand, sale.service, sale.financing].join('|'),
+    ));
+    expect(new Set(configurationKeys).size).toBe(configurationKeys.length);
+    expect(configurationKeys).toHaveLength(sourceConfigurations.size);
 
     fixture.detectChanges();
     expect(

@@ -8,7 +8,7 @@ import {
   canReconcileSelection,
   filterSales,
   getNextCalendarDate,
-  getRateBasisPointsForService,
+  getContractRateBasisPointsForService,
   getStatementDescription,
   groupReconciliationEntries,
   groupSales,
@@ -17,10 +17,10 @@ import { DEMO_INITIAL_DATA } from './demo-data';
 import type { PaymentBrand, SaleService } from './demo-data.models';
 
 describe('demo data and financial calculations', () => {
-  it('uses the configured rate for each service and rounds fees to cents', () => {
-    expect(getRateBasisPointsForService('Débito')).toBe(75);
-    expect(getRateBasisPointsForService('Crédito')).toBe(110);
-    expect(getRateBasisPointsForService('Voucher')).toBe(360);
+  it('uses the contractual rate for each service and rounds fees to cents', () => {
+    expect(getContractRateBasisPointsForService('Débito')).toBe(75);
+    expect(getContractRateBasisPointsForService('Crédito')).toBe(110);
+    expect(getContractRateBasisPointsForService('Voucher')).toBe(360);
     expect(basisPointsToPercent(75)).toBe(0.75);
     expect(calculateFeeAmountCents(10_000, 75)).toBe(75);
     expect(calculateFeeAmountCents(10_000, 110)).toBe(110);
@@ -132,8 +132,46 @@ describe('demo data and financial calculations', () => {
       expect(line?.amountCents).toBe(receipt.amountCents);
       expect(line?.transactionDate).toBe(receipt.receivedDate);
       expect(line?.status).toBe('Pendente');
-      expect(Math.abs(fee.contractRateBasisPoints - fee.practicedRateBasisPoints)).toBeLessThanOrEqual(2);
+      expect(fee.contractRateBasisPoints).toBe(getContractRateBasisPointsForService(sale.service));
+      if (sale.brand === 'Ticket') {
+        expect(fee.contractRateBasisPoints).toBe(360);
+        expect(fee.practicedRateBasisPoints).toBe(625);
+      } else {
+        expect([-1, 1, 2, 3]).toContain(fee.practicedRateBasisPoints - fee.contractRateBasisPoints);
+      }
     }
+  });
+
+  it('keeps one contractual and practiced rate per acquirer, brand, service, and financing', () => {
+    const feesBySaleId = new Map(DEMO_INITIAL_DATA.fees.map((fee) => [fee.saleId, fee]));
+    const ratesByConfiguration = new Map<string, { contract: number; practiced: number }>();
+    const practicedOffsets = new Set<number>();
+
+    for (const sale of DEMO_INITIAL_DATA.sales) {
+      const fee = feesBySaleId.get(sale.id)!;
+      const key = [sale.acquirer, sale.brand, sale.service, sale.financing].join('|');
+      const rates = {
+        contract: fee.contractRateBasisPoints,
+        practiced: fee.practicedRateBasisPoints,
+      };
+      const previousRates = ratesByConfiguration.get(key);
+      if (previousRates === undefined) {
+        ratesByConfiguration.set(key, rates);
+        if (sale.brand !== 'Ticket') practicedOffsets.add(rates.practiced - rates.contract);
+      } else {
+        expect(rates).toEqual(previousRates);
+      }
+      expect(rates.contract).toBe(getContractRateBasisPointsForService(sale.service));
+      if (sale.brand === 'Ticket') {
+        expect(rates).toEqual({ contract: 360, practiced: 625 });
+      } else {
+        expect([-1, 1, 2, 3]).toContain(rates.practiced - rates.contract);
+      }
+    }
+
+    expect(ratesByConfiguration.size).toBeGreaterThan(0);
+    expect(ratesByConfiguration.size).toBeLessThan(DEMO_INITIAL_DATA.sales.length);
+    expect(practicedOffsets).toEqual(new Set([-1, 1, 2, 3]));
   });
 
   it('labels Mastercard and Elo bank payments by credit or debit in the source and consolidated view', () => {

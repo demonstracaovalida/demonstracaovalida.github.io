@@ -7,6 +7,7 @@ import {
 } from '../../core/demo-data/demo-calculations';
 import { DemoStateService } from '../../core/demo-data/demo-state.service';
 import type { IsoDate, ReconciliationGroup } from '../../core/demo-data/demo-data.models';
+import { TutorialService } from '../../core/tutorial/tutorial.service';
 
 type ManualStage = 'intro' | 'banks' | 'days' | 'matching';
 type DayFilter = 'all' | 'pending' | 'in-progress' | 'done';
@@ -33,6 +34,7 @@ const MONEY_FORMATTER = new Intl.NumberFormat('pt-BR', {
 })
 export class ManualReconciliationComponent {
   private readonly demoState = inject(DemoStateService);
+  private readonly tutorial = inject(TutorialService);
   private readonly destroyRef = inject(DestroyRef);
   private successTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -182,6 +184,7 @@ export class ManualReconciliationComponent {
   protected reconcileSelected(): void {
     if (!this.canReconcile()) return;
     this.demoState.reconcileSelected();
+    this.tutorial.observe('manual-reconciled');
     this.successVisible.set(true);
     this.clearSuccessTimer();
     this.successTimer = setTimeout(() => this.successVisible.set(false), 2500);

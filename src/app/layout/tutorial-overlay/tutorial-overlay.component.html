@@ -1,0 +1,21 @@
+@if (tutorial.step(); as step) {
+  <div class="tutorial-shade" [style.left.px]="0" [style.top.px]="0" [style.width.px]="viewport().width" [style.height.px]="hole().top"></div>
+  <div class="tutorial-shade" [style.left.px]="0" [style.top.px]="hole().top" [style.width.px]="hole().left" [style.height.px]="hole().height"></div>
+  <div class="tutorial-shade" [style.left.px]="hole().left + hole().width" [style.top.px]="hole().top" [style.width.px]="viewport().width - hole().left - hole().width" [style.height.px]="hole().height"></div>
+  <div class="tutorial-shade" [style.left.px]="0" [style.top.px]="hole().top + hole().height" [style.width.px]="viewport().width" [style.height.px]="viewport().height - hole().top - hole().height"></div>
+
+  @for (rect of focusRects(); track $index) {
+    <div class="tutorial-focus" [style.left.px]="rect.left" [style.top.px]="rect.top" [style.width.px]="rect.width" [style.height.px]="rect.height"></div>
+  }
+
+  <button class="tutorial-end" type="button" (click)="stop()">Encerrar tutorial</button>
+
+  <div class="tutorial-bubble" role="dialog" aria-modal="false" aria-label="Tutorial da prévia" [style.left.px]="bubble().left" [style.top.px]="bubble().top">
+    <p>{{ step.text }}</p>
+    @if (step.kind === 'informativa') {
+      <button class="tutorial-next" type="button" aria-label="Próxima etapa" (click)="next()">&gt;</button>
+    } @else {
+      <span class="tutorial-wait">{{ step.kind === 'navegacao' ? 'Aguardando navegação' : 'Aguardando sua ação' }}</span>
+    }
+  </div>
+}

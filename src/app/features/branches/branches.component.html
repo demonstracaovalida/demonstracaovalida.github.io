@@ -1,7 +1,7 @@
 <section class="branches-panel" aria-labelledby="branches-heading">
   <h1 id="branches-heading">Filiais</h1>
 
-  <table class="branches-table" aria-label="Empresas e filiais da demonstração">
+  <table class="branches-table" aria-label="Empresas e filiais da demonstração" data-tour="branches-list">
     <colgroup>
       <col class="cnpj-column" />
       <col class="legal-name-column" />
@@ -16,7 +16,7 @@
     </thead>
     <tbody>
       @for (company of companies(); track company.id) {
-        <tr [class.current-company]="company.isCurrentCompany">
+        <tr [class.current-company]="company.isCurrentCompany" [attr.data-tour]="company.isCurrentCompany ? 'branches-current' : null">
           <td class="cnpj-cell">{{ company.cnpj }}</td>
           <td>{{ company.legalName }}</td>
           <td>{{ company.tradeName }}</td>

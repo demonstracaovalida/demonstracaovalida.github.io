@@ -131,8 +131,9 @@ Parar após concluir. NÃO avançar para a Sprint 4.
 ## Fazer
 - Reproduzir o PNG.
 - Usar a mesma massa central.
-- Taxa praticada: Débito 0,75%; Crédito 1,10%; Voucher 3,60%.
-- Taxa contrato determinística: praticada -0,02 p.p., igual, ou +0,02 p.p.
+- Taxa contratual: Débito 0,75%; Crédito 1,10%; Voucher 3,60%.
+- Taxa praticada determinística por adquirente, bandeira, serviço e financiamento: contratual -0,01 p.p., +0,01 p.p., +0,02 p.p. ou +0,03 p.p.
+- Exceção Ticket: taxa contratual de 3,60% e taxa praticada de 6,25% em todas as suas vendas.
 - Não usar aleatoriedade em runtime.
 - Calcular todos os totais da massa.
 - Respeitar filtros.
@@ -237,6 +238,7 @@ Hover, submenu, entrada e transição 1→2 funcionais, visual fiel e build pass
 - Remover EC e Qtd conforme especificação.
 - Checkbox de recebimento recalcula Recebimentos e Total Contrapartidas.
 - Checkbox de extrato recalcula Total Extrato.
+- `Total Contrapartidas = Recebimentos - Cancelamentos + Ajustes`, considerando ajustes positivos ou negativos; nesta prévia, Ajustes e Cancelamentos estão vazios.
 - `Diferença = Total Extrato - Total Contrapartidas`.
 - `Conciliar Selecionados` cinza/desabilitado com seleção inválida.
 - Habilitar/azul somente com seleção válida e diferença R$ 0,00.
@@ -320,6 +322,183 @@ Executar todos os testes e `npm run build`.
 Fidelidade visual alta + comportamento do `AGENTS.md` + massa coerente + cálculos corretos + filtros funcionais + conciliação funcional + isolamento por aba + build sem erros.
 
 ---
+
+# Sprint 11 — Tutorial Interativo da Prévia
+
+## Objetivo
+Criar um tutorial guiado e opcional sobre a aplicação real, com foco visual nos elementos explicados e etapas interativas.
+
+O tutorial é apenas uma camada de orientação. Ele NÃO cria uma simulação separada e NÃO altera o comportamento normal da aplicação.
+
+## Início
+Após o usuário clicar em `OK` no aviso inicial já existente, exibir:
+
+`Deseja iniciar o tutorial da prévia?`
+
+Opções:
+- `Sim` → inicia o tutorial;
+- `Não` → fecha o aviso e libera o uso normal.
+
+O tutorial funciona somente em memória e pode ser oferecido novamente após reload.
+
+## Visual
+Durante o tutorial:
+- escurecer o restante da interface com overlay;
+- manter o elemento explicado em destaque/foco;
+- elemento destacado deve continuar clicável quando a etapa exigir interação;
+- mostrar balão/card explicativo próximo ao elemento;
+- usar `>` para avançar etapas apenas informativas;
+- reposicionar o balão automaticamente para não sair da viewport;
+- usar animações/transições discretas de foco.
+
+Manter sempre no canto superior direito:
+
+`Encerrar tutorial`
+
+Esse botão deve permanecer acima do overlay e sempre clicável.
+
+Ao clicar:
+- parar imediatamente o tutorial;
+- remover overlay, destaque, balão e animações;
+- ocultar `Encerrar tutorial`;
+- manter intacto tudo que o usuário já fez na aplicação.
+
+Encerrar o tutorial NÃO desfaz filtros, navegação, conciliações ou qualquer outro estado real.
+
+## Interação real
+Toda ação solicitada pelo tutorial deve utilizar os controles reais da aplicação.
+
+Exemplo:
+
+`Agora selecione a Data Inicial e a Data Final desejadas.`
+
+Destacar os campos reais e aguardar o usuário preenchê-los.
+
+Depois:
+
+`Agora clique em Gerar para visualizar o relatório.`
+
+Destacar o botão `Gerar` real e aguardar o clique.
+
+O clique deve executar EXATAMENTE o comportamento normal da aplicação.
+
+Se o usuário escolheu determinado:
+- relatório;
+- período;
+- bandeira;
+- adquirente;
+- filtro;
+
+essas escolhas devem ser respeitadas normalmente.
+
+O tutorial apenas observa a ação e continua. Não deve alterar valores, clicar automaticamente ou produzir resultados especiais para o tutorial.
+
+## Fluxo
+
+### 1. Tela Inicial
+Explicar progressivamente:
+- cards/indicadores;
+- gráfico;
+- Tipo de Relatório;
+- filtros;
+- Data Inicial e Data Final;
+- botão Gerar.
+
+Incluir etapas interativas para seleção dos filtros e uso real do `Gerar`.
+
+### 2. Relatórios
+Quando o usuário gerar um relatório, continuar o tutorial sobre o relatório realmente escolhido e aberto.
+
+Explicar os elementos disponíveis naquela página, incluindo agrupamentos, totais e detalhamento quando existirem.
+
+No Relatório de Vendas, por exemplo, destacar o `+` e solicitar o clique real para demonstrar o detalhamento.
+
+Como relatórios podem abrir em nova aba, transportar pela URL/query params apenas a informação necessária para continuar o tutorial, sem `localStorage` ou `sessionStorage`.
+
+### 3. Filiais
+Guiar o usuário de volta/para a aplicação principal e destacar `Filiais` na navbar.
+
+Explicar onde ficam as filiais e solicitar o clique real.
+
+Na tela de Filiais, destacar a listagem e explicar:
+- empresa principal;
+- filiais disponíveis;
+- empresa atualmente selecionada.
+
+### 4. Conciliação Manual
+Destacar `Conciliação` e orientar o usuário a acessar `Nova Conciliação`.
+
+Guiar progressivamente pelos estados:
+- Nova Conciliação;
+- seleção do banco;
+- seleção dos dias;
+- grade de conciliação.
+
+Na grade final, explicar/destacar:
+- Extrato;
+- Recebimentos;
+- Total Extrato;
+- Total Contrapartidas;
+- Diferença;
+- Conciliar Selecionados.
+
+Quando a etapa solicitar uma ação, aguardar a interação real do usuário.
+
+A conciliação realizada durante o tutorial deve ser uma conciliação REAL da demonstração e seguir exatamente as regras já implementadas.
+
+## Tipos de etapa
+O sistema do tutorial deve suportar:
+
+1. `informativa` — explicação + avanço pelo `>`;
+2. `interativa` — aguarda ação real no elemento destacado;
+3. `navegação` — aguarda usuário chegar à tela/estado esperado.
+
+Etapas interativas obrigatórias não devem poder ser puladas pelo `>`.
+
+`Encerrar tutorial` continua disponível em qualquer tipo de etapa.
+
+## Arquitetura
+Centralizar a definição do tutorial, evitando lógica espalhada pelos componentes.
+
+Cada etapa deve poder definir:
+- elemento-alvo;
+- texto;
+- tipo;
+- condição para avançar;
+- rota/tela esperada;
+- próximo passo.
+
+Usar identificadores/atributos estáveis nos elementos reais para os alvos do tutorial, evitando seletores CSS frágeis.
+
+Não duplicar componentes ou telas para criar o tutorial.
+
+## Regras importantes
+- tutorial usa a aplicação REAL;
+- overlay não pode impedir interação com o elemento em foco;
+- não automatizar ações do usuário;
+- não modificar regras financeiras;
+- não criar massa específica para o tutorial;
+- não usar `localStorage` ou `sessionStorage`;
+- não redesenhar telas existentes;
+- tutorial desligado não pode interferir no funcionamento normal;
+- ações realizadas durante o tutorial permanecem após encerrá-lo.
+
+## Aceite
+- pergunta aparece após o `OK` do aviso inicial;
+- `Sim` inicia e `Não` fecha;
+- overlay e foco funcionam;
+- elemento interativo destacado permanece utilizável;
+- `>` avança etapas informativas;
+- etapas interativas aguardam ações reais;
+- `Gerar` continua usando os filtros reais escolhidos;
+- tutorial acompanha Tela Inicial → Relatórios → Filiais → Conciliação Manual;
+- `Encerrar tutorial` fica sempre disponível no canto superior direito;
+- encerrar remove somente a camada do tutorial;
+- tutorial funciona em diferentes resoluções desktop;
+- funcionamento normal da aplicação permanece intacto;
+- testes, `npm run build` e `git diff --check` passam.
+
+Parar após concluir esta sprint.
 
 # Prompt para iniciar uma sprint
 

@@ -4,9 +4,10 @@ import { FeesReportComponent } from './features/fees-report/fees-report.componen
 import { MonthlyReportComponent } from './features/monthly-report/monthly-report.component';
 import { SalesReportComponent } from './features/sales-report/sales-report.component';
 import { TopNavbarComponent } from './layout/top-navbar/top-navbar.component';
+import { TutorialOverlayComponent } from './layout/tutorial-overlay/tutorial-overlay.component';
 
 @Component({
-  imports: [RouterOutlet, TopNavbarComponent],
+  imports: [RouterOutlet, TopNavbarComponent, TutorialOverlayComponent],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',

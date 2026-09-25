@@ -1,4 +1,4 @@
-import { calculateFeeAmountCents, getRateBasisPointsForService, getNextCalendarDate, getStatementDescription } from './demo-calculations';
+import { calculateFeeAmountCents, getContractRateBasisPointsForService, getNextCalendarDate, getStatementDescription } from './demo-calculations';
 import {
   type BankStatementLine,
   type CompanyBranch,
@@ -158,17 +158,26 @@ function createSales(): DemoSale[] {
 }
 
 function createFees(sales: readonly DemoSale[]): SaleFee[] {
-  const contractOffsets = [-2, 0, 2] as const;
+  const practicedOffsets = [-1, 1, 2, 3] as const;
+  const practicedRates = new Map<string, number>();
 
-  return sales.map((sale, index) => {
-    const practicedRateBasisPoints = getRateBasisPointsForService(sale.service);
+  return sales.map((sale) => {
+    const contractRateBasisPoints = getContractRateBasisPointsForService(sale.service);
+    const configurationKey = [sale.acquirer, sale.brand, sale.service, sale.financing].join('|');
+    let practicedRateBasisPoints = practicedRates.get(configurationKey);
+    if (practicedRateBasisPoints === undefined) {
+      practicedRateBasisPoints = sale.brand === 'Ticket'
+        ? 625
+        : contractRateBasisPoints + practicedOffsets[practicedRates.size % practicedOffsets.length];
+      practicedRates.set(configurationKey, practicedRateBasisPoints);
+    }
     const amountCents = calculateFeeAmountCents(sale.grossAmountCents, practicedRateBasisPoints);
 
     return {
       id: `taxa-${sale.id}`,
       saleId: sale.id,
       practicedRateBasisPoints,
-      contractRateBasisPoints: practicedRateBasisPoints + contractOffsets[index % contractOffsets.length],
+      contractRateBasisPoints,
       amountCents,
       netAmountCents: sale.grossAmountCents - amountCents,
     };

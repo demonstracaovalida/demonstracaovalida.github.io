@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { afterEach, vi } from 'vitest';
 import { calculateTotals, filterSales } from '../../core/demo-data/demo-calculations';
 import { DemoStateService } from '../../core/demo-data/demo-state.service';
+import { TutorialService } from '../../core/tutorial/tutorial.service';
 import { HomeComponent } from './home.component';
 
 function formatCurrency(amountCents: number): string {
@@ -16,6 +17,101 @@ describe('HomeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({ imports: [HomeComponent] }).compileComponents();
+  });
+
+  it('shows the welcome notice only until Ok is clicked in the current app instance', () => {
+    const firstVisit = TestBed.createComponent(HomeComponent);
+    firstVisit.detectChanges();
+
+    const firstScreen = firstVisit.nativeElement as HTMLElement;
+    expect(firstScreen.querySelector('[role="dialog"]')?.textContent).toContain(
+      'Bem-vindo à demonstração do Valida',
+    );
+
+    firstScreen.querySelector<HTMLButtonElement>('.welcome-confirm')!.click();
+    firstVisit.detectChanges();
+    expect(firstScreen.querySelector('[role="dialog"]')?.textContent).toContain(
+      'Deseja iniciar o tutorial da prévia?',
+    );
+
+    firstScreen.querySelector<HTMLButtonElement>('.welcome-decline')!.click();
+    firstVisit.detectChanges();
+    expect(firstScreen.querySelector('[role="dialog"]')).toBeNull();
+
+    firstVisit.destroy();
+    const returnToHome = TestBed.createComponent(HomeComponent);
+    returnToHome.detectChanges();
+    expect((returnToHome.nativeElement as HTMLElement).querySelector('[role="dialog"]')).toBeNull();
+  });
+
+  it('starts the optional tutorial only when Sim is chosen', () => {
+    const fixture = TestBed.createComponent(HomeComponent);
+    fixture.detectChanges();
+    const screen = fixture.nativeElement as HTMLElement;
+    const tutorial = TestBed.inject(TutorialService);
+
+    screen.querySelector<HTMLButtonElement>('.welcome-confirm')!.click();
+    fixture.detectChanges();
+    expect(tutorial.step()).toBeNull();
+    screen.querySelector<HTMLButtonElement>('.welcome-choice .welcome-confirm')!.click();
+    fixture.detectChanges();
+    expect(tutorial.step()?.id).toBe('home-cards');
+    expect(screen.querySelector('.welcome-overlay')).toBeNull();
+  });
+
+  it('greys out future reports only during the tutorial', () => {
+    const fixture = TestBed.createComponent(HomeComponent);
+    fixture.detectChanges();
+    const tutorial = TestBed.inject(TutorialService);
+    const options = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLOptionElement>(
+      '#report-type option',
+    );
+
+    expect(options[1].disabled).toBe(false);
+    expect(options[2].disabled).toBe(false);
+    expect(options[3].disabled).toBe(false);
+    tutorial.startHome();
+    fixture.detectChanges();
+    expect(options[1].disabled).toBe(false);
+    expect(options[2].disabled).toBe(true);
+    expect(options[3].disabled).toBe(true);
+    tutorial.stop();
+    fixture.detectChanges();
+    expect(options[1].disabled).toBe(false);
+    expect(options[2].disabled).toBe(false);
+    expect(options[3].disabled).toBe(false);
+  });
+
+  it('generates Sales with the unchanged preset August dates during the tutorial', async () => {
+    const fixture = TestBed.createComponent(HomeComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const tutorial = TestBed.inject(TutorialService);
+    const screen = fixture.nativeElement as HTMLElement;
+    const openSpy = vi.spyOn(window, 'open').mockReturnValue({ postMessage: vi.fn() } as unknown as Window);
+    const component = fixture.componentInstance as unknown as { reportType: string; generate: () => void };
+
+    expect(screen.querySelector<HTMLInputElement>('#start-date')?.value).toBe('2026-08-01');
+    expect(screen.querySelector<HTMLInputElement>('#end-date')?.value).toBe('2026-08-31');
+    tutorial.startHome();
+    tutorial.next();
+    tutorial.next();
+    tutorial.observe('home-report-type', 'sales');
+    component.reportType = 'sales';
+    tutorial.next();
+    expect(tutorial.step()?.id).toBe('home-dates');
+    tutorial.next();
+    expect(tutorial.step()?.id).toBe('home-generate');
+    component.generate();
+
+    expect(openSpy).toHaveBeenCalledTimes(1);
+    const url = new URL(String(openSpy.mock.calls[0][0]), 'http://localhost');
+    expect(url.pathname).toBe('/relatorio-vendas');
+    expect(url.searchParams.get('startDate')).toBe('2026-08-01');
+    expect(url.searchParams.get('endDate')).toBe('2026-08-31');
+    expect(url.searchParams.get('tutorial')).toBe('report');
+    expect(tutorial.step()?.id).toBe('report-wait');
   });
 
   it('derives the three summary cards and daily chart from the Sprint 1 dataset', () => {

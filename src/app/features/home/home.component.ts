@@ -20,6 +20,8 @@ import type {
 } from '../../core/demo-data/demo-data.models';
 import { DemoStateService } from '../../core/demo-data/demo-state.service';
 import { ReportWindowHandoffService } from '../../core/demo-data/report-window-handoff.service';
+import { TutorialService } from '../../core/tutorial/tutorial.service';
+import { HomeWelcomeService } from './home-welcome.service';
 
 const PLOT_LEFT = 115;
 const PLOT_RIGHT_INSET = 15;
@@ -62,11 +64,13 @@ interface ChartTick {
   selector: 'app-home',
   imports: [CommonModule, FormsModule],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.css',
+  styleUrls: ['./home.component.css', './home-welcome.css'],
 })
 export class HomeComponent {
   private readonly demoState = inject(DemoStateService);
   private readonly reportHandoff = inject(ReportWindowHandoffService);
+  protected readonly tutorial = inject(TutorialService);
+  protected readonly welcome = inject(HomeWelcomeService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly chartElement = viewChild.required<ElementRef<SVGSVGElement>>('salesChart');
   private readonly chartWidth = signal(1000);
@@ -164,6 +168,11 @@ export class HomeComponent {
     return `R$ ${this.numberFormatter.format(amountCents / 100)}`;
   }
 
+  protected startTutorial(): void {
+    this.welcome.closeTutorialChoice();
+    this.tutorial.startHome();
+  }
+
   protected generate(): void {
     const filters: DemoFilters = {
       reportType: this.reportType || undefined,
@@ -174,6 +183,8 @@ export class HomeComponent {
       acquirer: this.acquirer === 'all' ? undefined : this.acquirer,
       brand: this.brand === 'all' ? undefined : (this.brand as PaymentBrand),
     };
+    if (this.tutorial.isAwaitingReport() && filters.reportType &&
+        !this.tutorial.isReportOptionAvailable(filters.reportType)) return;
     this.submittedFilters.set(filters);
 
     if (
@@ -195,7 +206,12 @@ export class HomeComponent {
         fees: 'relatorio-taxas',
         monthly: 'resultado-mensal',
       }[filters.reportType];
-      this.reportHandoff.openReport(`/${route}?${query.toString()}`);
+      if (this.tutorial.isAwaitingReport()) query.set('tutorial', 'report');
+      const reportWindow = this.reportHandoff.openReport(`/${route}?${query.toString()}`);
+      if (this.tutorial.isAwaitingReport()) {
+        this.tutorial.registerReportWindow(reportWindow, filters.reportType);
+      }
+      if (reportWindow) this.tutorial.observe('home-generate');
     }
   }
 

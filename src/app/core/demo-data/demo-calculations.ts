@@ -15,7 +15,7 @@ import {
 const BASIS_POINTS_PER_PERCENT = 100;
 const BASIS_POINTS_PER_WHOLE = 10_000;
 
-export function getRateBasisPointsForService(service: SaleService): number {
+export function getContractRateBasisPointsForService(service: SaleService): number {
   switch (service) {
     case 'Débito':
       return 75;

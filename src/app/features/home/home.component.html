@@ -8,7 +8,7 @@
     </div>
   </div>
 
-  <section class="summary-strip" aria-label="Resumo de agosto de 2026">
+  <section class="summary-strip" aria-label="Resumo de agosto de 2026" data-tour="home-cards">
     <article class="summary-panel">
       <h1>O Que Eu Vendi</h1>
       <p><strong>08/2026:</strong> {{ formatCurrency(totals().grossAmountCents) }}</p>
@@ -26,7 +26,7 @@
     </article>
   </section>
 
-  <section class="chart-frame" aria-label="Vendas por data">
+  <section class="chart-frame" aria-label="Vendas por data" data-tour="home-chart">
     <svg #salesChart class="sales-chart" role="img" aria-label="Gráfico de vendas diárias em agosto de 2026">
       <rect x="0" y="0" width="100%" height="100%" fill="#fff" />
       @for (tick of chart().ticks; track tick.y) {
@@ -44,15 +44,15 @@
     </svg>
   </section>
 
-  <form class="report-filters" (ngSubmit)="generate()">
+  <form class="report-filters" data-tour="home-filters" (ngSubmit)="generate()">
     <div class="filter-fields">
       <div class="report-type-field">
         <label for="report-type">Tipo de Relatório:</label>
-        <select id="report-type" name="reportType" [(ngModel)]="reportType">
+        <select id="report-type" name="reportType" data-tour="home-report-type" data-tour-action="home-report-type" [(ngModel)]="reportType">
           <option value="">Selecione o Relatório</option>
-          <option value="sales">Relatório de Vendas</option>
-          <option value="fees">Ajustes e Taxas</option>
-          <option value="monthly">Resultado Mensal</option>
+          <option value="sales" [disabled]="!tutorial.isReportOptionAvailable('sales')">Relatório de Vendas</option>
+          <option value="fees" [disabled]="!tutorial.isReportOptionAvailable('fees')">Taxas Administrativas</option>
+          <option value="monthly" [disabled]="!tutorial.isReportOptionAvailable('monthly')">Resultado Mensal</option>
         </select>
       </div>
 
@@ -65,7 +65,7 @@
       <div class="criteria-field">
         <div class="date-field">
           <label for="start-date">Data Inicial:</label>
-          <input id="start-date" name="startDate" type="date" min="2026-08-01" max="2026-08-31" [(ngModel)]="startDate" />
+          <input id="start-date" name="startDate" type="date" min="2026-08-01" max="2026-08-31" data-tour="home-start-date" data-tour-action="home-start-date" [(ngModel)]="startDate" />
         </div>
         <div class="acquirer-field">
           <label for="acquirer">Adquirente:</label>
@@ -78,7 +78,7 @@
         </div>
         <div class="date-field">
           <label for="end-date">Data Final:</label>
-          <input id="end-date" name="endDate" type="date" min="2026-08-01" max="2026-08-31" [(ngModel)]="endDate" />
+          <input id="end-date" name="endDate" type="date" min="2026-08-01" max="2026-08-31" data-tour="home-end-date" data-tour-action="home-end-date" [(ngModel)]="endDate" />
         </div>
         <div class="brand-field">
           <label for="brand">Bandeira:</label>
@@ -92,7 +92,31 @@
       </div>
     </div>
     <div class="filter-actions">
-      <button type="submit">Gerar</button>
+      <button type="submit" data-tour="home-generate">Gerar</button>
     </div>
   </form>
 </section>
+
+@if (welcome.visible()) {
+  <div class="welcome-overlay">
+    <div class="welcome-dialog" role="dialog" aria-modal="true" aria-labelledby="welcome-title" aria-describedby="welcome-description">
+      <div class="welcome-icon" aria-hidden="true">i</div>
+      <h2 id="welcome-title">Bem-vindo à demonstração do Valida</h2>
+      <p id="welcome-description">Essa é a prévia do Valida Conciliador. Venha conhecer!</p>
+      <button class="welcome-confirm" type="button" (click)="welcome.dismiss()"><span aria-hidden="true">✓</span> Ok</button>
+    </div>
+  </div>
+}
+
+@if (welcome.tutorialChoiceVisible()) {
+  <div class="welcome-overlay">
+    <div class="welcome-dialog welcome-choice" role="dialog" aria-modal="true" aria-labelledby="tutorial-choice-title">
+      <div class="welcome-icon" aria-hidden="true">i</div>
+      <h2 id="tutorial-choice-title">Deseja iniciar o tutorial da prévia?</h2>
+      <div class="welcome-choice-actions">
+        <button class="welcome-confirm" type="button" (click)="startTutorial()">Sim</button>
+        <button class="welcome-confirm welcome-decline" type="button" (click)="welcome.closeTutorialChoice()">Não</button>
+      </div>
+    </div>
+  </div>
+}

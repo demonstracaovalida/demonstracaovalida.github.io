@@ -18,11 +18,12 @@ export class ReportWindowHandoffService {
     inject(DestroyRef).onDestroy(() => window.removeEventListener('message', this.onMessage));
   }
 
-  openReport(url: string): void {
+  openReport(url: string): Window | null {
     const reportWindow = window.open(url, '_blank');
     if (reportWindow) {
       this.pendingReports.set(reportWindow, structuredClone(this.demoState.state().data.conciliations));
     }
+    return reportWindow;
   }
 
   requestSnapshotFromOpener(): void {
