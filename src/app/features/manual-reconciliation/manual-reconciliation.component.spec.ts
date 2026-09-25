@@ -74,6 +74,7 @@ describe('ManualReconciliationComponent', () => {
     filters[2].click();
     fixture.detectChanges();
     expect(rendered.querySelectorAll('.day-card')).toHaveLength(31);
+    expect(rendered.querySelector('.day-status')?.textContent).toContain('Conciliando');
 
     rendered.querySelector<HTMLButtonElement>('.day-card')!.click();
     fixture.detectChanges();
@@ -166,6 +167,17 @@ describe('ManualReconciliationComponent', () => {
       vi.advanceTimersByTime(2500);
       fixture.detectChanges();
       expect(rendered.querySelector('[role="status"]')).toBeNull();
+
+      rendered.querySelector<HTMLButtonElement>('.matching-tools button:nth-child(4)')!.click();
+      fixture.detectChanges();
+      const inProgressDay = [...rendered.querySelectorAll<HTMLButtonElement>('.day-card')]
+        .find((card) => card.textContent?.includes('29/08/2026'))!;
+      expect(inProgressDay.querySelector('.day-status')?.textContent).toContain('Conciliando');
+      rendered.querySelectorAll<HTMLButtonElement>('.day-filters button')[2].click();
+      fixture.detectChanges();
+      expect(rendered.querySelectorAll('.day-card')).toHaveLength(31);
+      inProgressDay.click();
+      fixture.detectChanges();
 
       rendered.querySelector<HTMLButtonElement>('.reset-button')!.click();
       fixture.detectChanges();

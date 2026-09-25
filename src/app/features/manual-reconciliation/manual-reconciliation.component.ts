@@ -66,7 +66,7 @@ export class ManualReconciliationComponent {
           statementReconciledCount: reconciledGroups.length,
           receiptCount: totalGroups,
           receiptReconciledCount: reconciledGroups.length,
-          status: pendingGroups.length === 0 ? 'Conciliado' : totalGroups === 0 ? 'Pendente' : 'Conciliando',
+          status: pendingGroups.length === 0 ? 'Conciliado' : 'Conciliando',
         };
       });
   });
