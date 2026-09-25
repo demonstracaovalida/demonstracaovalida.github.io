@@ -28,6 +28,7 @@ describe('DemoStateService', () => {
 
     store.update((current) => ({
       ...current,
+      selectedBankAccountId: current.data.bankAccounts[0].id,
       selectedReceiptIds: [receipt.id],
       selectedStatementLineIds: ['extrato-usado-na-sessao'],
       data: {
@@ -49,7 +50,37 @@ describe('DemoStateService', () => {
     expect(store.state().data.conciliations).toEqual([]);
     expect(store.state().selectedReceiptIds).toEqual([]);
     expect(store.state().selectedStatementLineIds).toEqual([]);
+    expect(store.state().selectedBankAccountId).toBeNull();
     expect(store.state().data.sales).toHaveLength(289);
     expect(store.state().data.receipts).toHaveLength(store.state().data.sales.length);
+  });
+
+  it('restricts selection to the open statement and reconciles only matching entries', () => {
+    const store = new DemoStateService();
+    const account = store.state().data.bankAccounts[0];
+    const line = store.state().data.statementLines[0];
+    const otherDayLine = store.state().data.statementLines.find(
+      (item) => item.transactionDate !== line.transactionDate,
+    )!;
+
+    store.selectBankAccount(account.id);
+    store.selectStatementDate(line.transactionDate);
+    expect(() => store.toggleStatementLineSelection(otherDayLine.id)).toThrow();
+    store.toggleReceiptSelection(line.receiptId);
+    expect(() => store.reconcileSelected()).toThrow();
+    expect(store.state().data.conciliations).toEqual([]);
+
+    store.toggleStatementLineSelection(line.id);
+    store.reconcileSelected();
+    expect(store.state().data.conciliations[0]).toMatchObject({
+      receiptIds: [line.receiptId],
+      statementLineIds: [line.id],
+      amountCents: line.amountCents,
+    });
+    expect(store.state().data.receipts.find((receipt) => receipt.id === line.receiptId)?.status).toBe('Conciliado');
+    expect(store.state().data.statementLines.find((item) => item.id === line.id)?.status).toBe('Conciliado');
+    expect(store.state().selectedReceiptIds).toEqual([]);
+    expect(store.state().selectedStatementLineIds).toEqual([]);
+    expect(() => store.toggleReceiptSelection(line.receiptId)).toThrow();
   });
 });

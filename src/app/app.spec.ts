@@ -98,4 +98,28 @@ describe('App', () => {
     expect(fixture.nativeElement.querySelector('app-branches')).toBeTruthy();
     expect((fixture.nativeElement.querySelector('app-top-navbar') as HTMLElement).hidden).toBe(false);
   });
+
+  it('opens Nova Conciliação through the submenu without linking the parent item', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const rendered = fixture.nativeElement as HTMLElement;
+    const menuButton = rendered.querySelector<HTMLButtonElement>('.navigation-dropdown button');
+    const submenuLink = rendered.querySelector<HTMLAnchorElement>(
+      '.navigation-submenu a[routerLink="/nova-conciliacao"]',
+    );
+    expect(menuButton).toBeTruthy();
+    expect(menuButton?.hasAttribute('routerLink')).toBe(false);
+    expect(submenuLink?.textContent?.trim()).toBe('Nova Conciliação');
+
+    submenuLink!.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(TestBed.inject(Router).url).toBe('/nova-conciliacao');
+    expect(rendered.querySelector('app-manual-reconciliation .introduction')).toBeTruthy();
+    expect(rendered.querySelector('app-manual-reconciliation .bank-selection')).toBeNull();
+    expect((rendered.querySelector('app-top-navbar') as HTMLElement).hidden).toBe(false);
+  });
 });

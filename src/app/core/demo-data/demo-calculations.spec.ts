@@ -9,6 +9,8 @@ import {
   filterSales,
   getNextCalendarDate,
   getRateBasisPointsForService,
+  getStatementDescription,
+  groupReconciliationEntries,
   groupSales,
 } from './demo-calculations';
 import { DEMO_INITIAL_DATA } from './demo-data';
@@ -131,6 +133,32 @@ describe('demo data and financial calculations', () => {
       expect(line?.transactionDate).toBe(receipt.receivedDate);
       expect(line?.status).toBe('Pendente');
       expect(Math.abs(fee.contractRateBasisPoints - fee.practicedRateBasisPoints)).toBeLessThanOrEqual(2);
+    }
+  });
+
+  it('labels Mastercard and Elo bank payments by credit or debit in the source and consolidated view', () => {
+    const expectedCases = [
+      { brand: 'Mastercard', service: 'Crédito', description: 'TED CIELO - Mastercard Crédito' },
+      { brand: 'Mastercard', service: 'Débito', description: 'TED CIELO - Mastercard Débito' },
+      { brand: 'Elo', service: 'Crédito', description: 'TED CIELO - Elo Crédito' },
+      { brand: 'Elo', service: 'Débito', description: 'TED CIELO - Elo Débito' },
+    ] as const;
+
+    for (const expected of expectedCases) {
+      const sale = DEMO_INITIAL_DATA.sales.find(
+        (item) => item.brand === expected.brand && item.service === expected.service,
+      );
+      expect(sale).toBeDefined();
+      if (!sale) continue;
+      expect(getStatementDescription(sale)).toBe(expected.description);
+
+      const receipt = DEMO_INITIAL_DATA.receipts.find((item) => item.saleId === sale.id)!;
+      const line = DEMO_INITIAL_DATA.statementLines.find((item) => item.receiptId === receipt.id)!;
+      expect(line.description).toBe(expected.description);
+
+      const group = groupReconciliationEntries(DEMO_INITIAL_DATA, line.accountId, line.transactionDate)
+        .find((item) => item.brand === sale.brand && item.service === sale.service);
+      expect(group?.description).toBe(expected.description);
     }
   });
 

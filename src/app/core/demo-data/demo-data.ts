@@ -1,7 +1,8 @@
-import { calculateFeeAmountCents, getRateBasisPointsForService, getNextCalendarDate } from './demo-calculations';
+import { calculateFeeAmountCents, getRateBasisPointsForService, getNextCalendarDate, getStatementDescription } from './demo-calculations';
 import {
   type BankStatementLine,
   type CompanyBranch,
+  type DemoBankAccount,
   type DemoDataset,
   type DemoSale,
   type IsoDate,
@@ -58,6 +59,17 @@ const BRANDS: readonly PaymentBrand[] = [
 ];
 
 const COMPANY_ID = 'empresa-principal';
+const DEMO_BANK_ACCOUNTS: readonly DemoBankAccount[] = [
+  {
+    id: 'conta-bradesco-demo',
+    bankName: 'Bradesco (237)',
+    agency: '321',
+    accountNumber: '98765-3',
+    lastStatementDate: '2026-07-30',
+    status: 'Pendente',
+  },
+];
+
 const DEMO_COMPANIES: readonly CompanyBranch[] = [
   {
     id: COMPANY_ID,
@@ -197,11 +209,11 @@ function createStatementLines(
 
     return {
       id: `extrato-${receipt.id}`,
-      bankName: 'Banco de Demonstração',
-      accountId: 'CONTA-DEMO-0001',
+      bankName: DEMO_BANK_ACCOUNTS[0].bankName,
+      accountId: DEMO_BANK_ACCOUNTS[0].id,
       receiptId: receipt.id,
       transactionDate: receipt.receivedDate,
-      description: `TED CIELO - ${sale.brand}`,
+      description: getStatementDescription(sale),
       amountCents: receipt.amountCents,
       status: 'Pendente',
     };
@@ -216,6 +228,7 @@ function createInitialData(): DemoDataset {
 
   return {
     companies: DEMO_COMPANIES,
+    bankAccounts: DEMO_BANK_ACCOUNTS,
     sales,
     fees,
     receipts,

@@ -26,6 +26,15 @@ export interface CompanyBranch {
   readonly isCurrentCompany: boolean;
 }
 
+export interface DemoBankAccount {
+  readonly id: string;
+  readonly bankName: string;
+  readonly agency: string;
+  readonly accountNumber: string;
+  readonly lastStatementDate: IsoDate;
+  readonly status: 'Pendente';
+}
+
 export interface DemoSale {
   readonly id: string;
   readonly companyId: string;
@@ -83,6 +92,7 @@ export interface ConciliationRecord {
 
 export interface DemoDataset {
   readonly companies: readonly CompanyBranch[];
+  readonly bankAccounts: readonly DemoBankAccount[];
   readonly sales: readonly DemoSale[];
   readonly fees: readonly SaleFee[];
   readonly receipts: readonly PaymentReceipt[];
@@ -120,6 +130,22 @@ export interface SaleGroup {
   readonly totals: DemoTotals;
 }
 
+/** One payment shown in manual reconciliation, backed by all its sales. */
+export interface ReconciliationGroup {
+  readonly key: string;
+  readonly acquirer: string;
+  readonly brand: PaymentBrand;
+  readonly service: SaleService;
+  readonly financing: FinancingType;
+  readonly saleDate: IsoDate;
+  readonly receivedDate: IsoDate;
+  readonly description: string;
+  readonly receiptIds: readonly string[];
+  readonly statementLineIds: readonly string[];
+  readonly installmentCount: number;
+  readonly amountCents: number;
+}
+
 export interface ConciliationSelectionTotals {
   readonly statementAmountCents: number;
   readonly receiptAmountCents: number;
@@ -131,6 +157,8 @@ export interface ConciliationSelectionTotals {
 /** Every DemoStateService instance owns an independent copy of this state. */
 export interface DemoSessionState {
   readonly data: DemoDataset;
+  readonly selectedBankAccountId: string | null;
+  readonly selectedStatementDate: IsoDate | null;
   readonly selectedReceiptIds: readonly string[];
   readonly selectedStatementLineIds: readonly string[];
 }

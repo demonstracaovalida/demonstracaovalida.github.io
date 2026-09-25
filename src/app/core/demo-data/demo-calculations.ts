@@ -6,6 +6,8 @@ import {
   type DemoSale,
   type DemoTotals,
   type IsoDate,
+  type ReconciliationGroup,
+  type ReceiptStatus,
   type SaleGroup,
   type SaleService,
 } from './demo-data.models';
@@ -166,6 +168,67 @@ export function groupSales(
       totals: calculateTotals(dataset, groupSales),
     };
   });
+}
+
+export function getStatementDescription(sale: Pick<DemoSale, 'acquirer' | 'brand' | 'service'>): string {
+  const service = sale.brand === 'Mastercard' || sale.brand === 'Elo' ? ` ${sale.service}` : '';
+  return `TED ${sale.acquirer.toLocaleUpperCase('pt-BR')} - ${sale.brand}${service}`;
+}
+
+/** Consolidates payments by deposit day, acquiring network, brand and service. */
+export function groupReconciliationEntries(
+  dataset: DemoDataset,
+  accountId: string,
+  date: IsoDate,
+  status: ReceiptStatus = 'Pendente',
+): ReconciliationGroup[] {
+  const salesById = new Map(dataset.sales.map((sale) => [sale.id, sale]));
+  const receiptsById = new Map(dataset.receipts.map((receipt) => [receipt.id, receipt]));
+  const groups = new Map<string, {
+    sale: DemoSale;
+    receiptIds: string[];
+    statementLineIds: string[];
+    installmentCount: number;
+    amountCents: number;
+  }>();
+
+  for (const line of dataset.statementLines) {
+    if (line.accountId !== accountId || line.transactionDate !== date || line.status !== status) continue;
+    const receipt = receiptsById.get(line.receiptId);
+    const sale = receipt && salesById.get(receipt.saleId);
+    if (!receipt || !sale || receipt.status !== status || receipt.amountCents !== line.amountCents) {
+      throw new Error(`Lançamento sem recebimento correspondente: ${line.id}.`);
+    }
+
+    const key = [date, sale.acquirer, sale.brand, sale.service, sale.financing].join('|');
+    const group = groups.get(key) ?? {
+      sale,
+      receiptIds: [],
+      statementLineIds: [],
+      installmentCount: 0,
+      amountCents: 0,
+    };
+    group.receiptIds.push(receipt.id);
+    group.statementLineIds.push(line.id);
+    group.installmentCount += sale.installmentCount;
+    group.amountCents += receipt.amountCents;
+    groups.set(key, group);
+  }
+
+  return [...groups].map(([key, group]) => ({
+    key,
+    acquirer: group.sale.acquirer,
+    brand: group.sale.brand,
+    service: group.sale.service,
+    financing: group.sale.financing,
+    saleDate: group.sale.saleDate,
+    receivedDate: date,
+    description: getStatementDescription(group.sale),
+    receiptIds: group.receiptIds,
+    statementLineIds: group.statementLineIds,
+    installmentCount: group.installmentCount,
+    amountCents: group.amountCents,
+  }));
 }
 
 export function calculateDifference(statementAmountCents: number, receiptAmountCents: number): number {

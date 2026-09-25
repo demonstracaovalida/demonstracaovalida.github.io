@@ -12,10 +12,15 @@
       <span>Início</span>
     </a>
 
-    <button class="navigation-item" type="button" aria-haspopup="true">
-      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2h12v3H2zm0 5h12v2H2zm0 4h8v3H2z" /></svg>
-      <span>Conciliação</span><i class="caret" aria-hidden="true"></i>
-    </button>
+    <div class="navigation-dropdown">
+      <button class="navigation-item" type="button" aria-haspopup="true" aria-label="Conciliação, abrir submenu">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2h12v3H2zm0 5h12v2H2zm0 4h8v3H2z" /></svg>
+        <span>Conciliação</span><i class="caret" aria-hidden="true"></i>
+      </button>
+      <div class="navigation-submenu">
+        <a routerLink="/nova-conciliacao">Nova Conciliação</a>
+      </div>
+    </div>
 
     <span class="navigation-item">
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1 15 14H1zm0 4v4m0 2v1" /></svg>

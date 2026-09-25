@@ -26,7 +26,8 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "src/app/features/manual-reconciliation/manual-reconciliation-workspace.css"
             ]
           },
           "configurations": {
