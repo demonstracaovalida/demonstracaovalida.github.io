@@ -45,6 +45,7 @@ describe('TutorialService', () => {
 
     tutorial.stop();
     expect(tutorial.step()).toBeNull();
+    expect(tutorial.contactPromptVisible()).toBe(false);
     expect(state.state().data).toBe(initialData);
   });
 
@@ -187,6 +188,30 @@ describe('TutorialService', () => {
     store.toggleAdjustmentSelection(group.adjustmentIds[0]);
     tutorial.observe('manual-adjustment-selection');
     expect(tutorial.step()?.id).toBe('manual-reconcile');
+
+    tutorial.observe('manual-reconciled');
+    expect(tutorial.step()?.id).toBe('manual-complete');
+    tutorial.next();
+    expect(tutorial.step()).toBeNull();
+    expect(tutorial.contactPromptVisible()).toBe(true);
+    tutorial.dismissContactPrompt();
+    expect(tutorial.contactPromptVisible()).toBe(false);
+  });
+
+  it('offers contact after an early exit without changing the simulation', () => {
+    const tutorial = TestBed.inject(TutorialService);
+    const state = TestBed.inject(DemoStateService);
+    const initialData = state.state().data;
+
+    tutorial.startHome();
+    tutorial.finish();
+    expect(tutorial.step()).toBeNull();
+    expect(tutorial.contactPromptVisible()).toBe(true);
+    expect(state.state().data).toBe(initialData);
+
+    tutorial.startHome();
+    expect(tutorial.contactPromptVisible()).toBe(false);
+    expect(tutorial.step()?.id).toBe('home-cards');
   });
 
   it('advances the date selection only for 02/08', () => {

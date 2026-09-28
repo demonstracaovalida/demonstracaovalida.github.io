@@ -2,6 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { App } from './app';
 import { routes } from './app.routes';
+import { TutorialService } from './core/tutorial/tutorial.service';
+import { WHATSAPP_CONTACT_URL } from './core/whatsapp-contact';
 
 describe('App', () => {
   beforeEach(async () => {
@@ -30,6 +32,45 @@ describe('App', () => {
     expect(compiled.textContent).not.toContain('Cadastros');
     expect(compiled.textContent).not.toContain('Manutenção');
     expect(compiled.textContent).not.toContain('Sair');
+  });
+
+  it('places the WhatsApp link between MeuValida and Iniciar tutorial and opens a new tab', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const items = [...(fixture.nativeElement as HTMLElement)
+      .querySelectorAll<HTMLElement>('.primary-navigation > .navigation-item')];
+    const whatsappIndex = items.findIndex((item) => item.textContent?.trim() === 'WhatsApp');
+    const link = items[whatsappIndex] as HTMLAnchorElement;
+    expect(whatsappIndex).toBeGreaterThan(0);
+    expect(items[whatsappIndex - 1].textContent).toContain('MeuValida');
+    expect(items[whatsappIndex + 1].textContent).toContain('Iniciar tutorial');
+    expect(link.href).toBe(WHATSAPP_CONTACT_URL);
+    expect(link.target).toBe('_blank');
+    expect(link.rel).toContain('noopener');
+  });
+
+  it('shows a short contact action after ending the tutorial and allows dismissal', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const tutorial = TestBed.inject(TutorialService);
+    tutorial.startHome();
+    tutorial.finish();
+    fixture.detectChanges();
+
+    const rendered = fixture.nativeElement as HTMLElement;
+    const dialog = rendered.querySelector<HTMLElement>('.tutorial-contact-dialog');
+    const link = dialog?.querySelector<HTMLAnchorElement>('a');
+    expect(dialog?.textContent).toContain('Gostou da prévia');
+    expect(dialog?.textContent).not.toContain(WHATSAPP_CONTACT_URL);
+    expect(link?.textContent).toContain('Chamar no WhatsApp');
+    expect(link?.href).toBe(WHATSAPP_CONTACT_URL);
+    expect(link?.target).toBe('_blank');
+
+    dialog?.querySelector<HTMLButtonElement>('button')?.click();
+    fixture.detectChanges();
+    expect(rendered.querySelector('.tutorial-contact-dialog')).toBeNull();
   });
 
   it('hides the shared navbar while the sales report is active', async () => {

@@ -500,6 +500,15 @@ Não duplicar componentes ou telas para criar o tutorial.
 
 Parar após concluir esta sprint.
 
+
+Sprint 12 - Whatsapp
+
+Apos o fim do tutorial, uma mensagem: gostou da prévia e quer adquirir o valida? nos chame no whatsapp https://api.whatsapp.com/send/?phone=5527995283091&text=Ol%C3%A1%2C+conheci+o+Valida+pelo+Juliano%2C+achei+interessante+e+gostaria+de+conhecer&type=phone_number&app_absent=0
+só que o link voce tenta esconder/encurtar, se nao fica zoado o tamanho
+e também, na nav bar, entre MeuValida e Iniciar Tutorial, poe o Whatsapp, que ao clicar, vai abrir uma nova aba, com esse mesmo link que mandei
+
+
+
 # Prompt para iniciar uma sprint
 
 Use este formato:

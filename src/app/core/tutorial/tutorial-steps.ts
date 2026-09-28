@@ -209,6 +209,6 @@ export const TUTORIAL_STEPS: Readonly<Record<string, TutorialStep>> = {
   },
   'manual-complete': {
     kind: 'informativa', route: '/nova-conciliacao', targets: ['manual-totals'],
-    text: 'A conciliação foi aplicada aos dados reais desta sessão. O tutorial terminou; você pode continuar explorando.',
+    text: 'A conciliação foi aplicada aos dados reais desta sessão. Clique em > para concluir o tutorial e continuar explorando.',
   },
 };

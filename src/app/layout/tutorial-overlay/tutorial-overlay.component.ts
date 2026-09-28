@@ -1,6 +1,7 @@
 import { Location } from '@angular/common';
 import { afterNextRender, Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { TutorialService } from '../../core/tutorial/tutorial.service';
+import { WHATSAPP_CONTACT_URL } from '../../core/whatsapp-contact';
 
 interface FocusRect {
   readonly left: number;
@@ -16,6 +17,7 @@ interface FocusRect {
 })
 export class TutorialOverlayComponent {
   protected readonly tutorial = inject(TutorialService);
+  protected readonly whatsappUrl = WHATSAPP_CONTACT_URL;
   protected readonly focusRects = signal<readonly FocusRect[]>([]);
   protected readonly hole = signal<FocusRect>({ left: 0, top: 0, width: 0, height: 0 });
   protected readonly bubble = signal({ left: 12, top: 70 });
@@ -64,7 +66,7 @@ export class TutorialOverlayComponent {
   }
 
   protected stop(): void {
-    this.tutorial.stop();
+    this.tutorial.finish();
   }
 
   private readonly onAction = (event: Event): void => {

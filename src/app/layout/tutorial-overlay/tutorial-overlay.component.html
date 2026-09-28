@@ -19,3 +19,16 @@
     }
   </div>
 }
+
+@if (tutorial.contactPromptVisible()) {
+  <div class="tutorial-contact-overlay">
+    <div class="tutorial-contact-dialog" role="dialog" aria-modal="true" aria-labelledby="tutorial-contact-title">
+      <h2 id="tutorial-contact-title">Gostou da prévia e quer adquirir o Valida?</h2>
+      <p>Nos chame no WhatsApp para conhecer melhor.</p>
+      <div class="tutorial-contact-actions">
+        <a [href]="whatsappUrl" target="_blank" rel="noopener noreferrer" (click)="tutorial.dismissContactPrompt()">Chamar no WhatsApp</a>
+        <button type="button" (click)="tutorial.dismissContactPrompt()">Agora não</button>
+      </div>
+    </div>
+  </div>
+}

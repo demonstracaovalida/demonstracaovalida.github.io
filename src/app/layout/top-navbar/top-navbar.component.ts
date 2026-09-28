@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter } from 'rxjs';
 import { TutorialService } from '../../core/tutorial/tutorial.service';
+import { WHATSAPP_CONTACT_URL } from '../../core/whatsapp-contact';
 
 @Component({
   selector: 'app-top-navbar',
@@ -11,6 +12,7 @@ import { TutorialService } from '../../core/tutorial/tutorial.service';
   styleUrl: './top-navbar.component.css',
 })
 export class TopNavbarComponent {
+  protected readonly whatsappUrl = WHATSAPP_CONTACT_URL;
   private readonly router = inject(Router);
   private readonly tutorial = inject(TutorialService);
   protected readonly currentRoute = signal(this.router.url.split('?')[0]);

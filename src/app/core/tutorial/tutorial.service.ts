@@ -29,6 +29,7 @@ export class TutorialService {
   private reportWindow: Window | null = null;
   private currentReportType: ReportType | null = null;
   private manualStage: ManualTutorialStage = 'intro';
+  readonly contactPromptVisible = signal(false);
 
   readonly step = computed(() => {
     const id = this.stepId();
@@ -45,6 +46,7 @@ export class TutorialService {
 
   startHome(): void {
     this.stop();
+    this.dismissContactPrompt();
     this.stepId.set('home-cards');
   }
 
@@ -54,7 +56,18 @@ export class TutorialService {
 
   startManual(): void {
     this.stop();
+    this.dismissContactPrompt();
     this.stepId.set(MANUAL_ENTRY_STEPS[this.manualStage]);
+  }
+
+  finish(): void {
+    if (!this.stepId()) return;
+    this.stop();
+    this.contactPromptVisible.set(true);
+  }
+
+  dismissContactPrompt(): void {
+    this.contactPromptVisible.set(false);
   }
 
   stop(propagate = true): void {
@@ -90,6 +103,10 @@ export class TutorialService {
       this.stop(false);
       window.opener?.postMessage({ kind: 'valida-tutorial-report-finished' }, window.location.origin);
       window.opener?.focus();
+      return;
+    }
+    if (step.id === 'manual-complete') {
+      this.finish();
       return;
     }
     this.stepId.set(step.next ?? null);
