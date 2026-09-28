@@ -3,10 +3,23 @@ import { FaqComponent } from './faq.component';
 import { FAQ_CATEGORIES, FAQ_ENTRIES, filterFaqEntries } from './faq-data';
 
 describe('FAQ data', () => {
-  it('contains the thirteen required questions in the five categories', () => {
-    expect(FAQ_ENTRIES).toHaveLength(13);
-    expect(FAQ_ENTRIES.map((entry) => entry.id)).toEqual(Array.from({ length: 13 }, (_, index) => index + 1));
+  it('contains the original questions and the added answers in the five categories', () => {
+    expect(FAQ_ENTRIES).toHaveLength(15);
+    expect([...FAQ_ENTRIES.map((entry) => entry.id)].sort((a, b) => a - b))
+      .toEqual(Array.from({ length: 15 }, (_, index) => index + 1));
     expect(new Set(FAQ_ENTRIES.map((entry) => entry.categoria))).toEqual(new Set(FAQ_CATEGORIES));
+    expect(FAQ_ENTRIES.find((entry) => entry.id === 14)).toEqual({
+      id: 14,
+      categoria: 'Vendas e Recebimentos',
+      pergunta: 'O Valida concilia vendas do tipo convênio?',
+      resposta: 'Não. O Valida não concilia vendas do tipo convênio.',
+    });
+    expect(FAQ_ENTRIES.find((entry) => entry.id === 15)).toEqual({
+      id: 15,
+      categoria: 'Vendas e Recebimentos',
+      pergunta: 'Com que frequência devo fazer a conciliação das minhas vendas e recebimentos?',
+      resposta: 'Diariamente.',
+    });
   });
 
   it('searches questions and answers without case or accent sensitivity and combines category filters', () => {
@@ -17,6 +30,10 @@ describe('FAQ data', () => {
     expect(filterFaqEntries(FAQ_ENTRIES, 'Integrações', 'CNPJ').map((entry) => entry.id))
       .toEqual([10]);
     expect(filterFaqEntries(FAQ_ENTRIES, 'Implantação', 'CNPJ')).toEqual([]);
+    expect(filterFaqEntries(FAQ_ENTRIES, 'Vendas e Recebimentos', 'CONVENIO').map((entry) => entry.id))
+      .toEqual([14]);
+    expect(filterFaqEntries(FAQ_ENTRIES, 'Vendas e Recebimentos', 'FREQUENCIA').map((entry) => entry.id))
+      .toEqual([15]);
   });
 });
 
@@ -33,7 +50,7 @@ describe('FaqComponent', () => {
     const category = [...root.querySelectorAll<HTMLButtonElement>('.faq-categories button')]
       .find((button) => button.textContent?.trim() === 'Integrações')!;
 
-    expect(questionButtons()).toHaveLength(13);
+    expect(questionButtons()).toHaveLength(15);
     expect(root.querySelectorAll('.faq-categories button')).toHaveLength(6);
     questionButtons()[0].click();
     fixture.detectChanges();

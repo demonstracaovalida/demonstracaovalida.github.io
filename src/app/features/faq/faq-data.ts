@@ -65,6 +65,18 @@ export const FAQ_ENTRIES: readonly FaqEntry[] = [
     resposta: 'O sistema permite comparar informações de recebimentos com lançamentos bancários disponibilizados para conciliação. A disponibilidade de automação e os formatos de extrato aceitos devem ser confirmados na implantação.',
   },
   {
+    id: 14,
+    categoria: 'Vendas e Recebimentos',
+    pergunta: 'O Valida concilia vendas do tipo convênio?',
+    resposta: 'Não. O Valida não concilia vendas do tipo convênio.',
+  },
+  {
+    id: 15,
+    categoria: 'Vendas e Recebimentos',
+    pergunta: 'Com que frequência devo fazer a conciliação das minhas vendas e recebimentos?',
+    resposta: 'Diariamente.',
+  },
+  {
     id: 9,
     categoria: 'Integrações',
     pergunta: 'O sistema funciona com mais de uma operadora de cartão?',
