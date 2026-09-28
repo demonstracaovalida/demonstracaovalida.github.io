@@ -38,7 +38,7 @@ export const TUTORIAL_STEPS: Readonly<Record<string, TutorialStep>> = {
     text: 'As datas já estão preenchidas de 01/08/2026 a 31/08/2026. Mantenha o período para gerar agosto inteiro ou altere-o. Avance para Gerar.', next: 'home-generate',
   },
   'home-generate': {
-    kind: 'interativa', route: '/', targets: ['home-generate'], action: 'home-generate',
+    kind: 'interativa', route: '/', targets: ['home-start-date', 'home-end-date', 'home-generate'], action: 'home-generate',
     text: 'Clique em Gerar para abrir o relatório escolhido com os seus filtros.', next: 'report-wait',
   },
   'home-select-sales': {
@@ -64,7 +64,7 @@ export const TUTORIAL_STEPS: Readonly<Record<string, TutorialStep>> = {
     next: 'home-generate-full-month',
   },
   'home-generate-sales': {
-    kind: 'interativa', route: '/', targets: ['home-generate'], action: 'home-generate',
+    kind: 'interativa', route: '/', targets: ['home-start-date', 'home-end-date', 'home-generate'], action: 'home-generate',
     text: 'Clique em Gerar para abrir o Relatório de Vendas com os filtros escolhidos.', next: 'report-wait',
   },
   'home-generate-full-month': {

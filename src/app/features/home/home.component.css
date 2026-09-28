@@ -265,6 +265,7 @@
 }
 
 .filter-actions {
+  position: relative;
   height: 46px;
   display: flex;
   justify-content: center;

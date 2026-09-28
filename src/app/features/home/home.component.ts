@@ -27,6 +27,8 @@ const PLOT_LEFT = 115;
 const PLOT_RIGHT_INSET = 15;
 const PLOT_TOP = 12;
 const PLOT_BOTTOM = 172;
+const DEMO_START_DATE = '2026-08-01';
+const DEMO_END_DATE = '2026-08-31';
 const BAR_COLORS = [
   '#bc57bd',
   '#dd788a',
@@ -64,7 +66,7 @@ interface ChartTick {
   selector: 'app-home',
   imports: [CommonModule, FormsModule],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css', './home-welcome.css'],
+  styleUrls: ['./home.component.css', './home-welcome.css', './home-date-validation.css'],
 })
 export class HomeComponent {
   private readonly demoState = inject(DemoStateService);
@@ -82,8 +84,10 @@ export class HomeComponent {
 
   protected reportType: ReportType | '' = '';
   protected detailLevel: DetailLevel = 'summary';
-  protected startDate = '2026-08-01';
-  protected endDate = '2026-08-31';
+  protected startDate = DEMO_START_DATE;
+  protected endDate = DEMO_END_DATE;
+  protected readonly minimumDate = DEMO_START_DATE;
+  protected readonly maximumDate = DEMO_END_DATE;
   protected acquirer = 'all';
   protected brand = 'all';
 
@@ -169,12 +173,33 @@ export class HomeComponent {
     return `R$ ${this.numberFormatter.format(amountCents / 100)}`;
   }
 
+  protected get startDateMaximum(): string {
+    return this.isValidDemoDate(this.endDate) ? this.endDate : DEMO_END_DATE;
+  }
+
+  protected get endDateMinimum(): string {
+    return this.isValidDemoDate(this.startDate) ? this.startDate : DEMO_START_DATE;
+  }
+
+  protected get dateError(): string | null {
+    if (!this.startDate || !this.endDate) return 'Preencha a Data Inicial e a Data Final.';
+    if (!this.isValidDemoDate(this.startDate) || !this.isValidDemoDate(this.endDate)) {
+      return 'Escolha datas entre 01/08/2026 e 31/08/2026.';
+    }
+    if (this.startDate > this.endDate) {
+      return 'A Data Inicial deve ser igual ou anterior à Data Final.';
+    }
+    return null;
+  }
+
   protected startTutorial(): void {
     this.welcome.closeTutorialChoice();
     this.tutorial.startHome();
   }
 
   protected generate(): void {
+    if (this.dateError) return;
+
     const filters: DemoFilters = {
       reportType: this.reportType || undefined,
       detailLevel: this.detailLevel,
@@ -223,5 +248,10 @@ export class HomeComponent {
     const normalized = rawStep / magnitude;
     const niceMultiplier = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
     return niceMultiplier * magnitude;
+  }
+
+  private isValidDemoDate(value: string): boolean {
+    return /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+      value >= DEMO_START_DATE && value <= DEMO_END_DATE;
   }
 }

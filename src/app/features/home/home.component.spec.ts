@@ -114,6 +114,59 @@ describe('HomeComponent', () => {
     expect(tutorial.step()?.id).toBe('report-wait');
   });
 
+  it('prevents empty, out-of-month, and reversed dates from generating a report', async () => {
+    const fixture = TestBed.createComponent(HomeComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const screen = fixture.nativeElement as HTMLElement;
+    const start = screen.querySelector<HTMLInputElement>('#start-date')!;
+    const end = screen.querySelector<HTMLInputElement>('#end-date')!;
+    const generateButton = screen.querySelector<HTMLButtonElement>('.filter-actions button')!;
+    const openSpy = vi.spyOn(window, 'open').mockReturnValue(null);
+    const component = fixture.componentInstance as unknown as {
+      reportType: string;
+      generate: () => void;
+    };
+    component.reportType = 'sales';
+    const enterDate = async (input: HTMLInputElement, value: string) => {
+      input.value = value;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    expect(start.min).toBe('2026-08-01');
+    expect(start.max).toBe('2026-08-31');
+    expect(end.min).toBe('2026-08-01');
+    expect(end.max).toBe('2026-08-31');
+
+    await enterDate(end, '2026-08-10');
+    expect(start.max).toBe('2026-08-10');
+    await enterDate(start, '2026-08-20');
+    expect(end.min).toBe('2026-08-20');
+    expect(generateButton.disabled).toBe(true);
+    expect(screen.querySelector('#date-error')?.textContent).toContain('igual ou anterior');
+    component.generate();
+    expect(openSpy).not.toHaveBeenCalled();
+
+    await enterDate(end, '2026-08-20');
+    expect(generateButton.disabled).toBe(false);
+    expect(screen.querySelector('#date-error')).toBeNull();
+    component.generate();
+    expect(openSpy).toHaveBeenCalledTimes(1);
+
+    await enterDate(start, '2026-09-01');
+    expect(generateButton.disabled).toBe(true);
+    expect(screen.querySelector('#date-error')?.textContent).toContain('01/08/2026 e 31/08/2026');
+    component.generate();
+    expect(openSpy).toHaveBeenCalledTimes(1);
+
+    await enterDate(start, '');
+    expect(generateButton.disabled).toBe(true);
+    expect(screen.querySelector('#date-error')?.textContent).toContain('Preencha');
+  });
+
   it('derives the three summary cards and daily chart from the Sprint 1 dataset', () => {
     const fixture = TestBed.createComponent(HomeComponent);
     fixture.detectChanges();

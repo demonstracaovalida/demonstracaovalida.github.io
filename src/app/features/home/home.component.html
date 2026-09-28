@@ -65,7 +65,7 @@
       <div class="criteria-field">
         <div class="date-field">
           <label for="start-date">Data Inicial:</label>
-          <input id="start-date" name="startDate" type="date" min="2026-08-01" max="2026-08-31" data-tour="home-start-date" data-tour-action="home-start-date" [(ngModel)]="startDate" />
+          <input id="start-date" name="startDate" type="date" [min]="minimumDate" [max]="startDateMaximum" required [class.invalid-date]="!!dateError" [attr.aria-invalid]="dateError ? 'true' : null" [attr.aria-describedby]="dateError ? 'date-error' : null" data-tour="home-start-date" data-tour-action="home-start-date" [(ngModel)]="startDate" />
         </div>
         <div class="acquirer-field">
           <label for="acquirer">Adquirente:</label>
@@ -78,7 +78,7 @@
         </div>
         <div class="date-field">
           <label for="end-date">Data Final:</label>
-          <input id="end-date" name="endDate" type="date" min="2026-08-01" max="2026-08-31" data-tour="home-end-date" data-tour-action="home-end-date" [(ngModel)]="endDate" />
+          <input id="end-date" name="endDate" type="date" [min]="endDateMinimum" [max]="maximumDate" required [class.invalid-date]="!!dateError" [attr.aria-invalid]="dateError ? 'true' : null" [attr.aria-describedby]="dateError ? 'date-error' : null" data-tour="home-end-date" data-tour-action="home-end-date" [(ngModel)]="endDate" />
         </div>
         <div class="brand-field">
           <label for="brand">Bandeira:</label>
@@ -92,7 +92,10 @@
       </div>
     </div>
     <div class="filter-actions">
-      <button type="submit" data-tour="home-generate">Gerar</button>
+      @if (dateError; as error) {
+        <p id="date-error" class="date-error" role="alert">{{ error }}</p>
+      }
+      <button type="submit" data-tour="home-generate" [disabled]="!!dateError">Gerar</button>
     </div>
   </form>
 </section>
