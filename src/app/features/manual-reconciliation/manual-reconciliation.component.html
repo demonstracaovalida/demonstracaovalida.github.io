@@ -225,6 +225,7 @@
 
           <section class="empty-counterpart-panel" aria-label="Ajustes" data-tour="manual-adjustments">
             <header class="panel-title"><strong>⚙ Ajustes</strong></header>
+            <div class="adjustment-table-scroll">
             <table class="matching-table adjustment-table">
               <thead><tr><th class="checkbox-column"></th><th>Data</th><th>Tipo Ajuste</th><th>Adquirente</th><th>Bandeira</th><th>Valor</th></tr></thead>
               <tbody>
@@ -242,6 +243,7 @@
                 }
               </tbody>
             </table>
+            </div>
             <div class="panel-total">Total selecionado: {{ formatMoney(selectionTotals().adjustmentAmountCents) }} ({{ selectionTotals().adjustmentCount }} {{ selectionTotals().adjustmentCount === 1 ? 'item' : 'itens' }})</div>
           </section>
 

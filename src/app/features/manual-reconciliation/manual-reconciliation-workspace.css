@@ -355,6 +355,7 @@
 .statement-search input { width: 100%; height: 30px; padding: 4px 9px; border: 1px solid #d6dce4; border-radius: 4px; font-size: 13px; }
 .statement-table-scroll { height: 455px; overflow: auto; }
 .receipt-table-scroll { max-height: 330px; overflow: auto; }
+.adjustment-table-scroll { overflow-x: auto; }
 .matching-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px; }
 .matching-table th,
 .matching-table td { height: 40px; padding: 6px 8px; border-bottom: 1px solid #d6dce4; overflow: hidden; text-align: left; text-overflow: ellipsis; white-space: nowrap; }
@@ -390,4 +391,37 @@
   .matching-tools { gap: 4px; }
   .matching-tools > *,
   .matching-actions > * { font-size: 11px; }
+}
+
+@media (max-width: 767px) {
+  .days-selection,
+  .matching-stage { padding: 15px 8px 45px; }
+
+  .flow-heading { align-items: stretch; flex-direction: column; gap: 12px; padding: 14px; }
+  .flow-heading h1 { margin-bottom: 8px; font-size: 18px; }
+  .flow-heading p { line-height: 21px; }
+  .flow-heading .change-button { align-self: flex-start; }
+  .heading-actions { flex-wrap: wrap; justify-content: space-between; }
+  .day-filters { justify-content: flex-start; overflow-x: auto; padding-bottom: 4px; }
+  .day-filters button { flex: 0 0 auto; }
+  .statement-days { grid-template-columns: minmax(0, 1fr); }
+  .day-card { min-height: 0; padding: 15px; }
+
+  .matching-tabs { overflow-x: auto; }
+  .matching-tabs > * { min-width: 165px; flex: 0 0 auto; padding-inline: 9px; font-size: 12px; }
+  .matching-tools,
+  .matching-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
+  .matching-tools > *,
+  .matching-actions > * { height: auto; min-height: 39px; padding: 5px 3px; white-space: normal; text-align: center; }
+  .matching-actions .reconcile-action { min-height: 44px; }
+  .matching-totals { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .matching-totals > div { min-height: 60px; padding: 5px; border-bottom: 1px solid #d6dce4; text-align: center; font-size: 12px; }
+  .matching-totals strong { font-size: 14px; }
+  .matching-columns { gap: 10px; }
+  .statement-panel { min-height: 0; }
+  .statement-table-scroll { height: auto; max-height: 330px; }
+  .statement-table { min-width: 390px; }
+  .receipt-table { min-width: 780px; }
+  .adjustment-table { min-width: 620px; }
+  .difference-badge { left: 8px; right: 8px; bottom: 8px; padding: 10px; text-align: center; font-size: 13px; }
 }

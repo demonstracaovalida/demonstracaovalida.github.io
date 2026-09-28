@@ -244,4 +244,11 @@
   .monthly-company {
     margin-left: 0;
   }
+
+  .monthly-header { padding-bottom: 10px; }
+  .monthly-header h1 { line-height: 21px; }
+  .monthly-company { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+  .monthly-totals dl > div { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 2px 0; }
+  .monthly-totals dt { min-width: 0; }
+  .monthly-totals dd { white-space: nowrap; text-align: right; }
 }

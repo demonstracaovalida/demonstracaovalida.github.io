@@ -217,4 +217,7 @@
   .fees-company {
     margin-left: 0;
   }
+
+  .fees-header h1 { line-height: 18px; }
+  .fees-company { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
 }

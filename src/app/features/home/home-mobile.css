@@ -1,0 +1,46 @@
+@media (max-width: 767px) {
+  .tabs-zone { height: 44px; padding-top: 13px; }
+  .tabs-track { width: calc(100% - 16px); }
+  .screen-tab { width: 100%; justify-content: flex-start; padding-left: 12px; }
+
+  .summary-strip {
+    height: auto;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 9px;
+  }
+
+  .summary-panel { height: auto; min-height: 92px; padding: 8px 6px; }
+  .summary-panel h1 { font-size: 16px; line-height: 20px; }
+  .summary-panel p { font-size: 12px; line-height: 16px; }
+  .summary-value { margin-top: 2px; font-size: 23px; line-height: 27px; }
+
+  .chart-frame {
+    height: 270px;
+    margin: 12px 8px 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .sales-chart { width: 820px; max-width: none; height: 267px; }
+
+  .report-filters { height: auto; margin-top: 12px; }
+  .filter-fields { height: auto; display: block; padding: 10px; }
+  .report-type-field select { width: 100%; max-width: none; }
+  .detail-field { margin: 12px 0; padding: 0; }
+  .detail-field label { display: inline-block; margin-right: 16px; }
+  .criteria-field {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto auto;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .criteria-field > .date-field:first-child { grid-area: 1 / 1; }
+  .criteria-field > .date-field:nth-child(3) { grid-area: 1 / 2; }
+  .acquirer-field { grid-area: 2 / 1; }
+  .brand-field { grid-area: 2 / 2; }
+  .acquirer-field select { width: 100%; }
+  .filter-actions { height: auto; min-height: 46px; flex-direction: column; align-items: center; padding: 5px 10px; }
+  .filter-actions button { margin-top: 0; }
+}

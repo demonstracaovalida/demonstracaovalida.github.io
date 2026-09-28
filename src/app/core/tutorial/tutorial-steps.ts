@@ -135,7 +135,7 @@ export const TUTORIAL_STEPS: Readonly<Record<string, TutorialStep>> = {
   'manual-navigation': {
     kind: 'navegacao', route: '/filiais', targets: ['nav-conciliation'],
     destination: '/nova-conciliacao', extraBottom: 44, extraRight: 60,
-    text: 'Passe o mouse em Conciliação e clique em Nova Conciliação no menu.', next: 'manual-intro',
+    text: 'Abra o menu Conciliação e clique em Nova Conciliação.', next: 'manual-intro',
   },
   'manual-intro': {
     kind: 'informativa', route: '/nova-conciliacao', targets: ['manual-intro'],

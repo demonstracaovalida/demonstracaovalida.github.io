@@ -18,3 +18,7 @@
   background: #989fa8;
   cursor: not-allowed;
 }
+
+@media (max-width: 767px) {
+  .date-error { position: static; max-width: none; margin: 0 0 6px; text-align: center; }
+}

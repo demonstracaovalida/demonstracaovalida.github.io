@@ -242,4 +242,8 @@
   .report-company {
     margin-left: 0;
   }
+
+  .report-header h1 { line-height: 18px; }
+  .report-company { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+  .report-toolbar { grid-template-columns: auto 1fr auto; gap: 6px; }
 }

@@ -73,3 +73,9 @@
   color: #b62512;
   font-weight: 700;
 }
+
+@media (max-width: 767px) {
+  .branches-panel { width: calc(100% - 16px); margin-top: 12px; }
+  .branches-table-scroll { width: 100%; overflow-x: auto; }
+  .branches-table { min-width: 640px; }
+}

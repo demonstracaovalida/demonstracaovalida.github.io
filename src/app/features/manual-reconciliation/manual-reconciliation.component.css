@@ -245,3 +245,21 @@
     max-width: 100%;
   }
 }
+
+@media (max-width: 767px) {
+  .manual-tabs { overflow-x: auto; }
+  .status-tab { min-width: 104px; padding-inline: 6px; font-size: 12px; white-space: nowrap; }
+  .current-tab { width: 185px; flex: 0 0 185px; padding-inline: 5px; font-size: 11px; }
+  .introduction { padding: 65px 16px 35px; }
+  .bank-illustration { margin-bottom: 23px; }
+  .introduction h1 { font-size: 23px; line-height: 29px; }
+  .introduction p { margin-top: 14px; font-size: 14px; line-height: 21px; }
+  .introduction-actions { gap: 10px; margin-top: 22px; }
+  .new-manual-button,
+  .manual-help { width: min(100%, 320px); min-width: 0; height: 48px; padding-inline: 10px; font-size: 15px; }
+  .bank-selection { padding: 15px 8px 35px; }
+  .selection-heading { padding-inline: 14px; }
+  .bank-list { gap: 10px; }
+  .bank-card { width: 100%; padding: 16px; }
+  .bank-details { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}

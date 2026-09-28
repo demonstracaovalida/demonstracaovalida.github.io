@@ -66,7 +66,7 @@ interface ChartTick {
   selector: 'app-home',
   imports: [CommonModule, FormsModule],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css', './home-welcome.css', './home-date-validation.css'],
+  styleUrls: ['./home.component.css', './home-mobile.css', './home-welcome.css', './home-date-validation.css'],
 })
 export class HomeComponent {
   private readonly demoState = inject(DemoStateService);
