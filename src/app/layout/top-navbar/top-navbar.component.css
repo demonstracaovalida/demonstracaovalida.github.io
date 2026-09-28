@@ -116,6 +116,15 @@ button.navigation-item {
   stroke-width: 1.8;
 }
 
+.faq-navigation-icon {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  font: bold 11px/12px Arial, Helvetica, sans-serif;
+  text-align: center;
+}
+
 .tutorial-start {
   white-space: nowrap;
 }

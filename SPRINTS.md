@@ -508,6 +508,147 @@ só que o link voce tenta esconder/encurtar, se nao fica zoado o tamanho
 e também, na nav bar, entre MeuValida e Iniciar Tutorial, poe o Whatsapp, que ao clicar, vai abrir uma nova aba, com esse mesmo link que mandei
 
 
+# Sprint 13 — Central de Ajuda (FAQ)
+
+## Objetivo
+Implementar uma Central de Ajuda (FAQ) na prévia do Valida, permitindo que o visitante encontre respostas sobre o sistema sem precisar entrar em contato com o comercial.
+
+## 1. Navegação
+- Adicionar o item `FAQ` na navbar existente, exatamente entre `MeuValida` e `WhatsApp`.
+- Ao clicar, abrir uma nova tela/rota interna dedicada ao FAQ.
+- A navegação deve preservar o comportamento e o layout da navbar.
+- O FAQ não deve abrir uma nova aba do navegador.
+- A tela deve permitir retornar normalmente às demais funcionalidades da prévia.
+
+## 2. Interface
+Criar uma página visualmente integrada ao restante da aplicação, contendo:
+
+- Título: `Central de Ajuda`
+- Subtítulo: `Encontre respostas para as principais dúvidas sobre o Valida.`
+- Campo de pesquisa com placeholder `Pesquisar uma dúvida...`
+- Categorias selecionáveis.
+- Perguntas apresentadas em formato accordion (respostas expansíveis).
+- Indicador visual de expansão/recolhimento.
+- Estado vazio quando nenhuma pergunta corresponder à pesquisa.
+
+Categorias:
+1. Funcionamento
+2. Vendas e Recebimentos
+3. Integrações
+4. Implantação
+5. Suporte
+
+A categoria `Todas` deve ser selecionada por padrão.
+
+## 3. Comportamento
+- A pesquisa deve funcionar em tempo real, sem necessidade de pressionar Enter.
+- A busca deve considerar o texto da pergunta e da resposta.
+- A busca deve ignorar diferenças entre maiúsculas/minúsculas e acentuação.
+- Os filtros de categoria e pesquisa devem funcionar em conjunto.
+- Ao selecionar uma categoria, exibir somente as perguntas correspondentes.
+- Ao clicar em uma pergunta, expandir sua resposta.
+- Ao clicar novamente, recolher.
+- Permitir apenas uma resposta expandida por vez.
+- Ao mudar de categoria ou pesquisa, recolher a resposta anteriormente aberta.
+- Não utilizar bibliotecas externas para implementar o accordion, salvo se já existir uma solução adequada no projeto.
+
+## 4. Arquitetura
+- Criar um componente/página específico para o FAQ.
+- Armazenar as perguntas em uma estrutura tipada e centralizada.
+- Cada registro deve conter `id`, `categoria`, `pergunta` e `resposta`.
+- Evitar textos duplicados ou lógica de filtragem espalhada pelo template.
+- Utilizar os padrões Angular, estilos e componentes já existentes no projeto.
+- Não adicionar backend, banco de dados ou armazenamento persistente.
+- Não alterar as regras financeiras, relatórios ou funcionalidades já implementadas.
+
+## 5. Responsividade e acessibilidade
+- Manter a identidade visual do Valida.
+- Não reproduzir obrigatoriamente a largura da captura de tela original.
+- Garantir boa apresentação em diferentes resoluções desktop.
+- Campo de pesquisa e categorias devem ser utilizáveis por teclado.
+- Perguntas expansíveis devem ser botões acessíveis, com `aria-expanded`.
+- Respeitar o estado de foco visível dos elementos interativos.
+
+## 6. Critérios de aceite
+- `FAQ` aparece entre `MeuValida` e `WhatsApp`.
+- O clique abre a rota interna da Central de Ajuda.
+- As cinco categorias e o filtro `Todas` funcionam.
+- Pesquisa encontra perguntas e respostas, inclusive sem acentos.
+- Accordion expande e recolhe corretamente.
+- Apenas uma resposta permanece aberta por vez.
+- Todos os textos abaixo estão presentes integralmente.
+- Nenhuma funcionalidade anterior foi comprometida.
+- `npm run build`, testes existentes e `git diff --check` passam.
+
+---
+
+# Conteúdo obrigatório do FAQ
+
+Preservar as perguntas e respostas abaixo, sem alterar o significado.
+Não inventar funcionalidades ou condições comerciais adicionais.
+
+## Categoria: Funcionamento
+
+### 1. O que é a conciliação de cartões?
+É o processo de comparar as vendas realizadas com os valores que as operadoras de cartão informam que serão pagos ou já foram pagos. Isso permite identificar diferenças entre o que foi vendido, o que deveria ser recebido e o que efetivamente entrou na conta.
+
+### 2. Qual é a vantagem de utilizar o Valida?
+O Valida centraliza informações de vendas, taxas e recebimentos, facilitando o acompanhamento financeiro e a identificação de divergências. O objetivo é reduzir o trabalho de conferência manual e proporcionar maior controle sobre os recebíveis.
+
+### 3. O Valida substitui meu sistema de gestão (ERP)?
+Não necessariamente. O Valida é voltado à conciliação financeira e pode complementar o sistema de gestão utilizado pela empresa. A possibilidade de integração deve ser avaliada conforme o ERP.
+
+### 4. O Valida movimenta o dinheiro da minha conta bancária?
+A conciliação é uma atividade de conferência de informações financeiras. Ela não deve ser confundida com a realização de transferências ou movimentações bancárias. Em suma, não.
+
+## Categoria: Vendas e Recebimentos
+
+### 5. O sistema mostra se uma venda foi realmente paga?
+O Valida permite acompanhar os recebimentos informados pelas operadoras e compará-los com os lançamentos financeiros disponíveis. Assim, é possível identificar pagamentos conciliados e possíveis pendências.
+
+### 6. Consigo identificar taxas cobradas pelas operadoras?
+Sim. O relatório de taxas permite consultar os percentuais praticados e comparar informações financeiras relacionadas às vendas. A comparação com taxas contratadas depende da configuração dessas informações.
+
+### 7. Posso consultar vendas e recebimentos de meses anteriores?
+Sim, desde que os dados históricos correspondentes estejam disponíveis no sistema. A disponibilidade depende do período de informações recebido e processado.
+
+### 8. O Valida realiza conciliação bancária?
+O sistema permite comparar informações de recebimentos com lançamentos bancários disponibilizados para conciliação. A disponibilidade de automação e os formatos de extrato aceitos devem ser confirmados na implantação.
+
+## Categoria: Integrações
+
+### 9. O sistema funciona com mais de uma operadora de cartão?
+Sim, desde que as operadoras utilizadas estejam contempladas pelas integrações disponíveis. Isso permite centralizar informações que normalmente seriam consultadas em diferentes portais.
+
+### 10. Posso acompanhar mais de uma filial ou CNPJ?
+O Valida possui recursos de organização por estabelecimentos e filiais. A quantidade de empresas atendidas e as condições de contratação devem ser confirmadas comercialmente.
+
+## Categoria: Implantação
+
+### 11. Como funciona a implantação?
+A implantação envolve identificar as operadoras e instituições financeiras utilizadas, configurar as fontes de dados disponíveis e preparar o ambiente para o acompanhamento das informações. As etapas específicas são definidas conforme a operação do cliente.
+
+### 12. Preciso trocar de banco ou de maquininha para utilizar o Valida?
+Não.
+
+## Categoria: Suporte
+
+### 13. Tenho suporte caso encontre alguma dificuldade?
+Sim. Suporte via Chat WhatsApp no horário de 8:30 às 17:30.
+
+---
+
+## Finalização
+Implementar somente o escopo desta sprint.
+
+Não modificar os textos do FAQ sem necessidade técnica.
+Não criar novas perguntas.
+Não redesenhar a navbar ou outras telas.
+Não alterar o funcionamento do tutorial interativo.
+
+Ao finalizar, informar os arquivos alterados e os resultados das verificações.
+
+
 
 # Prompt para iniciar uma sprint
 

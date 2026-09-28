@@ -34,7 +34,7 @@ describe('App', () => {
     expect(compiled.textContent).not.toContain('Sair');
   });
 
-  it('places the WhatsApp link between MeuValida and Iniciar tutorial and opens a new tab', async () => {
+  it('places FAQ and WhatsApp after MeuValida, with WhatsApp opening a new tab', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     fixture.detectChanges();
@@ -42,13 +42,36 @@ describe('App', () => {
     const items = [...(fixture.nativeElement as HTMLElement)
       .querySelectorAll<HTMLElement>('.primary-navigation > .navigation-item')];
     const whatsappIndex = items.findIndex((item) => item.textContent?.trim() === 'WhatsApp');
+    const faq = items[whatsappIndex - 1] as HTMLAnchorElement;
     const link = items[whatsappIndex] as HTMLAnchorElement;
     expect(whatsappIndex).toBeGreaterThan(0);
-    expect(items[whatsappIndex - 1].textContent).toContain('MeuValida');
+    expect(items[whatsappIndex - 2].textContent).toContain('MeuValida');
+    expect(faq.textContent?.trim()).toBe('?FAQ');
+    expect(faq.getAttribute('routerLink')).toBe('/faq');
+    expect(faq.target).not.toBe('_blank');
     expect(items[whatsappIndex + 1].textContent).toContain('Iniciar tutorial');
     expect(link.href).toBe(WHATSAPP_CONTACT_URL);
     expect(link.target).toBe('_blank');
     expect(link.rel).toContain('noopener');
+  });
+
+  it('opens the FAQ in the same tab and returns to Início through the navbar', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const rendered = fixture.nativeElement as HTMLElement;
+    rendered.querySelector<HTMLAnchorElement>('a[routerLink="/faq"]')!.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(TestBed.inject(Router).url).toBe('/faq');
+    expect(rendered.querySelector('app-faq h1')?.textContent).toBe('Central de Ajuda');
+    expect((rendered.querySelector('app-top-navbar') as HTMLElement).hidden).toBe(false);
+
+    rendered.querySelector<HTMLAnchorElement>('a.navigation-item[routerLink="/"]')!.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(TestBed.inject(Router).url).toBe('/');
   });
 
   it('shows a short contact action after ending the tutorial and allows dismissal', async () => {

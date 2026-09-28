@@ -5,6 +5,7 @@ import { MonthlyReportComponent } from './features/monthly-report/monthly-report
 import { SalesReportComponent } from './features/sales-report/sales-report.component';
 import { BranchesComponent } from './features/branches/branches.component';
 import { ManualReconciliationComponent } from './features/manual-reconciliation/manual-reconciliation.component';
+import { FaqComponent } from './features/faq/faq.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, pathMatch: 'full' },
@@ -12,6 +13,7 @@ export const routes: Routes = [
   { path: 'relatorio-taxas', component: FeesReportComponent },
   { path: 'resultado-mensal', component: MonthlyReportComponent },
   { path: 'filiais', component: BranchesComponent },
+  { path: 'faq', component: FaqComponent },
   { path: 'nova-conciliacao', component: ManualReconciliationComponent },
   { path: '**', redirectTo: '' },
 ];

@@ -1,0 +1,36 @@
+<section class="faq-panel" aria-labelledby="faq-heading">
+  <header class="faq-header">
+    <h1 id="faq-heading">Central de Ajuda</h1>
+    <p>Encontre respostas para as principais dúvidas sobre o Valida.</p>
+  </header>
+
+  <div class="faq-controls">
+    <label for="faq-search">Pesquisar</label>
+    <input id="faq-search" type="search" placeholder="Pesquisar uma dúvida..." autocomplete="off" [value]="search()" (input)="updateSearch($event)" />
+  </div>
+
+  <div class="faq-categories" role="group" aria-label="Categorias de dúvidas">
+    <button type="button" [class.selected]="category() === 'Todas'" [attr.aria-pressed]="category() === 'Todas'" (click)="selectCategory('Todas')">Todas</button>
+    @for (item of categories; track item) {
+      <button type="button" [class.selected]="category() === item" [attr.aria-pressed]="category() === item" (click)="selectCategory(item)">{{ item }}</button>
+    }
+  </div>
+
+  <div class="faq-list">
+    @for (question of questions(); track question.id) {
+      <article class="faq-item">
+        <h2>
+          <button type="button" [id]="'faq-question-' + question.id" [attr.aria-expanded]="expandedId() === question.id" [attr.aria-controls]="'faq-answer-' + question.id" (click)="toggleQuestion(question.id)">
+            <span>{{ question.pergunta }}</span>
+            <span class="faq-expansion" aria-hidden="true">{{ expandedId() === question.id ? '−' : '+' }}</span>
+          </button>
+        </h2>
+        <div class="faq-answer" [id]="'faq-answer-' + question.id" [attr.aria-labelledby]="'faq-question-' + question.id" [hidden]="expandedId() !== question.id">
+          <p>{{ question.resposta }}</p>
+        </div>
+      </article>
+    } @empty {
+      <p class="faq-empty" role="status">Nenhuma pergunta encontrada para esta pesquisa.</p>
+    }
+  </div>
+</section>
