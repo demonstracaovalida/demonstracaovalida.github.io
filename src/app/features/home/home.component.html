@@ -38,7 +38,9 @@
         <rect [attr.x]="bar.x" [attr.y]="bar.y" [attr.width]="bar.width" [attr.height]="bar.height" [attr.fill]="bar.color">
           <title>{{ bar.dayLabel }}/2026 — {{ formatCurrency(bar.amountCents) }}</title>
         </rect>
-        <text [attr.x]="bar.centerX" y="196" text-anchor="middle" class="date-label">{{ bar.dayLabel }}</text>
+        @if (bar.showDateLabel) {
+          <text [attr.x]="bar.centerX" y="196" text-anchor="middle" class="date-label">{{ bar.dayLabel }}</text>
+        }
       }
       <text x="52%" y="238" text-anchor="middle" class="axis-title">Data Venda</text>
     </svg>

@@ -190,7 +190,10 @@ describe('HomeComponent', () => {
     expect(cardValues[1].textContent?.trim()).toBe(formatCurrency(totals.receivedAmountCents));
     expect(cardValues[2].textContent?.trim()).toBe(formatCurrency(totals.feeAmountCents));
     expect(barCount).toBe(31);
-    expect(dateLabels).toHaveLength(31);
+    expect(dateLabels.length).toBeGreaterThan(0);
+    expect(dateLabels.length).toBeLessThanOrEqual(barCount);
+    expect(dateLabels[0].textContent?.trim()).toBe('01/08');
+    expect(dateLabels[dateLabels.length - 1].textContent?.trim()).toBe('31/08');
     expect([...dateLabels].every((label) => /^\d{2}\/08$/.test(label.textContent?.trim() ?? ''))).toBe(
       true,
     );

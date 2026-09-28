@@ -27,6 +27,7 @@ const PLOT_LEFT = 115;
 const PLOT_RIGHT_INSET = 15;
 const PLOT_TOP = 12;
 const PLOT_BOTTOM = 172;
+const MIN_DATE_LABEL_SPACING = 32;
 const DEMO_START_DATE = '2026-08-01';
 const DEMO_END_DATE = '2026-08-31';
 const BAR_COLORS = [
@@ -55,6 +56,7 @@ interface ChartBar extends DailySalesPoint {
   readonly color: string;
   readonly dayLabel: string;
   readonly centerX: number;
+  readonly showDateLabel: boolean;
 }
 
 interface ChartTick {
@@ -143,6 +145,7 @@ export class HomeComponent {
     const plotWidth = plotRight - PLOT_LEFT;
     const slotWidth = plotWidth / dailyPoints.length;
     const barWidth = slotWidth * 0.53;
+    const labelInterval = Math.max(1, Math.ceil(MIN_DATE_LABEL_SPACING / slotWidth));
 
     const bars: ChartBar[] = dailyPoints.map((point, index) => {
       const height = (point.amountCents / axisMaximumCents) * plotHeight;
@@ -157,6 +160,7 @@ export class HomeComponent {
         color: BAR_COLORS[index % BAR_COLORS.length],
         dayLabel: `${day}/${month}`,
         centerX,
+        showDateLabel: index % labelInterval === 0,
       };
     });
 
