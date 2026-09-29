@@ -41,13 +41,23 @@
   width: min(350px, calc(100vw - 24px));
   min-height: 105px;
   padding: 15px 16px 13px;
-  border: 1px solid #8aa9bd;
+  border: 2px solid #087bb3;
   border-radius: 3px;
   background: #fff;
   color: #303030;
-  box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+  box-shadow: 0 0 0 2px #fff, 0 3px 12px rgb(0 59 112 / 35%);
   font-size: 14px;
   line-height: 1.4;
+  transform-origin: center;
+  animation: tutorial-bubble-attention 2s ease-in-out infinite;
+}
+
+@keyframes tutorial-bubble-attention {
+  50% {
+    transform: scale(1.025);
+    border-color: #00a7df;
+    box-shadow: 0 0 0 5px rgb(0 167 223 / 35%), 0 5px 19px rgb(0 59 112 / 45%);
+  }
 }
 
 .tutorial-bubble p { margin: 0 0 13px; }
@@ -136,4 +146,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .tutorial-focus { transition: none; }
+  .tutorial-bubble { animation: none; }
 }

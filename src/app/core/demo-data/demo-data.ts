@@ -66,7 +66,7 @@ const DEMO_BANK_ACCOUNTS: readonly DemoBankAccount[] = [
     bankName: 'Bradesco (237)',
     agency: '321',
     accountNumber: '98765-3',
-    lastStatementDate: '2026-07-30',
+    lastStatementDate: '2026-09-01',
     status: 'Pendente',
   },
 ];

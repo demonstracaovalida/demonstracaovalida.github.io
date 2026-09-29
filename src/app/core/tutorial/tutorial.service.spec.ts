@@ -130,7 +130,7 @@ describe('TutorialService', () => {
     expect(tutorial.step()?.text).toContain('31/08/2026');
     expect(tutorial.step()?.text).toContain('Ticket');
     tutorial.next();
-    expect(tutorial.step()?.id).toBe('home-generate-full-month');
+    expect(tutorial.step()?.id).toBe('home-generate-fees');
     const feesWindow = reportWindow();
     tutorial.registerReportWindow(feesWindow, 'fees');
     tutorial.observe('home-generate');

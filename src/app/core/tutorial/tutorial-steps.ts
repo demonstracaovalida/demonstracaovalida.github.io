@@ -55,8 +55,12 @@ export const TUTORIAL_STEPS: Readonly<Record<string, TutorialStep>> = {
   },
   'home-full-month-fees': {
     kind: 'informativa', route: '/', targets: ['home-filters'],
-    text: 'Para Taxas Administrativas, use todo o mês de agosto: Data Inicial 01/08/2026 e Data Final 31/08/2026. Deixe Bandeira em Todas ou Ticket para ver o exemplo da Ticket.',
-    next: 'home-generate-full-month',
+    text: 'Para Taxas Administrativas, as datas ficam fixas de 01/08/2026 a 31/08/2026 neste tutorial. Você ainda pode filtrar por adquirente e bandeira; escolha Ticket para ver o exemplo de divergência.',
+    next: 'home-generate-fees',
+  },
+  'home-generate-fees': {
+    kind: 'interativa', route: '/', targets: ['home-generate'], action: 'home-generate',
+    text: 'Clique em Gerar para abrir as Taxas Administrativas de agosto com os filtros escolhidos.', next: 'report-wait',
   },
   'home-full-month-monthly': {
     kind: 'informativa', route: '/', targets: ['home-start-date', 'home-end-date'],
@@ -69,7 +73,7 @@ export const TUTORIAL_STEPS: Readonly<Record<string, TutorialStep>> = {
   },
   'home-generate-full-month': {
     kind: 'interativa', route: '/', targets: ['home-filters'], action: 'home-generate',
-    text: 'Com o período completo de 01/08/2026 a 31/08/2026, clique em Gerar. Adquirente e bandeira podem continuar filtrados.',
+    text: 'Clique em Gerar para abrir o Resultado Mensal com o período e os filtros escolhidos.',
     next: 'report-wait',
   },
   'report-wait': {

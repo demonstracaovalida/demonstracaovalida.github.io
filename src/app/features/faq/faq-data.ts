@@ -74,7 +74,7 @@ export const FAQ_ENTRIES: readonly FaqEntry[] = [
     id: 15,
     categoria: 'Vendas e Recebimentos',
     pergunta: 'Com que frequência devo fazer a conciliação das minhas vendas e recebimentos?',
-    resposta: 'Diariamente.',
+    resposta: 'Diariamente. A conferência diária ajuda a identificar rapidamente recebimentos pendentes, diferenças nos valores repassados e taxas cobradas acima do contratado, antes que as pendências se acumulem.',
   },
   {
     id: 9,

@@ -114,6 +114,72 @@ describe('HomeComponent', () => {
     expect(tutorial.step()?.id).toBe('report-wait');
   });
 
+  it('locks the full August period only for Administrative Fees during the tutorial', async () => {
+    const fixture = TestBed.createComponent(HomeComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const tutorial = TestBed.inject(TutorialService);
+    const screen = fixture.nativeElement as HTMLElement;
+    const start = screen.querySelector<HTMLInputElement>('#start-date')!;
+    const end = screen.querySelector<HTMLInputElement>('#end-date')!;
+    const component = fixture.componentInstance as unknown as {
+      startDate: string;
+      endDate: string;
+      reportType: string;
+      generate: () => void;
+    };
+    const reportWindow = { postMessage: vi.fn() } as unknown as Window;
+    const openSpy = vi.spyOn(window, 'open').mockReturnValue(reportWindow);
+
+    component.startDate = '2026-08-10';
+    component.endDate = '2026-08-12';
+    tutorial.startHome();
+    tutorial.next();
+    tutorial.next();
+    tutorial.observe('home-report-type', 'sales');
+    tutorial.next();
+    tutorial.next();
+    tutorial.registerReportWindow(reportWindow, 'sales');
+    tutorial.observe('home-generate');
+    window.dispatchEvent(new MessageEvent('message', {
+      data: { kind: 'valida-tutorial-report-finished' },
+      origin: window.location.origin,
+      source: reportWindow,
+    }));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(tutorial.step()?.id).toBe('home-select-fees');
+    expect(start.disabled).toBe(true);
+    expect(end.disabled).toBe(true);
+    expect(start.value).toBe('2026-08-01');
+    expect(end.value).toBe('2026-08-31');
+
+    tutorial.observe('home-report-type', 'fees');
+    component.reportType = 'fees';
+    tutorial.next();
+    expect(tutorial.step()?.id).toBe('home-generate-fees');
+    component.generate();
+
+    const reportUrl = new URL(String(openSpy.mock.calls[0][0]), 'http://localhost');
+    expect(reportUrl.pathname).toBe('/relatorio-taxas');
+    expect(reportUrl.searchParams.get('startDate')).toBe('2026-08-01');
+    expect(reportUrl.searchParams.get('endDate')).toBe('2026-08-31');
+
+    window.dispatchEvent(new MessageEvent('message', {
+      data: { kind: 'valida-tutorial-report-finished' },
+      origin: window.location.origin,
+      source: reportWindow,
+    }));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(tutorial.step()?.id).toBe('home-select-monthly');
+    expect(start.disabled).toBe(false);
+    expect(end.disabled).toBe(false);
+  });
+
   it('prevents empty, out-of-month, and reversed dates from generating a report', async () => {
     const fixture = TestBed.createComponent(HomeComponent);
     fixture.detectChanges();

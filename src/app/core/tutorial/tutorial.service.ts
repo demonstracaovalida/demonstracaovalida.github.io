@@ -93,7 +93,11 @@ export class TutorialService {
   }
 
   isAwaitingReport(): boolean {
-    return ['home-generate', 'home-generate-sales', 'home-generate-full-month'].includes(this.stepId() ?? '');
+    return ['home-generate', 'home-generate-sales', 'home-generate-fees', 'home-generate-full-month'].includes(this.stepId() ?? '');
+  }
+
+  isFeesDateLocked(): boolean {
+    return ['home-select-fees', 'home-full-month-fees', 'home-generate-fees'].includes(this.stepId() ?? '');
   }
 
   next(): void {

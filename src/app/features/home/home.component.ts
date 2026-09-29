@@ -5,6 +5,7 @@ import {
   computed,
   DestroyRef,
   ElementRef,
+  effect,
   inject,
   signal,
   viewChild,
@@ -76,6 +77,7 @@ export class HomeComponent {
   private readonly location = inject(Location);
   protected readonly tutorial = inject(TutorialService);
   protected readonly welcome = inject(HomeWelcomeService);
+  protected readonly feesDatesLocked = computed(() => this.tutorial.isFeesDateLocked());
   private readonly destroyRef = inject(DestroyRef);
   private readonly chartElement = viewChild.required<ElementRef<SVGSVGElement>>('salesChart');
   private readonly chartWidth = signal(1000);
@@ -97,6 +99,12 @@ export class HomeComponent {
   protected readonly submittedFilters = signal<DemoFilters | null>(null);
 
   constructor() {
+    effect(() => {
+      if (!this.feesDatesLocked()) return;
+      this.startDate = DEMO_START_DATE;
+      this.endDate = DEMO_END_DATE;
+    });
+
     afterNextRender(() => {
       const element = this.chartElement().nativeElement;
       const updateWidth = () => {
@@ -202,6 +210,10 @@ export class HomeComponent {
   }
 
   protected generate(): void {
+    if (this.feesDatesLocked() && this.reportType === 'fees') {
+      this.startDate = DEMO_START_DATE;
+      this.endDate = DEMO_END_DATE;
+    }
     if (this.dateError) return;
 
     const filters: DemoFilters = {
