@@ -29,11 +29,28 @@ export class TutorialService {
   private reportWindow: Window | null = null;
   private currentReportType: ReportType | null = null;
   private manualStage: ManualTutorialStage = 'intro';
+  private readonly manualOnly = signal(false);
   readonly contactPromptVisible = signal(false);
 
   readonly step = computed(() => {
     const id = this.stepId();
     return id ? { id, ...TUTORIAL_STEPS[id] } : null;
+  });
+
+  readonly progress = computed(() => {
+    const step = this.step();
+    if (!step) return null;
+    const complete = step.id === 'manual-complete';
+    if (this.manualOnly()) {
+      return { label: complete ? 'Conclusão' : 'Conciliação', current: complete ? 2 : 1, total: 2 };
+    }
+    if (complete) return { label: 'Conclusão', current: 5, total: 5 };
+    if (step.id.startsWith('manual-')) return { label: 'Conciliação', current: 4, total: 5 };
+    if (step.id.startsWith('branches-')) return { label: 'Filiais', current: 3, total: 5 };
+    const introduction = ['home-cards', 'home-chart', 'home-report-type', 'home-filters', 'home-dates', 'home-generate'];
+    return introduction.includes(step.id)
+      ? { label: 'Início', current: 1, total: 5 }
+      : { label: 'Relatórios', current: 2, total: 5 };
   });
 
   constructor() {
@@ -56,6 +73,7 @@ export class TutorialService {
 
   startManual(): void {
     this.stop();
+    this.manualOnly.set(true);
     this.dismissContactPrompt();
     this.stepId.set(MANUAL_ENTRY_STEPS[this.manualStage]);
   }
@@ -72,6 +90,7 @@ export class TutorialService {
 
   stop(propagate = true): void {
     this.stepId.set(null);
+    this.manualOnly.set(false);
     if (propagate) {
       const otherWindow = this.reportWindow ?? window.opener;
       otherWindow?.postMessage({ kind: 'valida-tutorial-cancel' }, window.location.origin);

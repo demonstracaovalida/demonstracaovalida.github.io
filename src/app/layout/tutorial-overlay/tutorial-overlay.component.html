@@ -11,6 +11,12 @@
   <button class="tutorial-end" type="button" (click)="stop()">Encerrar tutorial</button>
 
   <div class="tutorial-bubble" role="dialog" aria-modal="false" aria-label="Tutorial da prévia" [style.left.px]="bubble().left" [style.top.px]="bubble().top">
+    @if (tutorial.progress(); as progress) {
+      <div class="tutorial-progress">
+        <span>{{ progress.label }} · etapa {{ progress.current }} de {{ progress.total }}</span>
+        <progress [value]="progress.current" [max]="progress.total" aria-label="Etapa atual do tutorial"></progress>
+      </div>
+    }
     <p>{{ step.text }}</p>
     @if (step.kind === 'informativa') {
       <button class="tutorial-next" type="button" aria-label="Próxima etapa" (click)="next()">&gt;</button>

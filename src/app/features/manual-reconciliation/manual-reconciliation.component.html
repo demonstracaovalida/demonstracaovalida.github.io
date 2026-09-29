@@ -1,11 +1,11 @@
 <main class="manual-reconciliation" aria-label="Nova Conciliação Manual">
   <div class="manual-blue-strip" aria-hidden="true"></div>
   <div class="manual-menu-row">
-    <span class="hamburger-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span appIllustrative class="hamburger-icon" aria-label="Menu da conciliação"><i></i><i></i><i></i></span>
   </div>
 
   <div class="manual-tabs">
-    <span class="status-tab">Status Arquivos</span>
+    <span appIllustrative class="status-tab">Status Arquivos</span>
     <span class="current-tab">
       <span aria-hidden="true">⚙</span>
       Nova Conciliação Manual
@@ -36,7 +36,7 @@
         <button type="button" class="new-manual-button" data-tour="manual-start" data-tour-action="manual-start" (click)="startNewReconciliation()">
           <span aria-hidden="true">✚</span> Nova Conciliação Manual
         </button>
-        <span class="manual-help" aria-label="Manual de Uso">
+        <span appIllustrative class="manual-help" aria-label="Manual de Uso">
           <span aria-hidden="true">📖</span> Manual de Uso
         </span>
       </div>
@@ -135,26 +135,26 @@
 
       <nav class="matching-tabs" aria-label="Tipos de conciliação">
         <span class="matching-tab-current">💳 Conciliação Cartão</span>
-        <button type="button" disabled>📱 Conciliação PIX</button>
-        <button type="button" disabled>✅ Conciliados</button>
+        <button appIllustrative type="button">📱 Conciliação PIX</button>
+        <button appIllustrative type="button">✅ Conciliados</button>
       </nav>
 
       <div class="matching-tools">
         <label for="history-filter">🔍 Filtros</label>
-        <span>📊 Agrupar</span>
+        <span appIllustrative>📊 Agrupar</span>
         <button type="button" (click)="clearSelection()">🗑 Limpar Seleção</button>
         <button type="button" (click)="changeDate()">🔄 Trocar Data</button>
         <button type="button" (click)="clearSelection()">🔃 Recarregar</button>
-        <span>📖 Manual</span>
+        <span appIllustrative>📖 Manual</span>
       </div>
 
       <div class="matching-actions">
-        <span class="automatic-action">🤖 Conciliar Automático</span>
+        <span appIllustrative class="automatic-action">🤖 Conciliar Automático</span>
         <button type="button" class="reconcile-action" data-tour="manual-reconcile" [disabled]="!canReconcile()" (click)="reconcileSelected()">✅ Conciliar Selecionados</button>
-        <span class="zero-action">✅ Conciliar Saldo Zero</span>
-        <span class="ignore-action">⏩ Ignorar Selecionados</span>
-        <span class="negative-action">⏩ Ignorar Negativos</span>
-        <span class="reverse-action">↩ Estornar Conciliação</span>
+        <span appIllustrative class="zero-action">✅ Conciliar Saldo Zero</span>
+        <span appIllustrative class="ignore-action">⏩ Ignorar Selecionados</span>
+        <span appIllustrative class="negative-action">⏩ Ignorar Negativos</span>
+        <span appIllustrative class="reverse-action">↩ Estornar Conciliação</span>
       </div>
 
       <div class="matching-totals" data-tour="manual-totals">

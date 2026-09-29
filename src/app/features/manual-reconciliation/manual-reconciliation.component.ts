@@ -1,3 +1,4 @@
+import { IllustrativeControlDirective } from '../../shared/illustrative-control.directive';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -28,7 +29,7 @@ const MONEY_FORMATTER = new Intl.NumberFormat('pt-BR', {
 
 @Component({
   selector: 'app-manual-reconciliation',
-  imports: [RouterLink],
+  imports: [RouterLink, IllustrativeControlDirective],
   templateUrl: './manual-reconciliation.component.html',
   styleUrl: './manual-reconciliation.component.css',
 })

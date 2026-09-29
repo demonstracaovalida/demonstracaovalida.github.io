@@ -1,3 +1,4 @@
+import { IllustrativeControlDirective } from '../../shared/illustrative-control.directive';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
@@ -7,7 +8,7 @@ import { WHATSAPP_CONTACT_URL } from '../../core/whatsapp-contact';
 
 @Component({
   selector: 'app-top-navbar',
-  imports: [RouterLink],
+  imports: [RouterLink, IllustrativeControlDirective],
   templateUrl: './top-navbar.component.html',
   styleUrls: ['./top-navbar.component.css', './top-navbar-mobile.css'],
 })

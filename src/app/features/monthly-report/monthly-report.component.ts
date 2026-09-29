@@ -1,3 +1,4 @@
+import { IllustrativeControlDirective } from '../../shared/illustrative-control.directive';
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { ActivatedRoute, type ParamMap } from '@angular/router';
@@ -105,7 +106,7 @@ function productCodesByBrand(dataset: DemoDataset): ReadonlyMap<PaymentBrand, st
 
 @Component({
   selector: 'app-monthly-report',
-  imports: [CommonModule],
+  imports: [CommonModule, IllustrativeControlDirective],
   templateUrl: './monthly-report.component.html',
   styleUrl: './monthly-report.component.css',
 })

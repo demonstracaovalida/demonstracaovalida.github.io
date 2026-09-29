@@ -19,6 +19,7 @@ describe('TutorialService', () => {
 
     tutorial.startHome();
     expect(tutorial.step()?.id).toBe('home-cards');
+    expect(tutorial.progress()).toEqual({ label: 'Início', current: 1, total: 5 });
     tutorial.next();
     tutorial.next();
     expect(tutorial.step()?.id).toBe('home-report-type');
@@ -45,6 +46,7 @@ describe('TutorialService', () => {
 
     tutorial.stop();
     expect(tutorial.step()).toBeNull();
+    expect(tutorial.progress()).toBeNull();
     expect(tutorial.contactPromptVisible()).toBe(false);
     expect(state.state().data).toBe(initialData);
   });
@@ -57,6 +59,7 @@ describe('TutorialService', () => {
     try {
       const tutorial = TestBed.inject(TutorialService);
       expect(tutorial.step()?.id).toBe('fees-overview');
+      expect(tutorial.progress()).toEqual({ label: 'Relatórios', current: 2, total: 5 });
       tutorial.next();
       tutorial.next();
       expect(tutorial.step()?.id).toBe('fees-ticket');
@@ -64,6 +67,7 @@ describe('TutorialService', () => {
       expect(tutorial.step()?.text).toContain('3,60%');
       tutorial.next();
       expect(tutorial.step()?.id).toBe('report-return');
+      expect(tutorial.progress()?.current).toBe(2);
       tutorial.next();
       expect(tutorial.step()).toBeNull();
       expect(opener.postMessage).toHaveBeenCalledWith(
@@ -119,6 +123,7 @@ describe('TutorialService', () => {
 
     finishReport(salesWindow);
     expect(tutorial.step()?.id).toBe('home-select-fees');
+    expect(tutorial.progress()).toEqual({ label: 'Relatórios', current: 2, total: 5 });
     expect(tutorial.isReportOptionAvailable('sales')).toBe(false);
     expect(tutorial.isReportOptionAvailable('fees')).toBe(true);
     expect(tutorial.isReportOptionAvailable('monthly')).toBe(false);
@@ -150,6 +155,7 @@ describe('TutorialService', () => {
     tutorial.observe('home-generate');
     finishReport(monthlyWindow);
     expect(tutorial.step()?.id).toBe('branches-navigation');
+    expect(tutorial.progress()).toEqual({ label: 'Filiais', current: 3, total: 5 });
 
     window.dispatchEvent(new MessageEvent('message', {
       data: { kind: 'valida-tutorial-cancel' },
@@ -176,6 +182,7 @@ describe('TutorialService', () => {
     tutorial.setManualStage('matching');
     tutorial.startManual();
     expect(tutorial.step()?.id).toBe('manual-statement');
+    expect(tutorial.progress()).toEqual({ label: 'Conciliação', current: 1, total: 2 });
     while (tutorial.step()?.kind === 'informativa') tutorial.next();
     expect(tutorial.step()?.id).toBe('manual-select-statement');
 
@@ -191,6 +198,7 @@ describe('TutorialService', () => {
 
     tutorial.observe('manual-reconciled');
     expect(tutorial.step()?.id).toBe('manual-complete');
+    expect(tutorial.progress()).toEqual({ label: 'Conclusão', current: 2, total: 2 });
     tutorial.next();
     expect(tutorial.step()).toBeNull();
     expect(tutorial.contactPromptVisible()).toBe(true);

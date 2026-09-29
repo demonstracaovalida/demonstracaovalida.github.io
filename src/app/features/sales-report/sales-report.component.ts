@@ -1,3 +1,4 @@
+import { IllustrativeControlDirective } from '../../shared/illustrative-control.directive';
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, type ParamMap } from '@angular/router';
@@ -99,7 +100,7 @@ function weightedRateBasisPoints(
 
 @Component({
   selector: 'app-sales-report',
-  imports: [CommonModule],
+  imports: [CommonModule, IllustrativeControlDirective],
   templateUrl: './sales-report.component.html',
   styleUrl: './sales-report.component.css',
 })

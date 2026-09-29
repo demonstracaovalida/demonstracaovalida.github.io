@@ -1,3 +1,4 @@
+import { IllustrativeControlDirective } from '../../shared/illustrative-control.directive';
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, type ParamMap } from '@angular/router';
@@ -84,7 +85,7 @@ function identifierFor(index: number): string {
 
 @Component({
   selector: 'app-fees-report',
-  imports: [CommonModule],
+  imports: [CommonModule, IllustrativeControlDirective],
   templateUrl: './fees-report.component.html',
   styleUrl: './fees-report.component.css',
 })

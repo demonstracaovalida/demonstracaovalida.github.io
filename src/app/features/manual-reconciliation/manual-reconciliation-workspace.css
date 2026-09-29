@@ -240,7 +240,7 @@
   font-weight: 700;
 }
 
-.matching-tabs button:disabled { color: #9b9fa5; cursor: not-allowed; }
+.matching-tabs button[aria-disabled="true"] { color: #9b9fa5; cursor: not-allowed; }
 
 .matching-tools,
 .matching-actions {

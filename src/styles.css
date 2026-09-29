@@ -26,3 +26,27 @@ app-root {
   display: block;
   min-height: 100vh;
 }
+
+[appIllustrative].illustrative-control {
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+[appIllustrative].illustrative-control:focus-visible {
+  outline: 2px solid #1677ad;
+  outline-offset: 2px;
+}
+
+.illustrative-tooltip {
+  position: fixed;
+  z-index: 1100;
+  max-width: calc(100vw - 16px);
+  padding: 6px 9px;
+  border: 1px solid #73899b;
+  border-radius: 3px;
+  background: #fff;
+  color: #303030;
+  font: 12px/1.4 Arial, Helvetica, sans-serif;
+  box-shadow: 0 2px 5px #0002;
+  pointer-events: none;
+}
