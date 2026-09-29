@@ -1,0 +1,265 @@
+:host {
+  display: block;
+}
+
+.manual-reconciliation {
+  min-height: calc(100vh - 53px);
+  background: #f7f8fa;
+  color: #292d32;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.manual-blue-strip {
+  height: 9px;
+  background: #2877ab;
+}
+
+.manual-menu-row {
+  height: 38px;
+  padding: 2px 8px;
+  border-bottom: 1px dashed #d5d5d5;
+  background: #fff;
+}
+
+.hamburger-icon {
+  width: 22px;
+  display: grid;
+  gap: 5px;
+}
+
+.hamburger-icon i {
+  height: 3px;
+  background: #111;
+}
+
+.manual-tabs {
+  height: 43px;
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  padding: 0 8px;
+  border-bottom: 1px solid #adb0b3;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.status-tab,
+.current-tab {
+  height: 31px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 12px;
+}
+
+.status-tab {
+  min-width: 138px;
+  border-radius: 4px 4px 0 0;
+  color: #fff;
+  background: #7c7f82;
+}
+
+.current-tab {
+  width: 199px;
+  gap: 5px;
+  padding-inline: 9px;
+  border: 1px solid #aeb2b6;
+  border-bottom: 0;
+  border-radius: 4px 4px 0 0;
+  background: #fff;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.current-tab a {
+  margin-left: 2px;
+  color: #1b1b1b;
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.introduction {
+  padding: 199px 16px 40px;
+  text-align: center;
+}
+
+.bank-illustration {
+  width: 80px;
+  height: 76px;
+  display: block;
+  margin: 0 auto 46px;
+}
+
+.introduction h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 34px;
+}
+
+.introduction p {
+  margin: 19px auto 0;
+  color: #78818b;
+  font-size: 16px;
+  line-height: 25px;
+}
+
+.introduction-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 33px;
+}
+
+.new-manual-button,
+.manual-help {
+  height: 54px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 26px;
+  border-radius: 8px;
+  font-size: 17px;
+  font-weight: 400;
+}
+
+.new-manual-button {
+  min-width: 302px;
+  border: 1px solid #1a70e6;
+  color: #fff;
+  background: #1a72e6;
+  cursor: pointer;
+}
+
+.new-manual-button:hover {
+  background: #1667d5;
+}
+
+.manual-help {
+  min-width: 223px;
+  border: 1px solid #d6dce4;
+  background: #fff;
+}
+
+.bank-selection {
+  padding: 42px 27px 50px;
+}
+
+.selection-heading {
+  min-height: 66px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  border: 1px solid #d7dce2;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.selection-heading h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.bank-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.bank-card {
+  width: 339px;
+  min-height: 198px;
+  display: block;
+  padding: 19px 20px;
+  border: 1px solid #d7dce2;
+  border-radius: 9px;
+  color: #292d32;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bank-card:not(:disabled):hover,
+.bank-card:focus-visible,
+.bank-card.selected {
+  border-color: #2477c4;
+  outline: none;
+}
+
+.bank-card:disabled {
+  cursor: default;
+}
+
+.bank-title {
+  display: block;
+  margin-bottom: 17px;
+  font-size: 16px;
+  line-height: 20px;
+}
+
+.bank-details {
+  display: grid;
+  grid-template-columns: 152px 1fr;
+  align-items: center;
+  row-gap: 11px;
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.bank-details > span:nth-child(odd) {
+  color: #78818b;
+}
+
+.pending-status {
+  width: max-content;
+  display: inline-block;
+  padding: 6px 10px;
+  border: 1px solid #f5c9d0;
+  border-radius: 14px;
+  color: #7e3439;
+  background: #ffeaed;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 15px;
+}
+
+@media (max-width: 650px) {
+  .introduction {
+    padding-top: 125px;
+  }
+
+  .desktop-break {
+    display: none;
+  }
+
+  .introduction-actions {
+    flex-wrap: wrap;
+  }
+
+  .bank-card {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  .manual-tabs { overflow-x: auto; }
+  .status-tab { min-width: 104px; padding-inline: 6px; font-size: 12px; white-space: nowrap; }
+  .current-tab { width: 185px; flex: 0 0 185px; padding-inline: 5px; font-size: 11px; }
+  .introduction { padding: 65px 16px 35px; }
+  .bank-illustration { margin-bottom: 23px; }
+  .introduction h1 { font-size: 23px; line-height: 29px; }
+  .introduction p { margin-top: 14px; font-size: 14px; line-height: 21px; }
+  .introduction-actions { gap: 10px; margin-top: 22px; }
+  .new-manual-button,
+  .manual-help { width: min(100%, 320px); min-width: 0; height: 48px; padding-inline: 10px; font-size: 15px; }
+  .bank-selection { padding: 15px 8px 35px; }
+  .selection-heading { padding-inline: 14px; }
+  .bank-list { gap: 10px; }
+  .bank-card { width: 100%; padding: 16px; }
+  .bank-details { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}

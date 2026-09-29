@@ -1,0 +1,259 @@
+<main class="manual-reconciliation" aria-label="Nova Conciliação Manual">
+  <div class="manual-blue-strip" aria-hidden="true"></div>
+  <div class="manual-menu-row">
+    <span appIllustrative class="hamburger-icon" aria-label="Menu da conciliação"><i></i><i></i><i></i></span>
+  </div>
+
+  <div class="manual-tabs">
+    <span appIllustrative class="status-tab">Status Arquivos</span>
+    <span class="current-tab">
+      <span aria-hidden="true">⚙</span>
+      Nova Conciliação Manual
+      <a routerLink="/" aria-label="Fechar Nova Conciliação Manual">×</a>
+    </span>
+  </div>
+
+  @if (stage() === 'intro') {
+    <section class="introduction" aria-labelledby="manual-heading" data-tour="manual-intro">
+      <svg class="bank-illustration" viewBox="0 0 80 80" aria-hidden="true">
+        <path d="M8 30 40 8l32 22v5H8z" fill="#d7e5f0" />
+        <path d="M11 29 40 10l29 19" fill="none" stroke="#a4c0d1" stroke-width="2" />
+        <path d="M10 35h60v5H10zM10 65h60v5H10zM6 70h68v4H6z" fill="#bfd2df" />
+        <path d="M15 40h8v25h-8zm14 0h8v25h-8zm14 0h8v25h-8zm14 0h8v25h-8z" fill="#8ea5b4" />
+        <path d="M17 43h4v19h-4zm14 0h4v19h-4zm14 0h4v19h-4zm14 0h4v19h-4z" fill="#c6d8df" />
+        <circle cx="40" cy="26" r="15" fill="#b9d2e3" />
+        <text x="40" y="35" text-anchor="middle" fill="#2667a8" font-size="27" font-weight="700">$</text>
+      </svg>
+
+      <h1 id="manual-heading">Conciliação Bancária Manual</h1>
+      <p>
+        Vincule manualmente lançamentos do extrato bancário com<br class="desktop-break" />
+        recebimentos, cancelamentos e ajustes. Selecione múltiplos itens<br class="desktop-break" />
+        de cada fonte e valide visualmente a diferença antes de concluir.
+      </p>
+
+      <div class="introduction-actions">
+        <button type="button" class="new-manual-button" data-tour="manual-start" data-tour-action="manual-start" (click)="startNewReconciliation()">
+          <span aria-hidden="true">✚</span> Nova Conciliação Manual
+        </button>
+        <span appIllustrative class="manual-help" aria-label="Manual de Uso">
+          <span aria-hidden="true">📖</span> Manual de Uso
+        </span>
+      </div>
+    </section>
+  } @else if (stage() === 'banks') {
+    <section class="bank-selection" aria-labelledby="bank-selection-heading">
+      <div class="selection-heading">
+        <h1 id="bank-selection-heading">Selecionar Banco Conta</h1>
+      </div>
+
+      <div class="bank-list" data-tour="manual-bank-list">
+        @for (account of bankAccounts(); track account.id) {
+          <button
+            type="button"
+            class="bank-card"
+            data-tour="manual-bank-card"
+            data-tour-action="manual-bank"
+            [disabled]="bankSelectionBlocked()"
+            [class.selected]="selectedBankAccountId() === account.id"
+            [attr.aria-pressed]="selectedBankAccountId() === account.id"
+            (click)="selectBankAccount(account.id)"
+          >
+            <strong class="bank-title"><span aria-hidden="true">🏦</span> {{ account.bankName }}</strong>
+            <span class="bank-details">
+              <span>Agência:</span><span>{{ account.agency }}</span>
+              <span>Conta:</span><span>{{ account.accountNumber }}</span>
+              <span>Último Extrato:</span><span>{{ formatDate(account.lastStatementDate) }}</span>
+              <span>Status:</span><span class="pending-status">{{ account.status }}</span>
+            </span>
+          </button>
+        }
+      </div>
+    </section>
+  } @else if (stage() === 'days') {
+    <section class="days-selection" aria-labelledby="days-heading">
+      <header class="flow-heading">
+        <div>
+          <h1 id="days-heading">Selecionar Extrato Bancário</h1>
+          <p>🏦 Banco: <strong>{{ bankDisplayName() }}</strong>　📋 Conta: <strong>{{ selectedBank()?.accountNumber }}</strong></p>
+        </div>
+        <button type="button" class="change-button" (click)="changeBank()">🔄 Trocar Banco</button>
+      </header>
+
+      <div class="day-filters" aria-label="Filtrar extratos por situação">
+        <button type="button" [class.active]="effectiveDayFilter() === 'all'" (click)="setDayFilter('all')">Todos</button>
+        <button type="button" [class.active]="effectiveDayFilter() === 'pending'" (click)="setDayFilter('pending')"><i class="dot pending-dot"></i> Pendente</button>
+        <button type="button" [class.active]="effectiveDayFilter() === 'in-progress'" (click)="setDayFilter('in-progress')"><i class="dot progress-dot"></i> Conciliando</button>
+        <button type="button" [class.active]="effectiveDayFilter() === 'done'" (click)="setDayFilter('done')"><i class="dot done-dot"></i> Conciliado</button>
+      </div>
+
+      <div class="older-statements">📅 Extratos Mais Antigos</div>
+      <div class="statement-days" data-tour="manual-day-list">
+        @for (day of filteredStatementDays(); track day.date) {
+          <button type="button" class="day-card" data-tour-action="manual-day"
+            [attr.data-tour]="day.date === tutorialManualDate ? 'manual-day-0208' : null"
+            [attr.data-tour-value]="day.date"
+            [disabled]="daySelectionBlocked(day.date)"
+            (click)="selectDay(day.date)">
+            <span class="day-card-top">
+              <strong>{{ formatDate(day.date) }}</strong>
+              <span class="day-status" [class.done]="day.status === 'Conciliado'" [class.pending]="day.status === 'Pendente'">● {{ day.status }}</span>
+            </span>
+            <span class="day-account">Conta: <strong>{{ selectedBank()?.accountNumber }}</strong></span>
+            <span class="day-card-columns">
+              <span class="day-card-column">
+                <strong>📄 EXTRATO</strong>
+                <span>Lançamentos: <b>{{ day.statementCount }}</b></span>
+                <span>Conciliados: <b>{{ day.statementReconciledCount }}</b></span>
+                <span>Pendentes: <b>{{ day.statementCount - day.statementReconciledCount }}</b></span>
+              </span>
+              <span class="day-card-column">
+                <strong>💰 RECEBIMENTOS</strong>
+                <span>Lançamentos: <b>{{ day.receiptCount }}</b></span>
+                <span>Conciliados: <b>{{ day.receiptReconciledCount }}</b></span>
+                <span>Pendentes: <b>{{ day.receiptCount - day.receiptReconciledCount }}</b></span>
+              </span>
+            </span>
+          </button>
+        } @empty {
+          <p class="empty-days">Nenhum extrato nesta situação.</p>
+        }
+      </div>
+    </section>
+  } @else {
+    <section class="matching-stage" aria-labelledby="matching-heading">
+      <header class="flow-heading matching-heading">
+        <div>
+          <h1 id="matching-heading">Conciliação Bancária Manual</h1>
+          <p>🏦 Banco: <strong>{{ bankDisplayName() }}</strong>　📋 Conta: <strong>{{ selectedBank()?.accountNumber }}</strong>　<span class="heading-date">📅 {{ formatDate(selectedDate()!) }}</span></p>
+        </div>
+        <div class="heading-actions">
+          <button type="button" class="reset-button" (click)="resetSimulation()">Reiniciar Simulação</button>
+          <button type="button" class="change-button" (click)="changeBank()">🔄 Trocar Banco</button>
+        </div>
+      </header>
+
+      <nav class="matching-tabs" aria-label="Tipos de conciliação">
+        <span class="matching-tab-current">💳 Conciliação Cartão</span>
+        <button appIllustrative type="button">📱 Conciliação PIX</button>
+        <button appIllustrative type="button">✅ Conciliados</button>
+      </nav>
+
+      <div class="matching-tools">
+        <label for="history-filter">🔍 Filtros</label>
+        <span appIllustrative>📊 Agrupar</span>
+        <button type="button" (click)="clearSelection()">🗑 Limpar Seleção</button>
+        <button type="button" (click)="changeDate()">🔄 Trocar Data</button>
+        <button type="button" (click)="clearSelection()">🔃 Recarregar</button>
+        <span appIllustrative>📖 Manual</span>
+      </div>
+
+      <div class="matching-actions">
+        <span appIllustrative class="automatic-action">🤖 Conciliar Automático</span>
+        <button type="button" class="reconcile-action" data-tour="manual-reconcile" [disabled]="!canReconcile()" (click)="reconcileSelected()">✅ Conciliar Selecionados</button>
+        <span appIllustrative class="zero-action">✅ Conciliar Saldo Zero</span>
+        <span appIllustrative class="ignore-action">⏩ Ignorar Selecionados</span>
+        <span appIllustrative class="negative-action">⏩ Ignorar Negativos</span>
+        <span appIllustrative class="reverse-action">↩ Estornar Conciliação</span>
+      </div>
+
+      <div class="matching-totals" data-tour="manual-totals">
+        <div data-tour="manual-statement-total"><span>Total Extrato</span><strong>{{ formatMoney(selectionTotals().statementAmountCents) }}</strong></div>
+        <div data-tour="manual-counterpart-total"><span>Total Contrapartidas</span><strong>{{ formatMoney(selectionTotals().counterpartAmountCents) }}</strong></div>
+        <div><span>Recebimentos</span><strong>{{ formatMoney(selectionTotals().receiptAmountCents) }}</strong></div>
+        <div><span>Cancelamentos</span><strong>{{ formatMoney(0) }}</strong></div>
+        <div><span>Ajustes</span><strong>{{ formatMoney(selectionTotals().adjustmentAmountCents) }}</strong></div>
+        <div data-tour="manual-difference"><span>Diferença</span><strong [class.balanced]="selectionTotals().differenceCents === 0">{{ formatMoney(selectionTotals().differenceCents) }} @if (selectionTotals().differenceCents === 0) {✓}</strong></div>
+      </div>
+
+      @for (toastId of successToastIds(); track toastId) {
+        <div class="reconciliation-success" role="status">Conciliação realizada com sucesso!</div>
+      }
+
+      <div class="matching-columns">
+        <section class="statement-panel" aria-label="Extrato Bancário" data-tour="manual-statement">
+          <header class="panel-title">
+            <strong>🏦 Extrato Bancário</strong>
+            <button type="button" class="select-all" aria-label="Selecionar todos os lançamentos visíveis" (click)="toggleAllStatements()">☑</button>
+          </header>
+          <div class="statement-search">
+            <input id="history-filter" type="search" placeholder="🔍 Filtrar histórico..." [value]="historySearch()" (input)="setHistorySearch($event)" />
+          </div>
+          <div class="statement-table-scroll">
+            <table class="matching-table statement-table">
+              <thead><tr><th class="checkbox-column"></th><th>Histórico</th><th>Valor</th></tr></thead>
+              <tbody>
+                @for (group of visibleStatementGroups(); track group.key) {
+                  <tr>
+                    <td><input type="checkbox" data-tour-action="manual-statement-selection" [attr.aria-label]="'Selecionar lançamento ' + group.description + ' ' + group.service" [checked]="isGroupSelected(group.statementLineIds, selectedStatementLineIds())" (change)="toggleStatement(group)" /></td>
+                    <td>{{ group.description }}</td>
+                    <td class="positive-value">{{ formatMoney(group.statementAmountCents) }}</td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="3" class="empty-table">Nenhum lançamento pendente.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <div class="panel-total">Total selecionado: {{ formatMoney(selectionTotals().statementAmountCents) }} ({{ selectedStatementGroupCount() }} {{ selectedStatementGroupCount() === 1 ? 'item' : 'itens' }})</div>
+        </section>
+
+        <div class="counterpart-panels">
+          <section class="receipt-panel" aria-label="Recebimentos" data-tour="manual-receipts">
+            <header class="panel-title">
+              <strong>💳 Recebimentos</strong>
+              <button type="button" class="select-all" aria-label="Selecionar todos os recebimentos" (click)="toggleAllReceipts()">☑</button>
+            </header>
+            <div class="receipt-table-scroll">
+              <table class="matching-table receipt-table">
+                <thead><tr><th class="checkbox-column"></th><th>Adquirente</th><th>Bandeira</th><th>Serviço</th><th>Parcelas</th><th>Valor Líquido</th><th>Data Venda</th></tr></thead>
+                <tbody>
+                  @for (group of pendingGroups(); track group.key) {
+                    <tr>
+                      <td><input type="checkbox" data-tour-action="manual-receipt-selection" [attr.aria-label]="'Selecionar recebimento ' + group.brand + ' ' + group.service" [checked]="isGroupSelected(group.receiptIds, selectedReceiptIds())" (change)="toggleReceipt(group)" /></td>
+                      <td>{{ group.acquirer }}</td><td>{{ group.brand }}</td><td>{{ group.service }}</td>
+                      <td>{{ group.installmentCount }}</td><td class="positive-value">{{ formatMoney(group.amountCents) }}</td><td>{{ formatDate(group.saleDate) }}</td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="7" class="empty-table">Nenhum recebimento pendente.</td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            <div class="panel-total">Total selecionado: {{ formatMoney(selectionTotals().receiptAmountCents) }} ({{ selectedReceiptGroupCount() }} {{ selectedReceiptGroupCount() === 1 ? 'item' : 'itens' }})</div>
+          </section>
+
+          <section class="empty-counterpart-panel" aria-label="Ajustes" data-tour="manual-adjustments">
+            <header class="panel-title"><strong>⚙ Ajustes</strong></header>
+            <div class="adjustment-table-scroll">
+            <table class="matching-table adjustment-table">
+              <thead><tr><th class="checkbox-column"></th><th>Data</th><th>Tipo Ajuste</th><th>Adquirente</th><th>Bandeira</th><th>Valor</th></tr></thead>
+              <tbody>
+                @for (adjustment of pendingAdjustments(); track adjustment.id) {
+                  <tr data-tour="manual-adjustment-row">
+                    <td><input type="checkbox" data-tour-action="manual-adjustment-selection" [attr.aria-label]="'Selecionar ajuste ' + adjustment.type" [checked]="selectedAdjustmentIds().includes(adjustment.id)" (change)="toggleAdjustment(adjustment.id)" /></td>
+                    <td>{{ formatDate(adjustment.transactionDate) }}</td>
+                    <td>{{ adjustment.type }}</td>
+                    <td>{{ adjustment.acquirer }}</td>
+                    <td>{{ adjustment.brand }}</td>
+                    <td class="negative-value">{{ formatMoney(adjustment.amountCents) }}</td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="6" class="empty-table">Nenhum ajuste.</td></tr>
+                }
+              </tbody>
+            </table>
+            </div>
+            <div class="panel-total">Total selecionado: {{ formatMoney(selectionTotals().adjustmentAmountCents) }} ({{ selectionTotals().adjustmentCount }} {{ selectionTotals().adjustmentCount === 1 ? 'item' : 'itens' }})</div>
+          </section>
+
+          <section class="empty-counterpart-panel cancellation-panel" aria-label="Cancelamentos">
+            <header class="panel-title"><strong>❌ Cancelamentos</strong></header>
+            <p>Nenhum cancelamento.</p>
+          </section>
+        </div>
+      </div>
+      <div class="difference-badge" [class.balanced]="selectionTotals().differenceCents === 0">Diferença: {{ formatMoney(selectionTotals().differenceCents) }}</div>
+    </section>
+  }
+</main>

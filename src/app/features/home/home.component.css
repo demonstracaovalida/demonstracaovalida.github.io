@@ -1,0 +1,321 @@
+:host {
+  display: block;
+}
+
+.home-screen {
+  width: 100%;
+  margin-inline: auto;
+  min-height: calc(100vh - 53px);
+  padding-bottom: 24px;
+  background: #fff;
+  color: #303030;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.tabs-zone {
+  height: 54px;
+  display: flex;
+  align-items: flex-end;
+  padding-top: 23px;
+}
+
+.tabs-track {
+  width: 65%;
+  height: 31px;
+  display: flex;
+  margin: 0 auto;
+}
+
+.screen-tab {
+  width: 25%;
+  height: 31px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid #bfc1c3;
+  border-bottom: 0;
+  border-radius: 5px 5px 0 0;
+  color: #525252;
+  background: #f8f8f8;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.screen-tab svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: #1680c3;
+  stroke-width: 1.2;
+}
+
+.summary-strip {
+  height: 171px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 23px;
+  margin: 0 17px;
+  padding: 13px 22px 18px;
+  background: #e5e5e5;
+}
+
+.summary-panel {
+  min-width: 0;
+  height: 136px;
+  padding-top: 14px;
+  border-radius: 6px;
+  background: #fff;
+  text-align: center;
+}
+
+.summary-panel h1 {
+  margin: 0 0 3px;
+  color: #124977;
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 23px;
+}
+
+.summary-panel p {
+  margin: 0;
+  color: #173a5a;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.summary-value {
+  margin-top: 5px;
+  font-size: 31px;
+  line-height: 39px;
+  letter-spacing: 0.3px;
+}
+
+.sold-value,
+.received-value {
+  color: #168237;
+}
+
+.paid-value {
+  color: #df2027;
+}
+
+.chart-frame {
+  height: 313px;
+  margin: 18px 17px 0;
+  overflow: hidden;
+  border: 1px solid #d7d7d7;
+  background: #f6f6f6;
+}
+
+.sales-chart {
+  width: 100%;
+  height: 267px;
+  display: block;
+  background: #fff;
+}
+
+@media (min-width: 1100px) and (max-height: 800px) {
+  .chart-frame {
+    height: 255px;
+  }
+
+  .sales-chart {
+    height: 245px;
+  }
+}
+
+.axis-label,
+.date-label {
+  fill: #646464;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.axis-title {
+  fill: #737373;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.report-filters {
+  width: min(946px, calc(100% - 34px));
+  height: 199px;
+  margin: 18px auto 0;
+  border: 1px solid #cbcbcb;
+  background: #f8f8f8;
+  font-size: 12px;
+}
+
+.filter-fields {
+  height: 151px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(105px, 0.36fr) minmax(0, 1.75fr);
+  padding: 8px 8px 0;
+}
+
+.report-type-field,
+.detail-field,
+.criteria-field {
+  min-width: 0;
+}
+
+.report-type-field label,
+.date-field label,
+.acquirer-field label,
+.brand-field label {
+  display: block;
+  margin-bottom: 5px;
+  color: #343434;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.report-type-field select,
+.criteria-field select,
+.criteria-field input {
+  height: 34px;
+  border: 1px solid #78a8cd;
+  border-radius: 0;
+  color: #444;
+  background-color: #fff;
+  font: 12px Arial, Helvetica, sans-serif;
+}
+
+.report-type-field select {
+  width: min(100%, 295px);
+  padding: 0 10px;
+}
+
+.detail-field {
+  margin: 0;
+  padding: 0 5px 0 1px;
+  border: 0;
+}
+
+.detail-field legend {
+  padding: 0;
+  margin-bottom: 5px;
+  color: #343434;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.detail-field label {
+  display: block;
+  height: 18px;
+  color: #202020;
+  white-space: nowrap;
+}
+
+.detail-field input {
+  width: 13px;
+  height: 13px;
+  margin: 0 4px 0 1px;
+  vertical-align: -2px;
+  accent-color: #1689d0;
+}
+
+.criteria-field {
+  display: grid;
+  grid-template-columns: 120px 158px 1fr;
+  grid-template-rows: 55px 55px;
+  column-gap: 48px;
+  row-gap: 4px;
+  padding: 0 7px 7px 3px;
+  border: 1px solid #d0d0d0;
+  background: #fbfbfb;
+}
+
+.date-field,
+.acquirer-field,
+.brand-field {
+  min-width: 0;
+}
+
+.acquirer-field {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.date-field:nth-child(3) {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.brand-field {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.criteria-field input {
+  width: 100%;
+  padding: 0 7px;
+}
+
+.criteria-field select {
+  width: 100%;
+  padding: 0 8px;
+}
+
+.acquirer-field select {
+  width: 100px;
+}
+
+.filter-actions {
+  position: relative;
+  height: 46px;
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid #d4d4d4;
+}
+
+.filter-actions button {
+  width: 57px;
+  height: 35px;
+  margin-top: 6px;
+  border: 1px solid #176e9e;
+  border-radius: 3px;
+  color: #fff;
+  background: #1677ad;
+  font: 12px Arial, Helvetica, sans-serif;
+  cursor: pointer;
+}
+
+.filter-actions button:hover {
+  background: #126b9e;
+}
+
+@media (max-width: 900px) {
+  .tabs-track {
+    width: 85%;
+  }
+
+  .summary-strip {
+    gap: 10px;
+    margin-inline: 8px;
+    padding-inline: 10px;
+  }
+
+  .summary-panel h1 {
+    font-size: 15px;
+  }
+
+  .summary-value {
+    font-size: clamp(15px, 3vw, 24px);
+  }
+
+  .report-filters {
+    width: calc(100% - 16px);
+  }
+
+  .filter-fields {
+    grid-template-columns: minmax(0, 1fr) 96px minmax(0, 1.2fr);
+  }
+
+  .criteria-field {
+    grid-template-columns: minmax(120px, 1fr) minmax(110px, 1fr);
+  }
+}

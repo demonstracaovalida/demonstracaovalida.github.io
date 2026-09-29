@@ -1,0 +1,8 @@
+<app-top-navbar
+  [hidden]="!navbarVisible"
+  [class.navbar-hidden]="!navbarVisible"
+></app-top-navbar>
+<main class="application-main">
+  <router-outlet (activate)="routeActivated($event)"></router-outlet>
+</main>
+<app-tutorial-overlay></app-tutorial-overlay>

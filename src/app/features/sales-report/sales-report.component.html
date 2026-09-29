@@ -1,0 +1,196 @@
+<main class="sales-report" aria-label="Relatório de vendas">
+  <header class="report-header" data-tour="report-heading">
+    <h1>
+      Status Conciliação da Parcela entre
+      {{ formatDate(filters.startDate ?? '2026-08-01') }} e
+      {{ formatDate(filters.endDate ?? '2026-08-31') }}
+    </h1>
+    <div class="report-company">
+      {{ currentCompany()?.cnpj }} - {{ currentCompany()?.legalName }}
+    </div>
+  </header>
+
+  <div class="report-toolbar" aria-label="Ações do relatório">
+    <div class="export-actions">
+      <button appIllustrative type="button" class="toolbar-button">PDF</button>
+      <button appIllustrative type="button" class="toolbar-button">Excel</button>
+    </div>
+    <button
+      type="button"
+      class="toolbar-button pending-filter"
+      [class.pending-active]="pendingOnly()"
+      [attr.aria-pressed]="pendingOnly()"
+      (click)="togglePendingOnly()"
+    >
+      Filtrar Pendentes
+    </button>
+  </div>
+
+  <div class="report-table-scroll">
+    <table class="group-table" aria-label="Vendas agrupadas por dia" data-tour="sales-table">
+      <colgroup>
+        <col class="expand-column" />
+        <col class="network-column" />
+        <col class="brand-column" />
+        <col class="service-column" />
+        <col class="financing-column" />
+        <col class="rate-column" />
+        <col class="rate-applied-column" />
+        <col class="gross-column" />
+        <col class="pending-column" />
+        <col class="validated-column" />
+      </colgroup>
+      <tbody>
+        @if (reportDays().length === 0) {
+          <tr class="column-header">
+            <th aria-label="Detalhamento"></th>
+            <th>Rede</th>
+            <th>Bandeira</th>
+            <th>Serviço</th>
+            <th>Financiamento</th>
+            <th>Taxa</th>
+            <th>Taxa Apurada</th>
+            <th>Total Vendido</th>
+            <th>Pendente</th>
+            <th>Validado</th>
+          </tr>
+          <tr>
+            <td colspan="10" class="empty-report">Nenhuma venda encontrada para os filtros informados.</td>
+          </tr>
+        }
+
+        @for (day of reportDays(); track day.date) {
+          <tr class="date-band">
+            <td colspan="10">{{ formatDate(day.date) }}</td>
+          </tr>
+          <tr class="column-header">
+            <th aria-label="Detalhamento"></th>
+            <th>Rede</th>
+            <th>Bandeira</th>
+            <th>Serviço</th>
+            <th>Financiamento</th>
+            <th>Taxa</th>
+            <th>Taxa Apurada</th>
+            <th>Total Vendido</th>
+            <th>Pendente</th>
+            <th>Validado</th>
+          </tr>
+          @for (group of day.groups; track group.key) {
+            <tr class="group-row" [attr.data-group-key]="group.key">
+              <td class="expand-cell">
+                <button
+                  type="button"
+                  class="expand-button"
+                  data-tour="sales-expand"
+                  data-tour-action="sales-expand"
+                  [attr.aria-label]="(isExpanded(group) ? 'Recolher' : 'Expandir') + ' ' + group.brand"
+                  [attr.aria-expanded]="isExpanded(group)"
+                  (click)="toggleGroup(group)"
+                >
+                  {{ isExpanded(group) ? '−' : '+' }}
+                </button>
+              </td>
+              <td>{{ group.acquirer }}</td>
+              <td>{{ group.brand }}</td>
+              <td>{{ group.service }}</td>
+              <td>{{ group.financing }}</td>
+              <td class="rate-cell">{{ formatRate(group.contractRateBasisPoints) }}</td>
+              <td class="rate-cell">{{ formatRate(group.practicedRateBasisPoints) }}</td>
+              <td class="amount-cell">{{ formatCurrency(group.totals.grossAmountCents) }}</td>
+              <td class="percent-cell pending-text">{{ formatPercent(group.pendingPercent) }}</td>
+              <td class="percent-cell validated-text">{{ formatPercent(group.validatedPercent) }}</td>
+            </tr>
+
+            @if (isExpanded(group)) {
+              <tr class="detail-row">
+                <td colspan="10">
+                  <div class="detail-table-scroll" data-tour="sales-details">
+                    <table class="detail-table" aria-label="Detalhamento das vendas do grupo">
+                      <colgroup>
+                        <col class="detail-date-column" />
+                        <col class="detail-date-column" />
+                        <col class="detail-service-column" />
+                        <col class="detail-financing-column" />
+                        <col class="detail-nsu-column" />
+                        <col class="detail-auth-column" />
+                        <col class="detail-installment-column" />
+                        <col class="detail-number-column" />
+                        <col class="detail-value-column" />
+                        <col class="detail-value-column" />
+                        <col class="detail-fee-column" />
+                        <col class="detail-rate-column" />
+                        <col class="detail-status-column" />
+                        <col class="detail-status-column" />
+                      </colgroup>
+                      <thead>
+                        <tr>
+                          <th>Data Venda</th>
+                          <th>Data Depósito</th>
+                          <th>Serviço</th>
+                          <th>Financiamento</th>
+                          <th>Nsu</th>
+                          <th>Autorização</th>
+                          <th>Parcelas</th>
+                          <th>Número Parcela</th>
+                          <th>Valor Parcela</th>
+                          <th>Valor Líquido</th>
+                          <th>Valor Taxa (R$)</th>
+                          <th>Taxa %</th>
+                          <th>Status Venda</th>
+                          <th>Status Recebimento</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (item of group.details; track item.sale.id) {
+                          <tr>
+                            <td>{{ formatDate(item.sale.saleDate) }}</td>
+                            <td>{{ formatDate(item.receipt.receivedDate) }}</td>
+                            <td>{{ item.sale.service }}</td>
+                            <td>{{ item.sale.financing }}</td>
+                            <td>{{ item.sale.nsu }}</td>
+                            <td>{{ item.sale.authorizationCode }}</td>
+                            <td class="center-cell">{{ item.sale.installmentCount }}</td>
+                            <td class="center-cell">{{ item.sale.installmentNumber }}</td>
+                            <td class="amount-cell">{{ formatCurrency(item.sale.grossAmountCents) }}</td>
+                            <td class="amount-cell">{{ formatCurrency(item.fee.netAmountCents) }}</td>
+                            <td class="amount-cell">{{ formatCurrency(item.fee.amountCents) }}</td>
+                            <td class="rate-cell">{{ formatRate(item.fee.practicedRateBasisPoints) }}</td>
+                            <td class="sale-status">{{ item.sale.status }}</td>
+                            <td [class.pending-text]="item.receipt.status === 'Pendente'" [class.validated-text]="item.receipt.status === 'Conciliado'">
+                              {{ item.receipt.status }}
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+
+          <tr class="day-total">
+            <td colspan="7"></td>
+            <td class="amount-cell">{{ formatCurrency(day.grossAmountCents) }}</td>
+            <td colspan="2"></td>
+          </tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr class="general-total" data-tour="sales-total">
+          <td colspan="7">Total Geral ({{ groupCount() }})</td>
+          <td class="amount-cell">{{ formatCurrency(reportTotals().grossAmountCents) }}</td>
+          <td colspan="2"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="report-pagination" aria-live="polite">
+    @if (groupCount() === 0) {
+      <span>0 a 0 de 0</span>
+    } @else {
+      <span>1 a {{ groupCount() }} de {{ groupCount() }}</span>
+    }
+  </div>
+</main>

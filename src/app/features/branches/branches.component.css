@@ -1,0 +1,81 @@
+:host {
+  display: block;
+}
+
+.branches-panel {
+  width: 90%;
+  max-width: 2280px;
+  margin: 21px auto 0;
+  padding: 2px;
+  border: 1px solid #d0d0d0;
+  background: #fff;
+  font: 13px Arial, Helvetica, sans-serif;
+}
+
+.branches-panel h1 {
+  height: 50px;
+  margin: 0;
+  padding: 21px 7px 7px;
+  border-bottom: 1px dashed #d0d0d0;
+  color: #236896;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.branches-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.cnpj-column { width: 21.4%; }
+.legal-name-column { width: 42.2%; }
+.trade-name-column { width: 36.4%; }
+
+.branches-table th,
+.branches-table td {
+  height: 33px;
+  padding: 6px 10px;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.branches-table th {
+  height: 40px;
+  color: #fff;
+  background: #2573a7;
+  font-weight: 700;
+}
+
+.branches-table td {
+  border-right: 1px solid #d0d0d0;
+  border-bottom: 1px solid #d0d0d0;
+  color: #151515;
+}
+
+.branches-table td:first-child {
+  border-left: 1px solid #d0d0d0;
+}
+
+.branches-table tbody tr:nth-child(even) {
+  background: #f7f7f7;
+}
+
+.branches-table .cnpj-cell {
+  color: #344967;
+  font-weight: 700;
+}
+
+.branches-table .current-company td {
+  color: #b62512;
+  font-weight: 700;
+}
+
+@media (max-width: 767px) {
+  .branches-panel { width: calc(100% - 16px); margin-top: 12px; }
+  .branches-table-scroll { width: 100%; overflow-x: auto; }
+  .branches-table { min-width: 640px; }
+}

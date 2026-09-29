@@ -1,0 +1,24 @@
+.criteria-field input.invalid-date {
+  border-color: #b62512;
+}
+
+.date-error {
+  position: absolute;
+  top: 9px;
+  right: calc(50% + 41px);
+  max-width: calc(50% - 53px);
+  margin: 0;
+  color: #b62512;
+  font: 11px/1.25 Arial, Helvetica, sans-serif;
+  text-align: right;
+}
+
+.filter-actions button:disabled {
+  border-color: #899099;
+  background: #989fa8;
+  cursor: not-allowed;
+}
+
+@media (max-width: 767px) {
+  .date-error { position: static; max-width: none; margin: 0 0 6px; text-align: center; }
+}

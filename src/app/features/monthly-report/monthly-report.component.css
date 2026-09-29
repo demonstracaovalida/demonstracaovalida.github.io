@@ -1,0 +1,254 @@
+:host {
+  display: block;
+}
+
+.monthly-report {
+  width: 100%;
+  min-width: 0;
+  color: #363636;
+  background: #fff;
+  font: 14px Arial, Helvetica, sans-serif;
+}
+
+.monthly-header {
+  min-height: 73px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 8px 5px;
+  border-bottom: 1px solid #c9c9c9;
+}
+
+.monthly-header h1 {
+  margin: 0;
+  color: #287ba4;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.monthly-company {
+  margin-left: auto;
+  color: #307aa1;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.monthly-toolbar {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 8px;
+  border-bottom: 1px solid #c9c9c9;
+  background: #f8f8f8;
+}
+
+.export-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.toolbar-button {
+  min-height: 29px;
+  padding: 3px 10px;
+  border: 1px solid #1a6f9d;
+  border-radius: 2px;
+  color: #fff;
+  background: #287da8;
+  font: 13px Arial, Helvetica, sans-serif;
+  cursor: pointer;
+}
+
+.toolbar-button:hover {
+  background: #176a95;
+}
+
+.exit-button {
+  min-width: 39px;
+}
+
+.monthly-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.monthly-table {
+  width: 100%;
+  min-width: 1280px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.monthly-table th,
+.monthly-table td {
+  height: 62px;
+  padding: 5px 8px;
+  border-right: 1px solid #d1d1d1;
+  border-bottom: 1px solid #d1d1d1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.monthly-table th {
+  height: 36px;
+  color: #fff;
+  background: #287aa4;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.monthly-table thead th:not(:empty):nth-child(-n + 2)::after,
+.monthly-table thead th:nth-child(10)::after {
+  content: '↕';
+  float: right;
+  color: #d7e6ef;
+  font-size: 10px;
+}
+
+.monthly-table tbody .monthly-row:nth-child(odd) {
+  background: #fff;
+}
+
+.monthly-table tbody .monthly-row:nth-child(even) {
+  background: #f6f6f6;
+}
+
+.product-column { width: 14%; }
+.service-column { width: 9.5%; }
+.gross-column { width: 9%; }
+.fee-column { width: 8%; }
+.adjustment-column { width: 9.5%; }
+.action-column { width: 3%; }
+.cancellation-column { width: 9.5%; }
+.received-column { width: 9.5%; }
+.rates-column { width: 16%; }
+.downloaded-column { width: 7%; }
+
+.product-cell span,
+.product-cell strong,
+.service-cell span {
+  display: block;
+}
+
+.product-cell strong {
+  font-weight: 700;
+}
+
+.service-cell,
+.product-cell {
+  line-height: 16px;
+}
+
+.money-cell {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.action-cell {
+  padding: 3px !important;
+  text-align: center;
+}
+
+.detail-plus {
+  width: 13px;
+  height: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #f07a25;
+  border-radius: 50%;
+  color: #f07a25;
+  font: 12px/11px Arial, Helvetica, sans-serif;
+}
+
+.rates-cell {
+  font-size: 12px;
+  line-height: 15px;
+  white-space: nowrap;
+}
+
+.rates-cell strong {
+  color: #287ba4;
+  font-weight: 700;
+}
+
+.downloaded-cell {
+  color: #d82d2d;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.downloaded-complete {
+  color: #0000c8;
+}
+
+.empty-monthly {
+  height: 54px !important;
+  text-align: center;
+}
+
+.monthly-totals {
+  min-height: 160px;
+  padding: 0 8px 7px;
+  border-bottom: 1px solid #d1d1d1;
+  background: #f4f0d4;
+}
+
+.monthly-totals h2 {
+  height: 40px;
+  margin: 0 -8px 5px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  border-bottom: 1px solid #dedac1;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.monthly-totals dl {
+  margin: 0;
+}
+
+.monthly-totals dl > div {
+  display: grid;
+  grid-template-columns: 320px 100px;
+  line-height: 16px;
+}
+
+.monthly-totals dt,
+.monthly-totals dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.monthly-pagination {
+  min-height: 28px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 2px 9px;
+  border-top: 1px solid #d1d1d1;
+  color: #666;
+  font-size: 12px;
+}
+
+@media (max-width: 700px) {
+  .monthly-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .monthly-company {
+    margin-left: 0;
+  }
+
+  .monthly-header { padding-bottom: 10px; }
+  .monthly-header h1 { line-height: 21px; }
+  .monthly-company { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+  .monthly-totals dl > div { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 2px 0; }
+  .monthly-totals dt { min-width: 0; }
+  .monthly-totals dd { white-space: nowrap; text-align: right; }
+}

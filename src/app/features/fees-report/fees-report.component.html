@@ -1,0 +1,107 @@
+<main class="fees-report" aria-label="Taxas Administrativas">
+  <header class="fees-header" data-tour="report-heading">
+    <h1>
+      Taxas Administrativas entre
+      {{ formatDate(filters.startDate ?? '2026-08-01') }} e
+      {{ formatDate(filters.endDate ?? '2026-08-31') }}
+    </h1>
+    <div class="fees-company">
+      {{ currentCompany()?.cnpj }} - {{ currentCompany()?.legalName }}
+    </div>
+  </header>
+
+  <div class="fees-toolbar" aria-label="Ações de taxas">
+    <button appIllustrative type="button" class="export-button">
+      <svg viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M2 1.5h8l3.5 3.5v9.5H2zM10 1.5V5h3.5M4 8h7M4 10.5h7M4 13h5" />
+      </svg>
+      Exportação
+      <span class="caret" aria-hidden="true"></span>
+    </button>
+    <button type="button" class="exit-button" (click)="exitReport()">Sair</button>
+  </div>
+
+  <div class="fees-table-scroll">
+    <table class="fees-table" aria-label="Taxas Administrativas por configuração" data-tour="fees-table">
+      <colgroup>
+        <col class="edit-column" />
+        <col class="id-column" />
+        <col class="acquirer-column" />
+        <col class="brand-column" />
+        <col class="service-column" />
+        <col class="financing-column" />
+        <col class="contract-column" />
+        <col class="practiced-column" />
+        <col class="history-column" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th aria-label="Editar"></th>
+          <th>Id</th>
+          <th>Adquirente</th>
+          <th>Bandeira</th>
+          <th>Serviço</th>
+          <th>Financiamento</th>
+          <th>Taxa Contrato (%)</th>
+          <th>Taxa Praticada (%)</th>
+          <th>Historico de Taxas</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (acquirerGroups().length === 0) {
+          <tr>
+            <td colspan="9" class="empty-fees">Nenhuma taxa encontrada para os filtros informados.</td>
+          </tr>
+        }
+
+        @for (group of acquirerGroups(); track group.acquirer) {
+          <tr class="acquirer-band" data-tour="fees-group">
+            <td colspan="9">
+              <button
+                type="button"
+                class="acquirer-toggle"
+                [attr.aria-label]="(isExpanded(group.acquirer) ? 'Recolher' : 'Expandir') + ' ' + group.acquirer"
+                [attr.aria-expanded]="isExpanded(group.acquirer)"
+                (click)="toggleAcquirer(group.acquirer)"
+              >
+                {{ isExpanded(group.acquirer) ? '−' : '+' }}
+              </button>
+              <strong>Adquirente</strong>&nbsp; {{ group.acquirer }}
+            </td>
+          </tr>
+          @if (isExpanded(group.acquirer)) {
+            @for (row of group.rows; track row.key) {
+              <tr class="fee-row" [attr.data-tour]="row.brand === 'Ticket' ? 'fees-rate fees-ticket' : 'fees-rate'" [attr.data-config-key]="row.key">
+                <td class="edit-cell">
+                  <span appIllustrative class="edit-icon" aria-label="Editar taxa">
+                    <svg viewBox="0 0 16 16"><path d="m2 11.8 8.8-8.9 2.2 2.2-8.9 8.8L1.7 14zM10 3.8l2.2 2.2" /></svg>
+                  </span>
+                </td>
+                <td>{{ row.id }}</td>
+                <td>{{ row.acquirer }}</td>
+                <td>{{ row.brand }}</td>
+                <td>{{ row.service }}</td>
+                <td>{{ row.financing }}</td>
+                <td [class.rate-mismatch]="row.contractRateBasisPoints !== row.practicedRateBasisPoints">
+                  {{ formatRate(row.contractRateBasisPoints) }}
+                </td>
+                <td class="practiced-rate" [class.rate-mismatch]="row.contractRateBasisPoints !== row.practicedRateBasisPoints">
+                  {{ formatRate(row.practicedRateBasisPoints) }}
+                </td>
+                <td class="history-cell">
+                  <span appIllustrative class="history-icon" aria-label="Histórico de taxas">
+                    <svg viewBox="0 0 16 16">
+                      <path class="bar-red" d="M2 9h3v5H2z" />
+                      <path class="bar-green" d="M6.5 5h3v9h-3z" />
+                      <path class="bar-blue" d="M11 2h3v12h-3z" />
+                    </svg>
+                  </span>
+                </td>
+              </tr>
+            }
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</main>
