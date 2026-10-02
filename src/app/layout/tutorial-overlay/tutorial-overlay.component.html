@@ -19,7 +19,7 @@
     }
     <p>{{ step.text }}</p>
     @if (step.kind === 'informativa') {
-      <button class="tutorial-next" type="button" aria-label="Próxima etapa" (click)="next()">&gt;</button>
+      <button class="tutorial-next" type="button" [attr.aria-label]="step.id === 'report-return' ? 'Continuar tutorial na aba principal' : 'Próxima etapa'" (click)="next()">&gt;</button>
     } @else {
       <span class="tutorial-wait">{{ step.kind === 'navegacao' ? 'Aguardando navegação' : 'Aguardando sua ação' }}</span>
     }

@@ -38,7 +38,7 @@ export const TUTORIAL_STEPS: Readonly<Record<string, TutorialStep>> = {
     text: 'As datas já estão preenchidas de 01/08/2026 a 31/08/2026. Mantenha o período para gerar agosto inteiro ou altere-o. Avance para Gerar.', next: 'home-generate',
   },
   'home-generate': {
-    kind: 'interativa', route: '/', targets: ['home-start-date', 'home-end-date', 'home-generate'], action: 'home-generate',
+    kind: 'interativa', route: '/', targets: ['home-generate'], action: 'home-generate',
     text: 'Clique em Gerar para abrir o relatório escolhido com os seus filtros.', next: 'report-wait',
   },
   'home-select-sales': {
@@ -68,17 +68,17 @@ export const TUTORIAL_STEPS: Readonly<Record<string, TutorialStep>> = {
     next: 'home-generate-full-month',
   },
   'home-generate-sales': {
-    kind: 'interativa', route: '/', targets: ['home-start-date', 'home-end-date', 'home-generate'], action: 'home-generate',
+    kind: 'interativa', route: '/', targets: ['home-generate'], action: 'home-generate',
     text: 'Clique em Gerar para abrir o Relatório de Vendas com os filtros escolhidos.', next: 'report-wait',
   },
   'home-generate-full-month': {
-    kind: 'interativa', route: '/', targets: ['home-filters'], action: 'home-generate',
+    kind: 'interativa', route: '/', targets: ['home-generate'], action: 'home-generate',
     text: 'Clique em Gerar para abrir o Resultado Mensal com o período e os filtros escolhidos.',
     next: 'report-wait',
   },
   'report-wait': {
     kind: 'navegacao', route: '/', targets: ['home-chart'],
-    text: 'Explore o relatório na nova aba. Ao concluir, volte aqui para continuar a visita.',
+    text: 'Explore o relatório na nova aba. Quando aparecer a mensagem final, clique no botão > para continuar o tutorial aqui.',
   },
   'sales-overview': {
     kind: 'informativa', route: '/relatorio-vendas', targets: ['sales-table'],
@@ -122,7 +122,7 @@ export const TUTORIAL_STEPS: Readonly<Record<string, TutorialStep>> = {
   },
   'report-return': {
     kind: 'informativa', route: '*', targets: ['report-heading'],
-    text: 'Volte à aba principal para continuar a visita pelos relatórios e demais telas. Este relatório permanece disponível nesta aba.',
+    text: 'Clique no botão > abaixo para concluir esta etapa e continuar o tutorial na aba principal. Este relatório permanecerá aberto nesta aba.',
   },
   'branches-navigation': {
     kind: 'navegacao', route: '/', targets: ['nav-branches'], destination: '/filiais',

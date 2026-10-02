@@ -32,6 +32,30 @@ describe('ManualReconciliationComponent', () => {
     );
   });
 
+  it('keeps Nova Conciliação Manual unavailable until the tutorial asks for it', () => {
+    const fixture = TestBed.createComponent(ManualReconciliationComponent);
+    const tutorial = TestBed.inject(TutorialService);
+    fixture.detectChanges();
+    tutorial.startManual();
+    fixture.detectChanges();
+
+    const rendered = fixture.nativeElement as HTMLElement;
+    const button = rendered.querySelector<HTMLButtonElement>('.new-manual-button')!;
+    expect(tutorial.step()?.id).toBe('manual-intro');
+    expect(button.disabled).toBe(true);
+    button.click();
+    fixture.detectChanges();
+    expect(rendered.querySelector('.introduction')).toBeTruthy();
+
+    tutorial.next();
+    fixture.detectChanges();
+    expect(tutorial.step()?.id).toBe('manual-start');
+    expect(button.disabled).toBe(false);
+    button.click();
+    fixture.detectChanges();
+    expect(rendered.querySelector('.bank-selection')).toBeTruthy();
+  });
+
   it('uses the central bank account and retains the selected account in the session', () => {
     const fixture = TestBed.createComponent(ManualReconciliationComponent);
     fixture.detectChanges();

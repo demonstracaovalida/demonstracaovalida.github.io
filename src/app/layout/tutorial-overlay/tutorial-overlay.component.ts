@@ -124,12 +124,22 @@ export class TutorialOverlayComponent {
       this.optionalTimer = null;
     }
 
+    if ((step.id === 'manual-statement' || step.id === 'manual-reconcile') &&
+        this.scrolledStep !== step.id) {
+      this.scrolledStep = step.id;
+      (document.scrollingElement ?? document.documentElement).scrollTop = 0;
+      this.scheduleMeasurement();
+      return;
+    }
+
     const first = elements[0];
     const firstRect = first.getBoundingClientRect();
+    const firstFitsViewport = firstRect.height <= height - 16;
     if (this.scrolledStep !== step.id &&
-        (firstRect.top < 8 || firstRect.bottom > height - 8)) {
+        (firstRect.top < 8 ||
+          (firstFitsViewport ? firstRect.bottom > height - 8 : firstRect.top > height - 8))) {
       this.scrolledStep = step.id;
-      first.scrollIntoView({ block: 'center', behavior: 'auto' });
+      first.scrollIntoView({ block: firstFitsViewport ? 'center' : 'start', behavior: 'auto' });
       this.scheduleMeasurement();
       return;
     }

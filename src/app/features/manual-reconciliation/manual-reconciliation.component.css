@@ -134,8 +134,13 @@
   cursor: pointer;
 }
 
-.new-manual-button:hover {
+.new-manual-button:hover:not(:disabled) {
   background: #1667d5;
+}
+
+.new-manual-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .manual-help {

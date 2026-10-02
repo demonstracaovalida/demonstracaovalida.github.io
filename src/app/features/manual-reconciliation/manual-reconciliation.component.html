@@ -33,7 +33,7 @@
       </p>
 
       <div class="introduction-actions">
-        <button type="button" class="new-manual-button" data-tour="manual-start" data-tour-action="manual-start" (click)="startNewReconciliation()">
+        <button type="button" class="new-manual-button" data-tour="manual-start" data-tour-action="manual-start" [disabled]="tutorial.step()?.id === 'manual-intro'" (click)="startNewReconciliation()">
           <span aria-hidden="true">✚</span> Nova Conciliação Manual
         </button>
         <span appIllustrative class="manual-help" aria-label="Manual de Uso">

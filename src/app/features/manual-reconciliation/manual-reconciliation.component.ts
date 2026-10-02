@@ -35,7 +35,7 @@ const MONEY_FORMATTER = new Intl.NumberFormat('pt-BR', {
 })
 export class ManualReconciliationComponent {
   private readonly demoState = inject(DemoStateService);
-  private readonly tutorial = inject(TutorialService);
+  protected readonly tutorial = inject(TutorialService);
   private readonly destroyRef = inject(DestroyRef);
   private successTimer: ReturnType<typeof setTimeout> | null = null;
   private successToastSequence = 0;
@@ -147,6 +147,7 @@ export class ManualReconciliationComponent {
   }
 
   protected startNewReconciliation(): void {
+    if (this.tutorial.step()?.id === 'manual-intro') return;
     this.setStage('banks');
   }
 
@@ -162,6 +163,9 @@ export class ManualReconciliationComponent {
     this.demoState.selectStatementDate(date);
     this.historySearch.set('');
     this.setStage('matching');
+    requestAnimationFrame(() => {
+      (document.scrollingElement ?? document.documentElement).scrollTop = 0;
+    });
   }
 
   protected daySelectionBlocked(date: IsoDate): boolean {
