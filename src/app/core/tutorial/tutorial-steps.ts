@@ -31,7 +31,7 @@ export const TUTORIAL_STEPS: Readonly<Record<string, TutorialStep>> = {
   },
   'home-filters': {
     kind: 'informativa', route: '/', targets: ['home-filters'],
-    text: 'Você pode ajustar detalhamento, adquirente e bandeira. Essas escolhas filtram o relatório gerado.', next: 'home-dates',
+    text: 'Você pode ajustar adquirente e bandeira. Essas escolhas filtram o relatório gerado.', next: 'home-dates',
   },
   'home-dates': {
     kind: 'informativa', route: '/', targets: ['home-start-date', 'home-end-date'],

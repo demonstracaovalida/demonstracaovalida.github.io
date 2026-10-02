@@ -92,6 +92,10 @@ describe('HomeComponent', () => {
     const openSpy = vi.spyOn(window, 'open').mockReturnValue({ postMessage: vi.fn() } as unknown as Window);
     const component = fixture.componentInstance as unknown as { reportType: string; generate: () => void };
 
+    const detailOptions = screen.querySelectorAll<HTMLInputElement>('.detail-field input');
+    expect(detailOptions).toHaveLength(1);
+    expect(detailOptions[0].value).toBe('summary');
+    expect(detailOptions[0].checked).toBe(true);
     expect(screen.querySelector<HTMLInputElement>('#start-date')?.value).toBe('2026-08-01');
     expect(screen.querySelector<HTMLInputElement>('#end-date')?.value).toBe('2026-08-31');
     tutorial.startHome();
@@ -285,7 +289,6 @@ describe('HomeComponent', () => {
     const component = fixture.componentInstance as unknown as {
       acquirer: string;
       brand: string;
-      detailLevel: string;
       endDate: string;
       generate: () => void;
       reportType: string;
@@ -297,13 +300,12 @@ describe('HomeComponent', () => {
     component.acquirer = 'all';
     component.brand = brand;
     component.reportType = 'sales';
-    component.detailLevel = 'detail';
     component.generate();
     fixture.detectChanges();
 
     expect(component.submittedFilters()).toEqual({
       reportType: 'sales',
-      detailLevel: 'detail',
+      detailLevel: 'summary',
       startDate: '2026-08-01',
       endDate: '2026-08-31',
       dateBasis: 'sale',
@@ -315,7 +317,7 @@ describe('HomeComponent', () => {
     const parsedUrl = new URL(String(reportUrl), 'http://localhost');
     expect(parsedUrl.pathname).toBe('/relatorio-vendas');
     expect(parsedUrl.searchParams.get('reportType')).toBe('sales');
-    expect(parsedUrl.searchParams.get('detailLevel')).toBe('detail');
+    expect(parsedUrl.searchParams.get('detailLevel')).toBe('summary');
     expect(parsedUrl.searchParams.get('startDate')).toBe('2026-08-01');
     expect(parsedUrl.searchParams.get('endDate')).toBe('2026-08-31');
     expect(parsedUrl.searchParams.get('dateBasis')).toBe('sale');
@@ -384,14 +386,12 @@ describe('HomeComponent', () => {
     const component = fixture.componentInstance as unknown as {
       acquirer: string;
       brand: string;
-      detailLevel: string;
       endDate: string;
       generate: () => void;
       reportType: string;
       startDate: string;
     };
     component.reportType = 'monthly';
-    component.detailLevel = 'summary';
     component.startDate = '2026-08-05';
     component.endDate = '2026-08-27';
     component.acquirer = 'Cielo';

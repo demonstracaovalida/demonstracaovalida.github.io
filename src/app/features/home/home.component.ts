@@ -14,7 +14,6 @@ import { FormsModule } from '@angular/forms';
 import { calculateTotals } from '../../core/demo-data/demo-calculations';
 import type {
   DemoFilters,
-  DetailLevel,
   IsoDate,
   PaymentBrand,
   ReportType,
@@ -87,7 +86,6 @@ export class HomeComponent {
   });
 
   protected reportType: ReportType | '' = '';
-  protected detailLevel: DetailLevel = 'summary';
   protected startDate = DEMO_START_DATE;
   protected endDate = DEMO_END_DATE;
   protected readonly minimumDate = DEMO_START_DATE;
@@ -218,7 +216,7 @@ export class HomeComponent {
 
     const filters: DemoFilters = {
       reportType: this.reportType || undefined,
-      detailLevel: this.detailLevel,
+      detailLevel: 'summary',
       startDate: this.startDate as IsoDate,
       endDate: this.endDate as IsoDate,
       dateBasis: 'sale',
@@ -236,7 +234,7 @@ export class HomeComponent {
     ) {
       const query = new URLSearchParams({
         reportType: filters.reportType,
-        detailLevel: filters.detailLevel ?? 'summary',
+        detailLevel: 'summary',
         startDate: filters.startDate ?? '2026-08-01',
         endDate: filters.endDate ?? '2026-08-31',
         dateBasis: filters.dateBasis ?? 'sale',
